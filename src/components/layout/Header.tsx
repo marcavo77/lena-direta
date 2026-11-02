@@ -31,13 +31,13 @@ export function Header() {
 
         {/* Navigation Desktop */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-stone-300">
-          <Link href="#catalogue" className="hover:text-amber-400 transition-colors">
+          <Link href="/catalogue" className="hover:text-amber-400 transition-colors">
             Nos Combustibles
           </Link>
-          <Link href="#simulateur" className="hover:text-amber-400 transition-colors">
+          <Link href="/#simulateur" className="hover:text-amber-400 transition-colors">
             Calculateur de Stères
           </Link>
-          <Link href="#livraison" className="hover:text-amber-400 transition-colors">
+          <Link href="/#livraison" className="hover:text-amber-400 transition-colors">
             Zones &amp; Livraison
           </Link>
         </nav>

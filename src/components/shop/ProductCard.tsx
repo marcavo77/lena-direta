@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { Droplet, ShoppingCart, Check, Trees, Truck } from "lucide-react"
 import type { Product } from "@/lib/supabase/database.types"
 import { formatPrice } from "@/lib/utils"
@@ -15,7 +16,9 @@ export function ProductCard({ product }: ProductCardProps) {
   const [added, setAdded] = useState(false)
   const addItem = useCartStore((s) => s.addItem)
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
     addItem(product, 1)
     setAdded(true)
     setTimeout(() => setAdded(false), 2000)
@@ -27,16 +30,16 @@ export function ProductCard({ product }: ProductCardProps) {
       : null
 
   return (
-    <div className="bg-stone-900 rounded-xl overflow-hidden border border-stone-800 hover:border-stone-700 transition-colors flex flex-col justify-between">
+    <div className="bg-stone-900 rounded-xl overflow-hidden border border-stone-800 hover:border-stone-700 transition-colors flex flex-col justify-between group">
       <div>
-        {/* Photo Réelle & Badges Techniques */}
-        <div className="relative aspect-[4/3] w-full overflow-hidden bg-stone-950">
+        {/* Photo Réelle & Badges Techniques avec Lien Produit */}
+        <Link href={`/produit/${product.slug}`} className="block relative aspect-[4/3] w-full overflow-hidden bg-stone-950">
           <Image
             src={product.image_url}
             alt={product.name}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-cover"
+            className="object-cover group-hover:scale-102 transition-transform duration-300"
           />
 
           {/* Badge officiel supérieur */}
@@ -53,7 +56,7 @@ export function ProductCard({ product }: ProductCardProps) {
               <span>&lt; {product.humidity_rate}% humidité certifié</span>
             </div>
           )}
-        </div>
+        </Link>
 
         {/* Détails du combustible */}
         <div className="p-5">
@@ -76,9 +79,11 @@ export function ProductCard({ product }: ProductCardProps) {
             )}
           </div>
 
-          <h3 className="font-bold text-stone-100 text-lg leading-snug">
-            {product.name}
-          </h3>
+          <Link href={`/produit/${product.slug}`} className="block">
+            <h3 className="font-bold text-stone-100 text-lg leading-snug group-hover:text-amber-400 transition-colors">
+              {product.name}
+            </h3>
+          </Link>
 
           <p className="text-xs sm:text-sm text-stone-400 line-clamp-2 mt-2 leading-relaxed">
             {product.short_description || product.description}
@@ -103,7 +108,7 @@ export function ProductCard({ product }: ProductCardProps) {
       {/* Prix & Bouton de commande */}
       <div className="p-5 pt-0">
         <div className="pt-4 border-t border-stone-800 flex items-end justify-between gap-3">
-          <div>
+          <Link href={`/produit/${product.slug}`} className="block">
             <div className="text-[11px] text-stone-400 uppercase tracking-wider font-semibold">
               Prix TTC livré
             </div>
@@ -115,12 +120,12 @@ export function ProductCard({ product }: ProductCardProps) {
                 soit <span className="font-semibold text-stone-200">{formatPrice(pricePerStere)}</span> / stère
               </div>
             )}
-          </div>
+          </Link>
 
           <button
             type="button"
             onClick={handleAddToCart}
-            className={`min-h-[46px] px-5 py-2.5 rounded-lg font-bold text-sm flex items-center justify-center gap-2 transition-colors active:scale-95 ${
+            className={`min-h-[46px] px-5 py-2.5 rounded-lg font-bold text-sm flex items-center justify-center gap-2 transition-colors active:scale-95 shrink-0 ${
               added
                 ? "bg-emerald-600 text-white"
                 : "bg-amber-500 hover:bg-amber-400 text-stone-950"

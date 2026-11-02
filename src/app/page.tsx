@@ -4,6 +4,7 @@ import { StereCalculator } from "@/components/shop/StereCalculator"
 import { DeliveryChecker } from "@/components/shop/DeliveryChecker"
 import { Header } from "@/components/layout/Header"
 import { Footer } from "@/components/layout/Footer"
+import Link from "next/link"
 import {
   Flame,
   ShieldCheck,
@@ -174,6 +175,17 @@ export default async function HomePage() {
             {productList.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
+          </div>
+
+          {/* Lien vers le catalogue complet filtré */}
+          <div className="mt-12 text-center">
+            <Link
+              href="/catalogue"
+              className="inline-flex items-center gap-2 bg-stone-900 hover:bg-stone-800 text-stone-100 border border-stone-800 font-bold px-7 py-3.5 rounded-lg text-sm transition-colors"
+            >
+              <span>Accéder au catalogue complet (avec filtres &amp; longueurs)</span>
+              <ChevronRight className="w-4 h-4 text-amber-500" />
+            </Link>
           </div>
         </section>
 
