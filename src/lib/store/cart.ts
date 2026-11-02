@@ -7,18 +7,37 @@ export interface CartItem {
   quantity: number
 }
 
+export interface AccessDiagnosticData {
+  truckAccess: "ok" | "narrow" | "tight"
+  groundType: "asphalt" | "concrete" | "gravel" | "lawn"
+  heightClearance: "ok" | "low"
+  turnaroundArea: "yes" | "no"
+  slope: "flat" | "moderate" | "steep"
+  deliveryEngin: "standard_19t" | "all_terrain_forklift" | "tailgate_truck"
+  confirmed: boolean
+}
+
+export type FulfillmentMethod = "delivery" | "drive"
+
 interface CartStore {
   items: CartItem[]
   postalCode: string | null
   deliveryFeeCents: number
   isDeliveryEligible: boolean | null
   departmentName: string | null
+  fulfillmentMethod: FulfillmentMethod
+  promoCode: string | null
+  promoDiscountCents: number
+  accessDiagnostic: AccessDiagnosticData | null
 
   // Actions
   addItem: (product: Product, quantity?: number) => void
   removeItem: (productId: string) => void
   updateQuantity: (productId: string, quantity: number) => void
   clearCart: () => void
+  setFulfillmentMethod: (method: FulfillmentMethod) => void
+  setPromoCode: (code: string | null, discountCents?: number) => boolean
+  setAccessDiagnostic: (diagnostic: AccessDiagnosticData) => void
   setDeliveryInfo: (info: {
     postalCode: string
     feeCents: number
@@ -29,6 +48,9 @@ interface CartStore {
   // Computed totals
   getItemCount: () => number
   getSubtotalCents: () => number
+  getVolumeDiscountCents: () => number
+  getDriveDiscountCents: () => number
+  getEffectiveDeliveryFeeCents: () => number
   getTotalCents: () => number
 }
 
@@ -40,6 +62,10 @@ export const useCartStore = create<CartStore>()(
       deliveryFeeCents: 0,
       isDeliveryEligible: null,
       departmentName: null,
+      fulfillmentMethod: "delivery",
+      promoCode: null,
+      promoDiscountCents: 0,
+      accessDiagnostic: null,
 
       addItem: (product, quantity = 1) => {
         set((state) => {
@@ -76,7 +102,35 @@ export const useCartStore = create<CartStore>()(
       },
 
       clearCart: () => {
-        set({ items: [], deliveryFeeCents: 0, isDeliveryEligible: null })
+        set({
+          items: [],
+          deliveryFeeCents: 0,
+          isDeliveryEligible: null,
+          promoCode: null,
+          promoDiscountCents: 0,
+          accessDiagnostic: null,
+        })
+      },
+
+      setFulfillmentMethod: (method) => {
+        set({ fulfillmentMethod: method })
+      },
+
+      setPromoCode: (code, discountCents = 1500) => {
+        if (!code) {
+          set({ promoCode: null, promoDiscountCents: 0 })
+          return true
+        }
+        const clean = code.trim().toUpperCase()
+        if (clean === "LENA15" || clean === "BIENVENUE" || clean === "HIVER2026") {
+          set({ promoCode: clean, promoDiscountCents: discountCents })
+          return true
+        }
+        return false
+      },
+
+      setAccessDiagnostic: (diagnostic) => {
+        set({ accessDiagnostic: diagnostic })
       },
 
       setDeliveryInfo: ({ postalCode, feeCents, eligible, department }) => {
@@ -99,8 +153,33 @@ export const useCartStore = create<CartStore>()(
         )
       },
 
+      getVolumeDiscountCents: () => {
+        const totalUnits = get().getItemCount()
+        if (totalUnits >= 3) return 6000 // -60 € pour 3 palettes ou plus
+        if (totalUnits >= 2) return 2500 // -25 € pour 2 palettes
+        return 0
+      },
+
+      getDriveDiscountCents: () => {
+        if (get().fulfillmentMethod !== "drive") return 0
+        const totalUnits = get().getItemCount()
+        return totalUnits * 4000 // -40 € par palette en retrait dépôt
+      },
+
+      getEffectiveDeliveryFeeCents: () => {
+        if (get().fulfillmentMethod === "drive") return 0
+        return get().deliveryFeeCents
+      },
+
       getTotalCents: () => {
-        return get().getSubtotalCents() + get().deliveryFeeCents
+        const subtotal = get().getSubtotalCents()
+        const volumeDiscount = get().getVolumeDiscountCents()
+        const driveDiscount = get().getDriveDiscountCents()
+        const promoDiscount = get().promoDiscountCents
+        const deliveryFee = get().getEffectiveDeliveryFeeCents()
+
+        const net = subtotal - volumeDiscount - driveDiscount - promoDiscount + deliveryFee
+        return Math.max(0, net)
       },
     }),
     {

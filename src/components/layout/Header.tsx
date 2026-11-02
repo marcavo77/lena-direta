@@ -10,7 +10,7 @@ export function Header() {
       {/* Top Banner Réassurance */}
       <div className="bg-stone-900 border-b border-stone-800 text-stone-300 text-xs py-2 px-4 text-center font-medium flex items-center justify-center gap-2">
         <ShieldCheck className="w-4 h-4 text-emerald-400" />
-        <span>Bois dur H1 séché sous abri (&lt; 20% humidité garanti) • Livraison avec chariot élévateur tout-terrain</span>
+        <span>Bois dur H1 séché sous abri (&lt; 20% humidité garanti) • Livraison chariot tout-terrain</span>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-18 sm:h-20 flex items-center justify-between gap-4">
@@ -30,15 +30,21 @@ export function Header() {
         </Link>
 
         {/* Navigation Desktop */}
-        <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-stone-300">
+        <nav className="hidden lg:flex items-center gap-7 text-sm font-semibold text-stone-300">
           <Link href="/catalogue" className="hover:text-amber-400 transition-colors">
             Nos Combustibles
           </Link>
           <Link href="/#simulateur" className="hover:text-amber-400 transition-colors">
             Calculateur de Stères
           </Link>
-          <Link href="/#livraison" className="hover:text-amber-400 transition-colors">
-            Zones &amp; Livraison
+          <Link href="/livraison-et-acces" className="hover:text-amber-400 transition-colors">
+            Livraison &amp; Accès 19T
+          </Link>
+          <Link href="/guide-du-bois" className="hover:text-amber-400 transition-colors">
+            Guide du Bois
+          </Link>
+          <Link href="/qui-sommes-nous" className="hover:text-amber-400 transition-colors">
+            L'Exploitation
           </Link>
         </nav>
 

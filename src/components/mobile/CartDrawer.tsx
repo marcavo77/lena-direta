@@ -1,8 +1,9 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { Drawer } from "vaul"
-import { ShoppingBag, X, Plus, Minus, Trash2, ArrowRight, ShieldCheck } from "lucide-react"
+import { ShoppingBag, X, Plus, Minus, Trash2, ArrowRight, ShieldCheck, Tag } from "lucide-react"
 import { useCartStore } from "@/lib/store/cart"
 import { formatPrice } from "@/lib/utils"
 import Image from "next/image"
@@ -15,13 +16,19 @@ export function CartDrawer() {
     updateQuantity,
     getItemCount,
     getSubtotalCents,
+    getVolumeDiscountCents,
+    getDriveDiscountCents,
+    getEffectiveDeliveryFeeCents,
     getTotalCents,
-    deliveryFeeCents,
     departmentName,
+    fulfillmentMethod,
   } = useCartStore()
 
   const count = getItemCount()
   const subtotal = getSubtotalCents()
+  const volumeDiscount = getVolumeDiscountCents()
+  const driveDiscount = getDriveDiscountCents()
+  const deliveryFee = getEffectiveDeliveryFeeCents()
   const total = getTotalCents()
 
   return (
@@ -73,6 +80,15 @@ export function CartDrawer() {
                 <p className="text-xs text-stone-500 mt-1 max-w-xs mx-auto">
                   Découvrez nos stères de chêne séché et nos granulés de bois certifiés Din+.
                 </p>
+                <div className="mt-6">
+                  <Link
+                    href="/catalogue"
+                    onClick={() => setOpen(false)}
+                    className="inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-amber-500 text-stone-950 font-bold text-xs uppercase tracking-wider hover:bg-amber-400 transition-colors"
+                  >
+                    Explorer le catalogue
+                  </Link>
+                </div>
               </div>
             ) : (
               items.map((item) => (
@@ -80,7 +96,7 @@ export function CartDrawer() {
                   key={item.product.id}
                   className="bg-stone-950/60 border border-stone-800/80 rounded-2xl p-3.5 flex gap-3.5 items-center"
                 >
-                  <div className="relative w-20 h-20 rounded-xl overflow-hidden shrink-0 bg-stone-900">
+                  <div className="relative w-20 h-20 rounded-xl overflow-hidden shrink-0 bg-stone-900 border border-stone-800">
                     <Image
                       src={item.product.image_url}
                       alt={item.product.name}
@@ -97,13 +113,14 @@ export function CartDrawer() {
                       {formatPrice(item.product.unit_price_cents * item.quantity)}
                     </div>
 
-                    {/* Contrôle de quantité tactile >= 44px friendly */}
+                    {/* Contrôle de quantité tactile */}
                     <div className="flex items-center gap-2 mt-2">
                       <div className="flex items-center border border-stone-700 rounded-lg bg-stone-900">
                         <button
                           type="button"
                           onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
                           className="w-8 h-8 flex items-center justify-center text-stone-300 hover:text-white"
+                          aria-label="Diminuer la quantité"
                         >
                           <Minus className="w-3.5 h-3.5" />
                         </button>
@@ -114,6 +131,7 @@ export function CartDrawer() {
                           type="button"
                           onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
                           className="w-8 h-8 flex items-center justify-center text-stone-300 hover:text-white"
+                          aria-label="Augmenter la quantité"
                         >
                           <Plus className="w-3.5 h-3.5" />
                         </button>
@@ -123,6 +141,7 @@ export function CartDrawer() {
                         type="button"
                         onClick={() => removeItem(item.product.id)}
                         className="text-stone-500 hover:text-rose-400 p-1.5 transition-colors ml-auto"
+                        aria-label="Supprimer l'article"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -141,29 +160,60 @@ export function CartDrawer() {
                   <span>Sous-total articles</span>
                   <span className="font-medium text-stone-200">{formatPrice(subtotal)}</span>
                 </div>
+
+                {volumeDiscount > 0 && (
+                  <div className="flex justify-between text-amber-400 font-medium">
+                    <span className="flex items-center gap-1">
+                      <Tag className="w-3.5 h-3.5" /> Remise volume
+                    </span>
+                    <span>-{formatPrice(volumeDiscount)}</span>
+                  </div>
+                )}
+
+                {driveDiscount > 0 && (
+                  <div className="flex justify-between text-emerald-400 font-medium">
+                    <span>Économie Retrait Drive</span>
+                    <span>-{formatPrice(driveDiscount)}</span>
+                  </div>
+                )}
+
                 <div className="flex justify-between">
                   <span>
-                    Livraison {departmentName ? `(${departmentName})` : "estimée"}
+                    Livraison {fulfillmentMethod === "drive" ? "(Retrait Dépôt)" : departmentName ? `(${departmentName})` : "estimée"}
                   </span>
                   <span className="font-medium text-stone-200">
-                    {deliveryFeeCents > 0 ? formatPrice(deliveryFeeCents) : "Calculée à l'étape suivante"}
+                    {fulfillmentMethod === "drive"
+                      ? "Gratuit"
+                      : deliveryFee > 0
+                      ? formatPrice(deliveryFee)
+                      : "Calculée à l'étape suivante"}
                   </span>
                 </div>
+
                 <div className="flex justify-between text-base font-bold text-stone-100 pt-2 border-t border-stone-800">
                   <span>Total TTC</span>
                   <span className="text-amber-400">{formatPrice(total)}</span>
                 </div>
               </div>
 
-              {/* Bouton de commande Sticky Thumb */}
-              <button
-                type="button"
-                onClick={() => alert("Tunnel de commande : configuration Stripe & livraison")}
+              {/* Bouton de commande vers le tunnel */}
+              <Link
+                href="/tunnel"
+                onClick={() => setOpen(false)}
                 className="w-full bg-amber-500 hover:bg-amber-400 active:scale-95 text-stone-950 font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-all min-h-[48px] shadow-lg shadow-amber-500/10 text-base"
               >
-                <span>Passer la commande</span>
+                <span>Commander ({formatPrice(total)})</span>
                 <ArrowRight className="w-5 h-5" />
-              </button>
+              </Link>
+
+              {/* Lien vers la page panier complète */}
+              <Link
+                href="/panier"
+                onClick={() => setOpen(false)}
+                className="w-full text-center block text-xs font-semibold text-stone-400 hover:text-amber-400 py-1.5 transition-colors"
+              >
+                Voir le détail complet du panier &amp; simulateur de livraison
+              </Link>
 
               <div className="flex items-center justify-center gap-1.5 text-[11px] text-stone-400 pt-1">
                 <ShieldCheck className="w-4 h-4 text-emerald-400" />

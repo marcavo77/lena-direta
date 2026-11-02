@@ -167,7 +167,12 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_order_by_id: {
+        Args: {
+          p_order_id: string
+        }
+        Returns: Database["public"]["Tables"]["orders"]["Row"][]
+      }
     }
     Enums: {
       [_ in never]: never

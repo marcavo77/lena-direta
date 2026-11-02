@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Flame, ShieldCheck, Truck, Clock, Award } from "lucide-react"
+import { Flame, ShieldCheck, Truck, Clock, Award, Phone } from "lucide-react"
 
 export function Footer() {
   return (
@@ -43,7 +43,7 @@ export function Footer() {
             </div>
             <div>
               <h5 className="font-semibold text-stone-200 text-xs sm:text-sm">Paiement Sécurisé</h5>
-              <p className="text-[11px] text-stone-400">Stripe 3D Secure &amp; CB</p>
+              <p className="text-[11px] text-stone-400">CB 3D Secure &amp; Acompte 30%</p>
             </div>
           </div>
         </div>
@@ -60,34 +60,50 @@ export function Footer() {
             </span>
           </div>
           <p className="text-xs text-stone-400 max-w-sm leading-relaxed">
-            Fournisseur de référence en bois de chauffage dur (Chêne, Charme, Hêtre), granulés Din+ et bûches compressées. Livraison soignée directe producteur.
+            Exploitant forestier et négoce en bois de chauffage dur (Chêne, Charme, Hêtre), granulés de bois certifiés Din+ et bûches densifiées. Livraison directe au garage par camion tout-terrain.
           </p>
+          <div className="mt-4 flex items-center gap-2 text-xs text-stone-300">
+            <Phone className="w-4 h-4 text-amber-500" />
+            <span>Service conseil &amp; commandes : <strong>01 89 00 00 00</strong> (8h-18h)</span>
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-8 text-xs">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-8 text-xs">
           <div>
             <h6 className="font-semibold text-stone-200 uppercase tracking-wider mb-3">Combustibles</h6>
             <ul className="space-y-2">
-              <li><Link href="#catalogue" className="hover:text-amber-400">Bûches 33 cm</Link></li>
-              <li><Link href="#catalogue" className="hover:text-amber-400">Bûches 50 cm</Link></li>
-              <li><Link href="#catalogue" className="hover:text-amber-400">Pellets Din+</Link></li>
-              <li><Link href="#catalogue" className="hover:text-amber-400">Bois d&apos;allumage</Link></li>
+              <li><Link href="/catalogue" className="hover:text-amber-400 transition-colors">Tous nos bois</Link></li>
+              <li><Link href="/catalogue" className="hover:text-amber-400 transition-colors">Bûches 33 cm</Link></li>
+              <li><Link href="/catalogue" className="hover:text-amber-400 transition-colors">Bûches 50 cm</Link></li>
+              <li><Link href="/catalogue" className="hover:text-amber-400 transition-colors">Pellets Din+</Link></li>
+              <li><Link href="/catalogue" className="hover:text-amber-400 transition-colors">Bûches calorifiques</Link></li>
             </ul>
           </div>
+
           <div>
-            <h6 className="font-semibold text-stone-200 uppercase tracking-wider mb-3">Services</h6>
+            <h6 className="font-semibold text-stone-200 uppercase tracking-wider mb-3">Services &amp; Outils</h6>
             <ul className="space-y-2">
-              <li><Link href="#simulateur" className="hover:text-amber-400">Calculateur de stères</Link></li>
-              <li><Link href="#livraison" className="hover:text-amber-400">Éligibilité livraison</Link></li>
-              <li><Link href="#" className="hover:text-amber-400">Conditions d&apos;accès</Link></li>
-              <li><Link href="#" className="hover:text-amber-400">Mentions légales</Link></li>
+              <li><Link href="/panier" className="hover:text-amber-400 transition-colors">Mon Panier</Link></li>
+              <li><Link href="/#simulateur" className="hover:text-amber-400 transition-colors">Calculateur de stères</Link></li>
+              <li><Link href="/livraison-et-acces" className="hover:text-amber-400 transition-colors">Conditions d'accès 19T</Link></li>
+              <li><Link href="/livraison-et-acces" className="hover:text-amber-400 transition-colors">Chariot tout-terrain</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h6 className="font-semibold text-stone-200 uppercase tracking-wider mb-3">L'Entreprise</h6>
+            <ul className="space-y-2">
+              <li><Link href="/qui-sommes-nous" className="hover:text-amber-400 transition-colors">Qui sommes-nous ?</Link></li>
+              <li><Link href="/guide-du-bois" className="hover:text-amber-400 transition-colors">Guide du bois sec</Link></li>
+              <li><Link href="/guide-du-bois" className="hover:text-amber-400 transition-colors">Méthode Top-Down</Link></li>
+              <li><Link href="/qui-sommes-nous" className="hover:text-amber-400 transition-colors">Nos engagements PEFC</Link></li>
             </ul>
           </div>
         </div>
       </div>
 
-      <div className="border-t border-stone-800 py-6 text-center text-xs text-stone-400">
-        © {new Date().getFullYear()} LenaDireta. Tous droits réservés. Propulsé par Next.js, Supabase &amp; Vercel.
+      <div className="border-t border-stone-800 py-6 text-center text-xs text-stone-500">
+        © {new Date().getFullYear()} LenaDireta Exploitation. Tous droits réservés. Bois de chauffage &amp; biocombustibles français.
       </div>
     </footer>
   )
