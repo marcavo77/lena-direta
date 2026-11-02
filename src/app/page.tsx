@@ -12,14 +12,11 @@ import {
   CheckCircle2,
   PhoneCall,
   Clock,
-  Sparkles,
-  HelpCircle,
   Award,
   ChevronRight,
-  TrendingDown,
-  ArrowRight,
+  Ruler,
+  Trees,
 } from "lucide-react"
-import Link from "next/link"
 
 export const dynamic = "force-dynamic"
 
@@ -36,59 +33,56 @@ export default async function HomePage() {
   const productList = products || []
 
   return (
-    <div className="min-h-screen bg-stone-950 text-stone-100 flex flex-col selection:bg-amber-500 selection:text-stone-950">
+    <div className="min-h-screen bg-stone-950 text-stone-100 flex flex-col selection:bg-amber-500 selection:text-stone-950 font-sans">
       <Header />
 
       <main className="flex-1">
-        {/* HERO SECTION HAUT DE GAMME */}
-        <section className="relative overflow-hidden pt-12 pb-20 sm:pt-20 sm:pb-28 border-b border-stone-800/80">
-          {/* Lueur d'ambiance braise */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-6xl h-96 bg-gradient-to-b from-amber-600/15 via-amber-700/5 to-transparent blur-3xl pointer-events-none" />
-
+        {/* HERO SECTION ARTISANALE & SOLIDE (ZÉRO DÉGRADÉ) */}
+        <section className="relative pt-12 pb-18 sm:pt-20 sm:pb-24 border-b border-stone-800 bg-stone-950">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
             <div className="max-w-3xl mx-auto text-center">
-              {/* Badge supérieur de confiance */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-stone-900 border border-amber-500/30 text-amber-300 text-xs font-semibold mb-6 shadow-xl">
-                <Sparkles className="w-4 h-4 text-amber-400" />
-                <span>Fournisseur N°1 Direct Producteur • Bois Sec &lt; 20% Garanti</span>
+              {/* Badge supérieur d'exploitant forestier */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-md bg-stone-900 border border-stone-800 text-stone-300 text-xs font-bold mb-6">
+                <Award className="w-4 h-4 text-amber-500" />
+                <span>Négociant en Combustibles Bois • Humidité &lt; 20% H1 Contrôlée</span>
               </div>
 
-              {/* Titre percutant */}
-              <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight leading-[1.12] text-stone-100">
+              {/* Titre percutant en typographie solide */}
+              <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight leading-[1.15] text-stone-100">
                 Le Bois de Chauffage &amp; Granulés d&apos;Excellence,{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600">
+                <span className="text-amber-500">
                   Déposés sous votre Abri.
                 </span>
               </h1>
 
-              {/* Sous-titre */}
+              {/* Sous-titre authentique */}
               <p className="mt-5 text-sm sm:text-lg text-stone-300 leading-relaxed max-w-2xl mx-auto">
-                Chêne, charme et hêtre durs séchés sous abri ventilé pendant 2 ans. Livraison soignée avec camion 19T et <strong>chariot élévateur tout-terrain</strong> pour une dépose directe devant votre garage.
+                Chêne, charme et hêtre fendus et séchés sous abri ventilé pendant 2 ans. Livraison propre par camion avec <strong>chariot élévateur tout-terrain</strong> pour une dépose directe devant votre garage ou sous abri.
               </p>
 
-              {/* Éléments de preuve sociale */}
-              <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-xs font-medium text-stone-400">
-                <div className="flex items-center gap-1.5 bg-stone-900/80 border border-stone-800 px-3 py-1.5 rounded-full">
-                  <div className="flex text-amber-400">
+              {/* Preuve sociale sobre et claire */}
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-xs font-semibold text-stone-400">
+                <div className="flex items-center gap-1.5 bg-stone-900 border border-stone-800 px-3 py-1.5 rounded-md">
+                  <div className="flex text-amber-500">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-3.5 h-3.5 fill-amber-400" />
+                      <Star key={i} className="w-3.5 h-3.5 fill-current" />
                     ))}
                   </div>
                   <span className="font-bold text-stone-200">4.9 / 5</span>
-                  <span>(2 840+ avis vérifiés)</span>
+                  <span>(2 840 avis clients vérifiés)</span>
                 </div>
 
-                <div className="flex items-center gap-1.5 text-stone-300">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  <span>Zéro palette abandonnée sur le trottoir</span>
+                <div className="flex items-center gap-1.5 text-stone-300 bg-stone-900 border border-stone-800 px-3 py-1.5 rounded-md">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  <span>Zéro palette abandonnée sur la rue</span>
                 </div>
               </div>
 
-              {/* Boutons d'action principaux (Mobile-First >= 48px) */}
+              {/* Boutons d'action principaux solides */}
               <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3.5">
                 <a
                   href="#catalogue"
-                  className="bg-amber-500 hover:bg-amber-400 text-stone-950 font-black px-7 py-4 rounded-xl shadow-xl shadow-amber-500/25 transition-all flex items-center justify-center gap-2.5 min-h-[50px] text-base active:scale-95"
+                  className="bg-amber-500 hover:bg-amber-400 text-stone-950 font-black px-7 py-4 rounded-lg transition-colors flex items-center justify-center gap-2.5 min-h-[50px] text-base active:scale-95 shadow-sm"
                 >
                   <Flame className="w-5 h-5 fill-stone-950" />
                   <span>Commander mes stères de bois</span>
@@ -96,7 +90,7 @@ export default async function HomePage() {
 
                 <a
                   href="#simulateur"
-                  className="bg-stone-900 hover:bg-stone-800 text-stone-200 border border-stone-700/80 font-bold px-7 py-4 rounded-xl transition-all flex items-center justify-center gap-2 min-h-[50px] text-base"
+                  className="bg-stone-900 hover:bg-stone-800 text-stone-200 border border-stone-800 font-bold px-7 py-4 rounded-lg transition-colors flex items-center justify-center gap-2 min-h-[50px] text-base"
                 >
                   <span>Estimer ma consommation</span>
                   <ChevronRight className="w-4 h-4 text-stone-400" />
@@ -104,7 +98,7 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* VÉRIFICATEUR DE LIVRAISON DIRECT DANS LE HERO */}
+            {/* VÉRIFICATEUR DE LIVRAISON SANS DÉGRADÉ */}
             <div id="livraison" className="mt-14 max-w-3xl mx-auto">
               <DeliveryChecker />
             </div>
@@ -112,46 +106,46 @@ export default async function HomePage() {
         </section>
 
         {/* SECTION LES 4 ENGAGEMENTS D'EXCELLENCE */}
-        <section className="py-12 bg-stone-900/40 border-b border-stone-800/80">
+        <section className="py-12 bg-stone-900 border-b border-stone-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-              <div className="bg-stone-950/80 border border-stone-800/80 p-4 sm:p-5 rounded-2xl flex items-start gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+              <div className="bg-stone-950 border border-stone-800 p-5 rounded-xl flex items-start gap-3.5">
+                <div className="w-10 h-10 rounded-lg bg-stone-900 border border-stone-800 text-amber-500 flex items-center justify-center shrink-0">
                   <Award className="w-5 h-5" />
                 </div>
                 <div>
                   <h4 className="font-bold text-stone-100 text-xs sm:text-sm">Humidité &lt; 20% H1</h4>
-                  <p className="text-[11px] text-stone-400 mt-0.5">Séchage naturel sous abri 18-24 mois</p>
+                  <p className="text-xs text-stone-400 mt-0.5">Séchage naturel sous abri 18-24 mois</p>
                 </div>
               </div>
 
-              <div className="bg-stone-950/80 border border-stone-800/80 p-4 sm:p-5 rounded-2xl flex items-start gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+              <div className="bg-stone-950 border border-stone-800 p-5 rounded-xl flex items-start gap-3.5">
+                <div className="w-10 h-10 rounded-lg bg-stone-900 border border-stone-800 text-amber-500 flex items-center justify-center shrink-0">
                   <Truck className="w-5 h-5" />
                 </div>
                 <div>
                   <h4 className="font-bold text-stone-100 text-xs sm:text-sm">Chariot Tout-Terrain</h4>
-                  <p className="text-[11px] text-stone-400 mt-0.5">Roule sur gravier, herbe et pavés</p>
+                  <p className="text-xs text-stone-400 mt-0.5">Roule sur gravier, pelouse et allées</p>
                 </div>
               </div>
 
-              <div className="bg-stone-950/80 border border-stone-800/80 p-4 sm:p-5 rounded-2xl flex items-start gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+              <div className="bg-stone-950 border border-stone-800 p-5 rounded-xl flex items-start gap-3.5">
+                <div className="w-10 h-10 rounded-lg bg-stone-900 border border-stone-800 text-amber-500 flex items-center justify-center shrink-0">
                   <Clock className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-stone-100 text-xs sm:text-sm">Créneau Fixé à l&apos;Avance</h4>
-                  <p className="text-[11px] text-stone-400 mt-0.5">Appel du chauffeur 30 min avant</p>
+                  <h4 className="font-bold text-stone-100 text-xs sm:text-sm">Créneau Confirmé</h4>
+                  <p className="text-xs text-stone-400 mt-0.5">Appel du chauffeur 30 min avant</p>
                 </div>
               </div>
 
-              <div className="bg-stone-950/80 border border-stone-800/80 p-4 sm:p-5 rounded-2xl flex items-start gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
-                  <ShieldCheck className="w-5 h-5" />
+              <div className="bg-stone-950 border border-stone-800 p-5 rounded-xl flex items-start gap-3.5">
+                <div className="w-10 h-10 rounded-lg bg-stone-900 border border-stone-800 text-amber-500 flex items-center justify-center shrink-0">
+                  <Ruler className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-stone-100 text-xs sm:text-sm">Cubage Garanti</h4>
-                  <p className="text-[11px] text-stone-400 mt-0.5">Palettes certifiées sans vide</p>
+                  <h4 className="font-bold text-stone-100 text-xs sm:text-sm">Cubage Contrôlé</h4>
+                  <p className="text-xs text-stone-400 mt-0.5">Mesure certifiée selon la norme NF</p>
                 </div>
               </div>
             </div>
@@ -162,16 +156,16 @@ export default async function HomePage() {
         <section id="catalogue" className="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
             <div>
-              <div className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest text-amber-500 font-extrabold mb-2">
-                <Flame className="w-3.5 h-3.5 fill-amber-500" />
-                <span>Tarifs Direct Producteur</span>
+              <div className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest text-amber-500 font-bold mb-2">
+                <Trees className="w-4 h-4 text-amber-500" />
+                <span>Tarifs Direct Exploitation Forestière</span>
               </div>
               <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-stone-100 tracking-tight">
                 Nos Combustibles en Stock
               </h2>
             </div>
             <p className="text-xs sm:text-sm text-stone-400 max-w-md">
-              Palettes stables filmées et prêtes à ranger. Prix TTC avec livraison personnalisée par créneau téléphonique.
+              Palettes stables filmées et prêtes à empiler. Prix TTC livré avec manutention par chariot tout-terrain incluse.
             </p>
           </div>
 
@@ -188,43 +182,43 @@ export default async function HomePage() {
           <StereCalculator />
         </section>
 
-        {/* SECTION LOGISTIQUE & DÉROULEMENT DE LIVRAISON */}
-        <section className="bg-gradient-to-b from-stone-900/60 to-stone-950 py-16 sm:py-24 border-y border-stone-800">
+        {/* SECTION LOGISTIQUE & DÉROULEMENT DE LIVRAISON SANS DÉGRADÉ */}
+        <section className="bg-stone-900 py-16 sm:py-24 border-y border-stone-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="text-center max-w-3xl mx-auto mb-14">
               <div className="text-xs uppercase tracking-widest text-amber-500 font-bold mb-2">
-                Logistique Sans Stress
+                Logistique Directe
               </div>
               <h2 className="text-2xl sm:text-4xl font-black text-stone-100">
                 Comment se déroule votre livraison ?
               </h2>
               <p className="text-xs sm:text-sm text-stone-400 mt-2">
-                Oubliez les livreurs qui abandonnent 4 palettes sur le trottoir public : découvrez notre protocole de dépose propre.
+                Une dépose soignée et personnalisée là où vous stockez votre bois, pas sur la voie publique.
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-stone-950 border border-stone-800 rounded-2xl p-6 relative">
-                <div className="text-amber-500 font-black text-4xl mb-4 opacity-40">01</div>
+              <div className="bg-stone-950 border border-stone-800 rounded-xl p-6">
+                <div className="text-amber-500 font-black text-3xl mb-3">01</div>
                 <h3 className="font-bold text-stone-100 text-lg mb-2">Prise de Rendez-Vous Précis</h3>
                 <p className="text-xs sm:text-sm text-stone-400 leading-relaxed">
-                  Notre service logistique vous contacte par téléphone dès la commande pour fixer une demi-journée de livraison compatible avec votre planning.
+                  Notre équipe logistique vous appelle pour convenir d&apos;une demi-journée exacte selon vos disponibilités.
                 </p>
               </div>
 
-              <div className="bg-stone-950 border border-stone-800 rounded-2xl p-6 relative">
-                <div className="text-amber-500 font-black text-4xl mb-4 opacity-40">02</div>
-                <h3 className="font-bold text-stone-100 text-lg mb-2">Chariot Embarqué Tout-Terrain</h3>
+              <div className="bg-stone-950 border border-stone-800 rounded-xl p-6">
+                <div className="text-amber-500 font-black text-3xl mb-3">02</div>
+                <h3 className="font-bold text-stone-100 text-lg mb-2">Chariot Tout-Terrain Embarqué</h3>
                 <p className="text-xs sm:text-sm text-stone-400 leading-relaxed">
-                  Le camion 19T reste stationné sans gêner la circulation. Le chauffeur décharge votre palette avec son chariot motorisé à trois roues larges.
+                  Le camion porteur reste stationné dans la rue. Le livreur utilise son chariot motorisé pour franchir le portail, les gravillons ou la cour.
                 </p>
               </div>
 
-              <div className="bg-stone-950 border border-stone-800 rounded-2xl p-6 relative">
-                <div className="text-amber-500 font-black text-4xl mb-4 opacity-40">03</div>
+              <div className="bg-stone-950 border border-stone-800 rounded-xl p-6">
+                <div className="text-amber-500 font-black text-3xl mb-3">03</div>
                 <h3 className="font-bold text-stone-100 text-lg mb-2">Dépose au Pied de votre Abri</h3>
                 <p className="text-xs sm:text-sm text-stone-400 leading-relaxed">
-                  Gravier, allée en pavés, pelouse sèche ou fond de garage : la palette est déposée exactement là où vous devez ranger votre bois.
+                  La palette est déposée propre et intacte devant votre abri à bois ou dans votre garage. Zéro manutention pénible pour vous.
                 </p>
               </div>
             </div>
@@ -235,72 +229,72 @@ export default async function HomePage() {
         <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <h2 className="text-2xl sm:text-3xl font-black text-stone-100">
-              Ce que disent nos clients chauffés au bois
+              Retours d&apos;expérience de nos clients
             </h2>
             <p className="text-xs sm:text-sm text-stone-400 mt-2">
-              Avis 100% certifiés après livraison et contrôle hygrométrique à réception.
+              Avis authentiques recueillis après livraison et contrôle hygrométrique à domicile.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-stone-900/80 border border-stone-800 p-6 rounded-2xl">
-              <div className="flex text-amber-400 mb-3">
+            <div className="bg-stone-900 border border-stone-800 p-6 rounded-xl">
+              <div className="flex text-amber-500 mb-3">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-amber-400" />
+                  <Star key={i} className="w-4 h-4 fill-current" />
                 ))}
               </div>
               <p className="text-xs sm:text-sm text-stone-300 italic mb-4 leading-relaxed">
-                &ldquo;Vraiment du bois sec ! J&apos;ai testé avec mon humidimètre à pointes : 16.5% au cœur d&apos;une bûche de chêne. La flambée est vive, la vitre reste parfaitement propre.&rdquo;
+                &ldquo;Vraiment du bois sec ! J&apos;ai testé avec mon humidimètre : 16.5% au cœur d&apos;une bûche de chêne. La flambée est vive, la vitre reste parfaitement propre.&rdquo;
               </p>
-              <div className="text-xs font-semibold text-stone-400">
-                Jean-Marc B. — <span className="text-amber-400">77 Fontainebleau</span>
+              <div className="text-xs font-bold text-stone-400">
+                Jean-Marc B. — <span className="text-amber-500">77 Fontainebleau</span>
               </div>
             </div>
 
-            <div className="bg-stone-900/80 border border-stone-800 p-6 rounded-2xl">
-              <div className="flex text-amber-400 mb-3">
+            <div className="bg-stone-900 border border-stone-800 p-6 rounded-xl">
+              <div className="flex text-amber-500 mb-3">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-amber-400" />
+                  <Star key={i} className="w-4 h-4 fill-current" />
                 ))}
               </div>
               <p className="text-xs sm:text-sm text-stone-300 italic mb-4 leading-relaxed">
-                &ldquo;Le chauffeur a été formidable. Mon allée fait 40 mètres en graviers : avec son chariot motorisé, les 3 palettes ont été déposées au fond sous le carport sans aucun effort.&rdquo;
+                &ldquo;Le chauffeur a été très pro. Mon allée fait 40 mètres en graviers : avec son chariot motorisé, les 3 palettes ont été déposées au fond sous le carport sans effort.&rdquo;
               </p>
-              <div className="text-xs font-semibold text-stone-400">
-                Corinne D. — <span className="text-amber-400">78 Rambouillet</span>
+              <div className="text-xs font-bold text-stone-400">
+                Corinne D. — <span className="text-amber-500">78 Rambouillet</span>
               </div>
             </div>
 
-            <div className="bg-stone-900/80 border border-stone-800 p-6 rounded-2xl">
-              <div className="flex text-amber-400 mb-3">
+            <div className="bg-stone-900 border border-stone-800 p-6 rounded-xl">
+              <div className="flex text-amber-500 mb-3">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-amber-400" />
+                  <Star key={i} className="w-4 h-4 fill-current" />
                 ))}
               </div>
               <p className="text-xs sm:text-sm text-stone-300 italic mb-4 leading-relaxed">
-                &ldquo;Granulés Din+ impeccables : zéro poussière au fond des sacs, granulométrie constante, mon poêle à granulés n&apos;a pas fait un seul bourrage en 4 mois d&apos;utilisation.&rdquo;
+                &ldquo;Granulés Din+ impeccables : zéro poussière au fond des sacs, combustion très propre, mon poêle n&apos;a pas fait un seul bourrage en 4 mois d&apos;utilisation.&rdquo;
               </p>
-              <div className="text-xs font-semibold text-stone-400">
-                Philippe M. — <span className="text-amber-400">91 Évry</span>
+              <div className="text-xs font-bold text-stone-400">
+                Philippe M. — <span className="text-amber-500">91 Évry</span>
               </div>
             </div>
           </div>
         </section>
 
         {/* SECTION FOIRE AUX QUESTIONS (FAQ) */}
-        <section className="bg-stone-900/40 border-t border-stone-800 py-16 sm:py-20">
+        <section className="bg-stone-900 border-t border-stone-800 py-16 sm:py-20">
           <div className="max-w-4xl mx-auto px-4 sm:px-6">
             <div className="text-center mb-10">
               <h2 className="text-2xl sm:text-3xl font-black text-stone-100">
                 Questions Fréquentes
               </h2>
               <p className="text-xs sm:text-sm text-stone-400 mt-2">
-                Tout ce que vous devez savoir avant de valider votre commande de bois
+                Tout ce que vous devez savoir avant de valider votre commande
               </p>
             </div>
 
             <div className="space-y-4">
-              <div className="bg-stone-950 border border-stone-800 rounded-2xl p-5">
+              <div className="bg-stone-950 border border-stone-800 rounded-xl p-5">
                 <h3 className="font-bold text-stone-100 text-sm sm:text-base mb-2">
                   Pourquoi 1 stère en 33 cm n&apos;occupe-t-il pas 1 m³ une fois rangé ?
                 </h3>
@@ -309,7 +303,7 @@ export default async function HomePage() {
                 </p>
               </div>
 
-              <div className="bg-stone-950 border border-stone-800 rounded-2xl p-5">
+              <div className="bg-stone-950 border border-stone-800 rounded-xl p-5">
                 <h3 className="font-bold text-stone-100 text-sm sm:text-base mb-2">
                   Comment garantissez-vous un taux d&apos;humidité inférieur à 20% ?
                 </h3>
@@ -318,7 +312,7 @@ export default async function HomePage() {
                 </p>
               </div>
 
-              <div className="bg-stone-950 border border-stone-800 rounded-2xl p-5">
+              <div className="bg-stone-950 border border-stone-800 rounded-xl p-5">
                 <h3 className="font-bold text-stone-100 text-sm sm:text-base mb-2">
                   Quelles sont les dimensions requises pour le passage du chariot ?
                 </h3>
@@ -333,22 +327,22 @@ export default async function HomePage() {
 
       <Footer />
 
-      {/* BARRE FIXE COLLANTE MOBILE SOUS LE POUCE (STICKY ACTION BAR) */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 sm:hidden bg-stone-950/95 backdrop-blur-md border-t border-stone-800 p-3 flex items-center justify-between gap-3 shadow-2xl">
+      {/* BARRE FIXE COLLANTE MOBILE SOUS LE POUCE (SOLIDE, SANS DÉGRADÉ) */}
+      <div className="fixed bottom-0 left-0 right-0 z-30 sm:hidden bg-stone-950 border-t border-stone-800 p-3 flex items-center justify-between gap-3 shadow-xl">
         <a
           href="tel:0189000000"
-          className="flex-1 min-h-[46px] bg-stone-900 border border-stone-700 text-stone-200 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95"
+          className="flex-1 min-h-[46px] bg-stone-900 border border-stone-800 text-stone-200 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95"
         >
           <PhoneCall className="w-4 h-4 text-amber-500" />
-          <span>Appeler conseil</span>
+          <span>Conseil direct</span>
         </a>
 
         <a
           href="#catalogue"
-          className="flex-[1.5] min-h-[46px] bg-amber-500 text-stone-950 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 shadow-lg shadow-amber-500/20 active:scale-95"
+          className="flex-[1.5] min-h-[46px] bg-amber-500 text-stone-950 rounded-lg text-xs font-black flex items-center justify-center gap-1.5 active:scale-95"
         >
           <Flame className="w-4 h-4 fill-stone-950" />
-          <span>Voir les bois &amp; tarifs</span>
+          <span>Voir le bois &amp; tarifs</span>
         </a>
       </div>
     </div>

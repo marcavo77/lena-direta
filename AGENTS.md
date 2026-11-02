@@ -134,3 +134,33 @@ Next.js (App Router)
 4. **Robustesse Mobile** :
    - Tester mentalement chaque écran à une largeur de `375px` (iPhone SE / standard).
    - Toujours vérifier qu'aucun tableau ou conteneur ne déborde horizontalement (`overflow-x-hidden` maîtrisé, défilement horizontal explicitement stylisé avec scrollbars masquées si carrousel).
+
+
+---
+
+## 6. Règle Anti-Clichés IA & Design « Artisanal, Terroir & Humain » (Strictement Obligatoire)
+
+Les choix de design de ce site doivent se démarquer radicalement des templates d'IA génériques (look "SaaS crypto/tech" ou "dark neon"). L'objectif est de respirer l'artisanat, la scierie noble, la forêt et la confiance d'un exploitant forestier d'expérience.
+
+### A. Interdiction Formelle des Dégradés Clichés d'IA
+1. **Zéro Dégradé Fluorescent / Néon** :
+   - Strictement AUCUN `bg-gradient-to-r`, `bg-gradient-to-br`, ni texte en `text-transparent bg-clip-text`.
+   - Strictement AUCUN halo de flou artificiel en arrière-plan (`blur-3xl`, `radial-gradient` ambiants, faux néons lumineux).
+2. **Aplats Mats et Matières Solides** :
+   - Préférer des aplats francs, riches et mats : noir ébène profond (`#121110`), brun écorce / ardoise chaude (`#1c1917`), ambre braise franc et plein (`#d97706` / `#c2410c`), crème lin pour la lecture douce (`#f5f5f4`, `#e7e5e4`).
+   - Bordures nettes et précises (1px à 2px solides, style menuiserie / ferronnerie), contrastes architecturaux rigoureux.
+
+### B. Choix Différents des Habitudes d'IA (Icônes, Styles, Micro-détails)
+1. **Sortir des icônes d'IA clichés** :
+   - Éviter la sur-utilisation des icônes génériques comme `Sparkles` ✨ (trop IA/magique), fausses fusées ou flammes répétitives.
+   - Utiliser des repères du monde physique et du métier : billots de bois, coupes dimensionnelles précises (33cm, 50cm), jauges techniques de pourcentage d'humidité réelles, sceaux de certification officiels (PEFC, NF Bois de Chauffage, Din Plus, Flamme Verte).
+2. **Typographie d'Atelier & Hiérarchie Éditoriale** :
+   - Hiérarchie typographique stable, inspirée des grands catalogues de négoce et scieries de qualité (Geist / sans-serif robuste, chiffres de cubage nets et denses).
+   - Pas de textes géants illisibles ou d'effets visuels distrayants.
+
+### C. Rédactionnel & Crédibilité Humaine
+1. **Ton authentique d'exploitant forestier** :
+   - Bannir les slogans marketing creux d'IA ("Révolutionnez votre chaleur", "Une expérience incomparable").
+   - Utiliser un vocabulaire technique concret, rassurant et terrien : "Chêne et charme fendus sous hangar ventilé", "Livraison au garage avec transpalette à roues larges sur gravier", "Contrôlé à l'humidimètre avant chargement".
+2. **Recherches de patterns réels** :
+   - L'agent doit toujours concevoir ses interfaces en s'inspirant des standards des meilleurs commerçants et logisticiens traditionnels (ONF Énergie, négociants de bois français et européens réputés).

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { MapPin, Truck, CheckCircle2, AlertCircle, Loader2, Navigation, Check } from "lucide-react"
+import { MapPin, Truck, CheckCircle2, AlertCircle, Loader2, Navigation } from "lucide-react"
 import { checkPostalCodeEligibility } from "@/app/actions/delivery"
 import { useCartStore } from "@/lib/store/cart"
 import { formatPrice } from "@/lib/utils"
@@ -51,25 +51,25 @@ export function DeliveryChecker() {
   }
 
   return (
-    <div className="bg-stone-900/95 border-2 border-amber-500/30 rounded-3xl p-5 sm:p-7 shadow-2xl backdrop-blur-md">
+    <div className="bg-stone-900 border border-stone-800 rounded-2xl p-5 sm:p-7 shadow-sm">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0">
+          <div className="w-12 h-12 rounded-lg bg-stone-950 border border-stone-800 text-amber-500 flex items-center justify-center shrink-0">
             <Truck className="w-6 h-6" />
           </div>
           <div>
             <h4 className="text-base sm:text-lg font-bold text-stone-100">
-              Vérifiez la livraison à votre adresse
+              Vérifiez la livraison à votre domicile
             </h4>
             <p className="text-xs sm:text-sm text-stone-400">
-              Livraison par camion 19T avec chariot élévateur tout-terrain embarqué
+              Livraison par camion 19T avec chariot tout-terrain pour accès difficile
             </p>
           </div>
         </div>
 
         <form onSubmit={handleCheck} className="flex items-center gap-2.5 w-full md:w-auto">
           <div className="relative flex-1 md:w-56">
-            <MapPin className="w-4 h-4 text-amber-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <MapPin className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               inputMode="numeric"
@@ -78,20 +78,20 @@ export function DeliveryChecker() {
               placeholder="Code postal (ex: 77100)"
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-              className="w-full bg-stone-950 border border-stone-700/80 rounded-xl pl-10 pr-3.5 py-3 text-sm text-stone-100 placeholder-stone-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all min-h-[48px]"
+              className="w-full bg-stone-950 border border-stone-800 rounded-lg pl-10 pr-3.5 py-3 text-sm text-stone-100 placeholder-stone-500 focus:outline-none focus:border-amber-500 transition-colors min-h-[48px]"
             />
           </div>
           <button
             type="submit"
             disabled={loading || code.length < 2}
-            className="bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-stone-950 font-bold px-5 py-3 rounded-xl text-sm transition-all min-h-[48px] flex items-center justify-center gap-1.5 shrink-0 shadow-lg shadow-amber-500/20 active:scale-95"
+            className="bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-stone-950 font-bold px-5 py-3 rounded-lg text-sm transition-colors min-h-[48px] flex items-center justify-center gap-1.5 shrink-0 active:scale-95"
           >
             {loading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <>
                 <Navigation className="w-4 h-4" />
-                <span>Tester</span>
+                <span>Vérifier</span>
               </>
             )}
           </button>
@@ -116,11 +116,11 @@ export function DeliveryChecker() {
           </div>
 
           {status.eligible && status.feeCents !== undefined && (
-            <div className="text-xs sm:text-sm font-bold text-stone-200 bg-stone-950 px-3 py-1.5 rounded-lg border border-stone-800 self-start sm:self-auto">
+            <div className="text-xs sm:text-sm font-bold text-stone-200 bg-stone-950 px-3 py-1.5 rounded border border-stone-800 self-start sm:self-auto">
               Frais de port : {formatPrice(status.feeCents)}
               {status.threshold ? (
                 <span className="text-amber-400 font-semibold ml-1.5">
-                  (Franco dès {formatPrice(status.threshold)})
+                  (Gratuit dès {formatPrice(status.threshold)})
                 </span>
               ) : (
                 ""
