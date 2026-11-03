@@ -128,12 +128,14 @@ export function Header() {
                       </div>
                       <Link
                         href="/mon-compte"
+                        prefetch={true}
                         className="block px-3 py-1.5 text-stone-200 hover:bg-stone-800 rounded-lg font-bold hover:text-amber-400"
                       >
                         Mon Espace Client
                       </Link>
                       <Link
                         href="/panier"
+                        prefetch={true}
                         className="block px-3 py-1.5 text-stone-300 hover:bg-stone-800 rounded-lg"
                       >
                         Mon Panier
@@ -152,6 +154,7 @@ export function Header() {
               ) : (
                 <Link
                   href="/connexion"
+                  prefetch={true}
                   className="flex items-center gap-1.5 text-stone-200 hover:text-amber-400 text-xs font-bold transition-colors py-1 px-2.5 rounded-lg border border-stone-800 hover:border-amber-500/40"
                 >
                   <User className="w-3.5 h-3.5 text-amber-500" />
@@ -165,7 +168,7 @@ export function Header() {
         {/* ================= BARRE DE NAVIGATION PRINCIPALE (Capture 1) ================= */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-18 sm:h-20 flex items-center justify-between gap-4">
           {/* Logo LenaDireta */}
-          <Link href="/" className="flex items-center gap-3 group shrink-0">
+          <Link href="/" prefetch={true} className="flex items-center gap-3 group shrink-0">
             <div className="w-10 h-10 rounded-lg bg-amber-500 text-stone-950 flex items-center justify-center shadow-sm">
               <Flame className="w-6 h-6 fill-stone-950" />
             </div>
@@ -187,6 +190,7 @@ export function Header() {
             {/* BOUTIQUE */}
             <Link
               href="/catalogue"
+              prefetch={true}
               className="hover:text-amber-400 transition-colors py-2 whitespace-nowrap"
             >
               Boutique
@@ -200,6 +204,7 @@ export function Header() {
             >
               <Link
                 href="/bois-compresse"
+                prefetch={true}
                 className="flex items-center gap-1 hover:text-amber-400 transition-colors py-2 whitespace-nowrap"
               >
                 <span>Bois Compressé</span>
@@ -246,6 +251,7 @@ export function Header() {
             >
               <Link
                 href="/bois-de-chauffage"
+                prefetch={true}
                 className="flex items-center gap-1 hover:text-amber-400 transition-colors py-2 whitespace-nowrap"
               >
                 <span>Bois de Chauffage</span>
@@ -292,6 +298,7 @@ export function Header() {
             >
               <Link
                 href="/granules-de-bois"
+                prefetch={true}
                 className="flex items-center gap-1 hover:text-amber-400 transition-colors py-2 whitespace-nowrap"
               >
                 <span>Granulés de Bois</span>
@@ -338,6 +345,7 @@ export function Header() {
             >
               <Link
                 href="/infos-pratiques"
+                prefetch={true}
                 className="flex items-center gap-1 hover:text-amber-400 transition-colors py-2 whitespace-nowrap"
               >
                 <span>Infos Pratiques</span>

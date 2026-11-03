@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { getPublicSupabase } from "@/lib/supabase/public"
 import { Header } from "@/components/layout/Header"
 import { Footer } from "@/components/layout/Footer"
 import { ProductCard } from "@/components/shop/ProductCard"
@@ -25,10 +25,11 @@ export const metadata = {
     "Achetez vos bûches densifiées de jour, packs nuit longue durée (8h) et pavés 100% chêne. Livraison sur palette avec chariot tout-terrain.",
 }
 
-export const dynamic = "force-dynamic"
+// Cache CDN Vercel instantané & régénération en arrière-plan
+export const revalidate = 60
 
 export default async function BoisCompressePage() {
-  const supabase = await createClient()
+  const supabase = getPublicSupabase()
 
   // Récupération des produits bois compressé et allumage
   const { data: products } = await supabase

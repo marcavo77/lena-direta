@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { getPublicSupabase } from "@/lib/supabase/public"
 import { Header } from "@/components/layout/Header"
 import { Footer } from "@/components/layout/Footer"
 import { ProductCard } from "@/components/shop/ProductCard"
@@ -23,10 +23,11 @@ export const metadata = {
     "Bûches de chêne, charme et hêtre fendues et séchées sous abri (< 20% humidité). Coupes 25cm, 33cm et 50cm rangées sur palettes de 2 à 4 stères.",
 }
 
-export const dynamic = "force-dynamic"
+// Cache CDN Vercel instantané & régénération en arrière-plan
+export const revalidate = 60
 
 export default async function BoisDeChauffagePage() {
-  const supabase = await createClient()
+  const supabase = getPublicSupabase()
 
   // Récupération des produits bois de chauffage et allumage
   const { data: products } = await supabase

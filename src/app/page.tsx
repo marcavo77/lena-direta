@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { getPublicSupabase } from "@/lib/supabase/public"
 import { ProductCard } from "@/components/shop/ProductCard"
 import { StereCalculator } from "@/components/shop/StereCalculator"
 import { DeliveryChecker } from "@/components/shop/DeliveryChecker"
@@ -22,10 +22,11 @@ import {
   ArrowRight,
 } from "lucide-react"
 
-export const dynamic = "force-dynamic"
+// Mise en cache CDN Vercel & régénération en arrière-plan toutes les 60 secondes pour une navigation instantanée
+export const revalidate = 60
 
 export default async function HomePage() {
-  const supabase = await createClient()
+  const supabase = getPublicSupabase()
 
   // Récupération des combustibles actifs
   const { data: products } = await supabase

@@ -33,7 +33,7 @@ export function ProductCard({ product }: ProductCardProps) {
     <div className="bg-stone-900 rounded-xl overflow-hidden border border-stone-800 hover:border-stone-700 transition-colors flex flex-col justify-between group">
       <div>
         {/* Photo Réelle & Badges Techniques avec Lien Produit */}
-        <Link href={`/produit/${product.slug}`} className="block relative aspect-[4/3] w-full overflow-hidden bg-stone-950">
+        <Link href={`/produit/${product.slug}`} prefetch={true} className="block relative aspect-[4/3] w-full overflow-hidden bg-stone-950">
           <Image
             src={product.image_url}
             alt={product.name}
@@ -79,7 +79,7 @@ export function ProductCard({ product }: ProductCardProps) {
             )}
           </div>
 
-          <Link href={`/produit/${product.slug}`} className="block">
+          <Link href={`/produit/${product.slug}`} prefetch={true} className="block">
             <h3 className="font-bold text-stone-100 text-lg leading-snug group-hover:text-amber-400 transition-colors">
               {product.name}
             </h3>
@@ -108,7 +108,7 @@ export function ProductCard({ product }: ProductCardProps) {
       {/* Prix & Bouton de commande */}
       <div className="p-5 pt-0">
         <div className="pt-4 border-t border-stone-800 flex items-end justify-between gap-3">
-          <Link href={`/produit/${product.slug}`} className="block">
+          <Link href={`/produit/${product.slug}`} prefetch={true} className="block">
             <div className="text-[11px] text-stone-400 uppercase tracking-wider font-semibold">
               Prix TTC livré
             </div>

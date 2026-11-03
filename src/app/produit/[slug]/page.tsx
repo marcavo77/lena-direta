@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { getPublicSupabase } from "@/lib/supabase/public"
 import { notFound } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
@@ -23,7 +23,33 @@ import {
   HelpCircle,
 } from "lucide-react"
 
-export const dynamic = "force-dynamic"
+// Cache CDN Vercel instantané & régénération en arrière-plan
+export const revalidate = 60
+
+export async function generateStaticParams() {
+  try {
+    const supabase = getPublicSupabase()
+    const { data: products } = await supabase.from("products").select("slug")
+    if (products && products.length > 0) {
+      return products.map((p) => ({ slug: p.slug }))
+    }
+  } catch (error) {
+    console.warn("Could not fetch slugs from Supabase during build:", error)
+  }
+
+  return [
+    { slug: "chene-charme-33cm-palette-3-steres" },
+    { slug: "chene-hetre-50cm-palette-4-steres" },
+    { slug: "bois-de-chauffage-25cm-palette-2-steres" },
+    { slug: "buches-compressees-jour-palette-96-packs" },
+    { slug: "buches-compressees-nuit-pack-96-packs" },
+    { slug: "paves-bois-compresse-100-chene-palette" },
+    { slug: "pellets-granules-din-plus-palette-66-sacs" },
+    { slug: "granules-vrac-camion-souffleur-tonne" },
+    { slug: "allume-feu-naturel-laine-bois-carton-300" },
+    { slug: "filets-buchettes-allumage-ecologique-10-filets" },
+  ]
+}
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -31,7 +57,7 @@ interface ProductPageProps {
 
 export async function generateMetadata({ params }: ProductPageProps) {
   const { slug } = await params
-  const supabase = await createClient()
+  const supabase = getPublicSupabase()
 
   const { data: product } = await supabase
     .from("products")
@@ -51,7 +77,7 @@ export async function generateMetadata({ params }: ProductPageProps) {
 
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { slug } = await params
-  const supabase = await createClient()
+  const supabase = getPublicSupabase()
 
   // 1. Fetch produit principal
   const { data: product } = await supabase

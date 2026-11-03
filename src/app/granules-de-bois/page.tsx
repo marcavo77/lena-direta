@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { getPublicSupabase } from "@/lib/supabase/public"
 import { Header } from "@/components/layout/Header"
 import { Footer } from "@/components/layout/Footer"
 import { ProductCard } from "@/components/shop/ProductCard"
@@ -23,10 +23,11 @@ export const metadata = {
     "Pellets de bois 100% résineux certifiés Din+ et EnPlus A1. Palettes de 66 sacs de 15 kg ou vrac camion souffleur avec pesée certifiée.",
 }
 
-export const dynamic = "force-dynamic"
+// Cache CDN Vercel instantané & régénération en arrière-plan
+export const revalidate = 60
 
 export default async function GranulesDeBoisPage() {
-  const supabase = await createClient()
+  const supabase = getPublicSupabase()
 
   // Récupération des produits granulés et pellets
   const { data: products } = await supabase

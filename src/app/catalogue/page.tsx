@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { getPublicSupabase } from "@/lib/supabase/public"
 import { CatalogBrowser } from "@/components/shop/CatalogBrowser"
 import { DeliveryChecker } from "@/components/shop/DeliveryChecker"
 import { Header } from "@/components/layout/Header"
@@ -6,7 +6,8 @@ import { Footer } from "@/components/layout/Footer"
 import { Trees, ShieldCheck, Truck, ChevronRight } from "lucide-react"
 import Link from "next/link"
 
-export const dynamic = "force-dynamic"
+// Cache CDN Vercel instantané & régénération en arrière-plan
+export const revalidate = 60
 
 export const metadata = {
   title: "Catalogue Combustibles Bois & Granulés | LenaDireta",
@@ -15,7 +16,7 @@ export const metadata = {
 }
 
 export default async function CataloguePage() {
-  const supabase = await createClient()
+  const supabase = getPublicSupabase()
 
   const { data: products } = await supabase
     .from("products")
