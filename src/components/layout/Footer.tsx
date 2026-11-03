@@ -42,8 +42,8 @@ export function Footer() {
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
-              <h5 className="font-semibold text-stone-200 text-xs sm:text-sm">Paiement Sécurisé</h5>
-              <p className="text-[11px] text-stone-400">CB 3D Secure &amp; Acompte 30%</p>
+              <h5 className="font-semibold text-stone-200 text-xs sm:text-sm">Règlement par Virement (RIB)</h5>
+              <p className="text-[11px] text-stone-400">Paiement direct Crédit Agricole</p>
             </div>
           </div>
         </div>
@@ -64,7 +64,7 @@ export function Footer() {
           </p>
           <div className="mt-4 flex items-center gap-2 text-xs text-stone-300">
             <Phone className="w-4 h-4 text-amber-500" />
-            <span>Service conseil &amp; commandes : <strong>01 89 00 00 00</strong> (8h-18h)</span>
+            <span>Service conseil &amp; commandes : <strong>01 89 00 00 00</strong> (8h-19h)</span>
           </div>
         </div>
 
@@ -72,31 +72,31 @@ export function Footer() {
           <div>
             <h6 className="font-semibold text-stone-200 uppercase tracking-wider mb-3">Combustibles</h6>
             <ul className="space-y-2">
-              <li><Link href="/catalogue" className="hover:text-amber-400 transition-colors">Tous nos bois</Link></li>
-              <li><Link href="/catalogue" className="hover:text-amber-400 transition-colors">Bûches 33 cm</Link></li>
-              <li><Link href="/catalogue" className="hover:text-amber-400 transition-colors">Bûches 50 cm</Link></li>
-              <li><Link href="/catalogue" className="hover:text-amber-400 transition-colors">Pellets Din+</Link></li>
-              <li><Link href="/catalogue" className="hover:text-amber-400 transition-colors">Bûches calorifiques</Link></li>
+              <li><Link href="/bois-de-chauffage" className="hover:text-amber-400 transition-colors">Bois de Chauffage (25, 33, 50cm)</Link></li>
+              <li><Link href="/bois-compresse" className="hover:text-amber-400 transition-colors">Bûches Compressées Jour &amp; Nuit</Link></li>
+              <li><Link href="/granules-de-bois" className="hover:text-amber-400 transition-colors">Granulés de Bois Din+ / EnPlus</Link></li>
+              <li><Link href="/catalogue" className="hover:text-amber-400 transition-colors">Toute la Boutique</Link></li>
             </ul>
           </div>
 
           <div>
             <h6 className="font-semibold text-stone-200 uppercase tracking-wider mb-3">Services &amp; Outils</h6>
             <ul className="space-y-2">
-              <li><Link href="/panier" className="hover:text-amber-400 transition-colors">Mon Panier</Link></li>
+              <li><Link href="/nos-depots" className="hover:text-amber-400 transition-colors">Nos 4 Dépôts Drive (-40€)</Link></li>
+              <li><Link href="/infos-pratiques" className="hover:text-amber-400 transition-colors">Infos Pratiques &amp; FAQ</Link></li>
               <li><Link href="/#simulateur" className="hover:text-amber-400 transition-colors">Calculateur de stères</Link></li>
-              <li><Link href="/livraison-et-acces" className="hover:text-amber-400 transition-colors">Conditions d'accès 19T</Link></li>
-              <li><Link href="/livraison-et-acces" className="hover:text-amber-400 transition-colors">Chariot tout-terrain</Link></li>
+              <li><Link href="/livraison-et-acces" className="hover:text-amber-400 transition-colors">Conditions d&apos;accès 19T</Link></li>
+              <li><Link href="/panier" className="hover:text-amber-400 transition-colors">Mon Panier</Link></li>
             </ul>
           </div>
 
           <div>
-            <h6 className="font-semibold text-stone-200 uppercase tracking-wider mb-3">L'Entreprise</h6>
+            <h6 className="font-semibold text-stone-200 uppercase tracking-wider mb-3">L&apos;Entreprise</h6>
             <ul className="space-y-2">
-              <li><Link href="/qui-sommes-nous" className="hover:text-amber-400 transition-colors">Qui sommes-nous ?</Link></li>
-              <li><Link href="/guide-du-bois" className="hover:text-amber-400 transition-colors">Guide du bois sec</Link></li>
-              <li><Link href="/guide-du-bois" className="hover:text-amber-400 transition-colors">Méthode Top-Down</Link></li>
-              <li><Link href="/qui-sommes-nous" className="hover:text-amber-400 transition-colors">Nos engagements PEFC</Link></li>
+              <li><Link href="/qui-sommes-nous" className="hover:text-amber-400 transition-colors">L&apos;Exploitation &amp; Scierie</Link></li>
+              <li><Link href="/contact" className="hover:text-amber-400 transition-colors">Contact &amp; Devis</Link></li>
+              <li><Link href="/connexion" className="hover:text-amber-400 transition-colors">Espace Client / Connexion</Link></li>
+              <li><Link href="/guide-du-bois" className="hover:text-amber-400 transition-colors">Guide Allumage Top-Down</Link></li>
             </ul>
           </div>
         </div>

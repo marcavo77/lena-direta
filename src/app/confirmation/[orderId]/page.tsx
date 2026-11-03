@@ -16,6 +16,7 @@ import {
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { formatPrice } from "@/lib/utils"
+import { RibPaymentCard } from "@/components/checkout/RibPaymentCard"
 
 interface ConfirmationPageProps {
   params: Promise<{ orderId: string }>
@@ -82,6 +83,17 @@ export default async function OrderConfirmationPage({ params }: ConfirmationPage
               {order.order_number}
             </span>
           </div>
+        </div>
+
+        {/* Coordonnées Bancaires (RIB) & Instructions de Virement */}
+        <div className="mb-8">
+          <RibPaymentCard
+            orderNumber={order.order_number}
+            totalFormatted={formatPrice(order.total_cents)}
+            depositFormatted={formatPrice(Math.round(order.total_cents * 0.3))}
+            paymentMethod={shipping.payment_method || "transfer"}
+            customerPhone={order.customer_phone}
+          />
         </div>
 
         {/* Protocole des Prochaines Étapes Logistiques (Inspiré de Brazeco & Simplyfeu) */}

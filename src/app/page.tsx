@@ -83,7 +83,7 @@ export default async function HomePage() {
                   </div>
                 </div>
                 <Link
-                  href="/catalogue"
+                  href="/bois-compresse"
                   className="w-full text-center bg-[#ea580c] hover:bg-[#c2410c] active:scale-95 text-white font-bold py-2.5 sm:py-3 px-3 rounded-full text-xs sm:text-sm tracking-wide transition-colors shadow-sm min-h-[44px] flex items-center justify-center"
                 >
                   Bois compressé
@@ -104,7 +104,7 @@ export default async function HomePage() {
                   </div>
                 </div>
                 <Link
-                  href="/catalogue"
+                  href="/bois-de-chauffage"
                   className="w-full text-center bg-[#ea580c] hover:bg-[#c2410c] active:scale-95 text-white font-bold py-2.5 sm:py-3 px-3 rounded-full text-xs sm:text-sm tracking-wide transition-colors shadow-sm min-h-[44px] flex items-center justify-center"
                 >
                   Bois de chauffage
@@ -125,31 +125,31 @@ export default async function HomePage() {
                   </div>
                 </div>
                 <Link
-                  href="/catalogue"
+                  href="/granules-de-bois"
                   className="w-full text-center bg-[#ea580c] hover:bg-[#c2410c] active:scale-95 text-white font-bold py-2.5 sm:py-3 px-3 rounded-full text-xs sm:text-sm tracking-wide transition-colors shadow-sm min-h-[44px] flex items-center justify-center"
                 >
                   Granulés de bois
                 </Link>
               </div>
 
-              {/* Carte 4 : Livraison Tout-Terrain & Dépôts */}
+              {/* Carte 4 : Retrait Drive & Dépôts */}
               <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-3.5 sm:p-5 flex flex-col items-center justify-between hover:border-amber-500/50 transition-all group">
                 <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-stone-900 border border-stone-800 mb-3 sm:mb-4">
                   <Image
                     src="/images/livraison-camion.jpg"
-                    alt="Livraison tout-terrain camion 19T"
+                    alt="Nos dépôts drive scierie"
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
                   />
-                  <div className="absolute top-2 right-2 bg-stone-950/80 border border-amber-500/30 text-amber-400 text-[10px] font-black uppercase px-2 py-0.5 rounded">
-                    Camion 19T + Chariot
+                  <div className="absolute top-2 right-2 bg-amber-500 text-stone-950 text-[10px] font-black uppercase px-2 py-0.5 rounded">
+                    -40 € / palette
                   </div>
                 </div>
                 <Link
-                  href="/livraison-et-acces"
+                  href="/nos-depots"
                   className="w-full text-center bg-[#ea580c] hover:bg-[#c2410c] active:scale-95 text-white font-bold py-2.5 sm:py-3 px-3 rounded-full text-xs sm:text-sm tracking-wide transition-colors shadow-sm min-h-[44px] flex items-center justify-center"
                 >
-                  Livraison &amp; Dépôts
+                  Nos 4 Dépôts Drive
                 </Link>
               </div>
             </div>

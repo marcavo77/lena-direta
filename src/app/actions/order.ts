@@ -71,6 +71,12 @@ export async function createOrder(input: CreateOrderInput) {
 
     const supabase = await createClient()
 
+    // Récupération de l'utilisateur connecté si présent
+    const {
+      data: { user: authUser },
+    } = await supabase.auth.getUser()
+    const currentUserId = authUser?.id || null
+
     // 2. Vérification des prix côté serveur d'après la base Supabase
     const productIds = rawItems.map((i) => i.productId)
     const { data: dbProducts, error: prodErr } = await supabase
@@ -174,6 +180,7 @@ export async function createOrder(input: CreateOrderInput) {
       .from("orders")
       .insert({
         order_number: orderNumber,
+        user_id: currentUserId,
         customer_name: customerName,
         customer_email: customerEmail,
         customer_phone: customerPhone,

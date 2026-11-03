@@ -69,8 +69,8 @@ export default function CheckoutTunnelPage() {
     "flexible"
   )
 
-  // Étape 4 : Paiement
-  const [paymentMethod, setPaymentMethod] = useState<"card" | "deposit" | "transfer">("card")
+  // Étape 4 : Paiement - Virement Bancaire (RIB) par défaut selon modèle bois & scierie
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "deposit" | "transfer">("transfer")
   const [cgvAccepted, setCgvAccepted] = useState(false)
 
   const count = getItemCount()
@@ -620,7 +620,91 @@ export default function CheckoutTunnelPage() {
                 </div>
 
                 <div className="space-y-3">
-                  {/* Option 1 : Carte Bancaire */}
+                  {/* Option 1 : Virement Bancaire (RIB) - Recommandé par la Scierie */}
+                  <label
+                    onClick={() => setPaymentMethod("transfer")}
+                    className={`block p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                      paymentMethod === "transfer"
+                        ? "border-amber-500 bg-amber-500/10"
+                        : "border-stone-800 bg-stone-900/60 hover:border-stone-700"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="radio"
+                          name="payment"
+                          checked={paymentMethod === "transfer"}
+                          onChange={() => setPaymentMethod("transfer")}
+                          className="w-4 h-4 text-amber-500 focus:ring-amber-500 bg-stone-900 border-stone-700"
+                        />
+                        <div>
+                          <div className="font-bold text-sm text-stone-100 flex items-center gap-2">
+                            <span>Virement Bancaire (RIB)</span>
+                            <span className="text-[10px] uppercase font-black bg-amber-500 text-stone-950 px-2 py-0.5 rounded">
+                              Recommandé • Zéro Frais
+                            </span>
+                          </div>
+                          <div className="text-xs text-stone-400 mt-0.5">
+                            Paiement direct à la scierie (Crédit Agricole). Coordonnées bancaires transmises à la confirmation avec référence unique.
+                          </div>
+                        </div>
+                      </div>
+                      <Building2 className="w-5 h-5 text-amber-500 hidden sm:block shrink-0" />
+                    </div>
+
+                    {paymentMethod === "transfer" && (
+                      <div className="mt-3.5 pt-3 border-t border-amber-500/20 text-xs text-stone-300 grid grid-cols-1 sm:grid-cols-3 gap-2 bg-stone-950/60 p-3 rounded-lg font-mono">
+                        <div>
+                          <span className="text-[10px] uppercase text-stone-500 font-sans block">Titulaire</span>
+                          <span className="font-bold text-stone-200">LENADIRETA SAS</span>
+                        </div>
+                        <div>
+                          <span className="text-[10px] uppercase text-stone-500 font-sans block">Banque</span>
+                          <span className="text-stone-300">Crédit Agricole IDF</span>
+                        </div>
+                        <div>
+                          <span className="text-[10px] uppercase text-stone-500 font-sans block">IBAN Début</span>
+                          <span className="text-amber-400 font-bold">FR76 1027 8000 ...</span>
+                        </div>
+                      </div>
+                    )}
+                  </label>
+
+                  {/* Option 2 : Virement avec Acompte 30% */}
+                  <label
+                    onClick={() => setPaymentMethod("deposit")}
+                    className={`block p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                      paymentMethod === "deposit"
+                        ? "border-amber-500 bg-amber-500/10"
+                        : "border-stone-800 bg-stone-900/60 hover:border-stone-700"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="radio"
+                          name="payment"
+                          checked={paymentMethod === "deposit"}
+                          onChange={() => setPaymentMethod("deposit")}
+                          className="w-4 h-4 text-amber-500 focus:ring-amber-500 bg-stone-900 border-stone-700"
+                        />
+                        <div>
+                          <div className="font-bold text-sm text-stone-100 flex items-center gap-2">
+                            <span>Acompte 30% par virement + Solde à livraison</span>
+                            <span className="text-[10px] uppercase font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded">
+                              Option Confort
+                            </span>
+                          </div>
+                          <div className="text-xs text-stone-400 mt-0.5">
+                            Acompte de {formatPrice(Math.round(total * 0.3))} par virement pour bloquer les stères, solde de {formatPrice(Math.round(total * 0.7))} au déchargement.
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </label>
+
+                  {/* Option 3 : Carte Bancaire */}
                   <label
                     onClick={() => setPaymentMethod("card")}
                     className={`block p-4 rounded-xl border-2 cursor-pointer transition-all ${
@@ -643,77 +727,13 @@ export default function CheckoutTunnelPage() {
                             Carte Bancaire (CB, Visa, Mastercard)
                           </div>
                           <div className="text-xs text-stone-400 mt-0.5">
-                            Paiement immédiat 100% sécurisé via passerelle Stripe 3D-Secure
+                            Paiement immédiat 100% sécurisé via passerelle bancaire 3D-Secure
                           </div>
                         </div>
                       </div>
                       <div className="hidden sm:flex items-center gap-2 text-stone-400 text-xs font-semibold">
                         <span>CB</span> • <span>VISA</span> • <span>MASTERCARD</span>
                       </div>
-                    </div>
-                  </label>
-
-                  {/* Option 2 : Virement avec Acompte 30% (Très rassurant pour les clients bois) */}
-                  <label
-                    onClick={() => setPaymentMethod("deposit")}
-                    className={`block p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                      paymentMethod === "deposit"
-                        ? "border-amber-500 bg-amber-500/10"
-                        : "border-stone-800 bg-stone-900/60 hover:border-stone-700"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="radio"
-                          name="payment"
-                          checked={paymentMethod === "deposit"}
-                          onChange={() => setPaymentMethod("deposit")}
-                          className="w-4 h-4 text-amber-500 focus:ring-amber-500 bg-stone-900 border-stone-700"
-                        />
-                        <div>
-                          <div className="font-bold text-sm text-stone-100 flex items-center gap-2">
-                            <span>Acompte 30% à la commande + Solde à la livraison</span>
-                            <span className="text-[10px] uppercase font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded">
-                              Recommandé
-                            </span>
-                          </div>
-                          <div className="text-xs text-stone-400 mt-0.5">
-                            Vous versez {formatPrice(Math.round(total * 0.3))} à la réservation, et le solde ({formatPrice(Math.round(total * 0.7))}) à la livraison.
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </label>
-
-                  {/* Option 3 : Virement bancaire intégral */}
-                  <label
-                    onClick={() => setPaymentMethod("transfer")}
-                    className={`block p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                      paymentMethod === "transfer"
-                        ? "border-amber-500 bg-amber-500/10"
-                        : "border-stone-800 bg-stone-900/60 hover:border-stone-700"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="radio"
-                          name="payment"
-                          checked={paymentMethod === "transfer"}
-                          onChange={() => setPaymentMethod("transfer")}
-                          className="w-4 h-4 text-amber-500 focus:ring-amber-500 bg-stone-900 border-stone-700"
-                        />
-                        <div>
-                          <div className="font-bold text-sm text-stone-100">
-                            Virement Bancaire Immédiat
-                          </div>
-                          <div className="text-xs text-stone-400 mt-0.5">
-                            Les coordonnées bancaires (IBAN scierie) vous seront transmises dès validation.
-                          </div>
-                        </div>
-                      </div>
-                      <Building2 className="w-5 h-5 text-stone-500 hidden sm:block" />
                     </div>
                   </label>
                 </div>

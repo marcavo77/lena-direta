@@ -40,11 +40,11 @@ export default function AuthPage() {
       setErrorMessage(res.error)
       setLoading(false)
     } else {
-      setSuccessMessage("Connexion réussie ! Redirection en cours...")
+      setSuccessMessage("Connexion réussie ! Redirection vers votre espace client...")
       setTimeout(() => {
-        router.push("/")
+        router.push("/mon-compte")
         router.refresh()
-      }, 800)
+      }, 600)
     }
   }
 
@@ -71,10 +71,12 @@ export default function AuthPage() {
       setLoading(false)
     } else {
       setSuccessMessage(
-        "Compte créé avec succès ! Un email de confirmation vous a été envoyé. Vous pouvez maintenant vous connecter."
+        "Compte créé avec succès ! Synchronisation avec votre espace client..."
       )
-      setTab("login")
-      setLoading(false)
+      setTimeout(() => {
+        router.push("/mon-compte")
+        router.refresh()
+      }, 700)
     }
   }
 

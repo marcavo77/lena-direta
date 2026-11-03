@@ -99,6 +99,36 @@ export interface Database {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          phone: string | null
+          shipping_address: Json | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          shipping_address?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          shipping_address?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           badge: string | null
@@ -186,3 +216,4 @@ export interface Database {
 export type Product = Database["public"]["Tables"]["products"]["Row"]
 export type DeliveryZone = Database["public"]["Tables"]["delivery_zones"]["Row"]
 export type Order = Database["public"]["Tables"]["orders"]["Row"]
+export type Profile = Database["public"]["Tables"]["profiles"]["Row"]
