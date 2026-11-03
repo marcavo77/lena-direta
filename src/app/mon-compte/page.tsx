@@ -16,7 +16,6 @@ import {
 } from "lucide-react"
 import { getUserProfileAndOrders, logoutAction } from "@/app/actions/auth"
 import { formatPrice } from "@/lib/utils"
-import { Header } from "@/components/layout/Header"
 import { Footer } from "@/components/layout/Footer"
 
 export const dynamic = "force-dynamic"
@@ -33,8 +32,6 @@ export default async function MonComptePage() {
 
   return (
     <div className="bg-[#121110] min-h-screen text-stone-100 flex flex-col font-sans">
-      <Header />
-
       <main className="flex-1 py-10 sm:py-16">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
         {/* Fil d'Ariane & En-tête */}
