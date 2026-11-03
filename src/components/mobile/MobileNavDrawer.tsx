@@ -18,6 +18,7 @@ import {
   LogOut,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { ThemeToggle } from "@/components/layout/ThemeToggle"
 
 interface MobileNavDrawerProps {
   onOpenWarehouseModal: () => void
@@ -98,14 +99,17 @@ export function MobileNavDrawer({ onOpenWarehouseModal }: MobileNavDrawerProps) 
                 </span>
               </div>
 
-              <button
-                type="button"
-                onClick={closeMenu}
-                aria-label="Fermer le menu"
-                className="w-9 h-9 rounded-lg bg-stone-900 border border-stone-800 flex items-center justify-center text-stone-400 hover:text-stone-100"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-2">
+                <ThemeToggle />
+                <button
+                  type="button"
+                  onClick={closeMenu}
+                  aria-label="Fermer le menu"
+                  className="w-9 h-9 rounded-lg bg-stone-900 border border-stone-800 flex items-center justify-center text-stone-400 hover:text-stone-100"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
             {/* Actions Rapides en haut */}

@@ -17,6 +17,7 @@ import {
 import { getUserProfileAndOrders, logoutAction } from "@/app/actions/auth"
 import { formatPrice } from "@/lib/utils"
 import { Footer } from "@/components/layout/Footer"
+import { ThemeToggle } from "@/components/layout/ThemeToggle"
 
 export const dynamic = "force-dynamic"
 
@@ -34,14 +35,17 @@ export default async function MonComptePage() {
     <div className="bg-[#121110] min-h-screen text-stone-100 flex flex-col font-sans">
       <main className="flex-1 py-10 sm:py-16">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
-        {/* Fil d'Ariane & En-tête */}
-        <nav className="flex items-center gap-2 text-xs text-stone-400 mb-6 font-medium">
-          <Link href="/" className="hover:text-amber-400 transition-colors">
-            Accueil
-          </Link>
-          <span>/</span>
-          <span className="text-stone-200">Mon Compte Client</span>
-        </nav>
+        {/* Fil d'Ariane & Bascule Thème */}
+        <div className="flex items-center justify-between gap-4 mb-6">
+          <nav className="flex items-center gap-2 text-xs text-stone-400 font-medium">
+            <Link href="/" className="hover:text-amber-400 transition-colors">
+              Accueil
+            </Link>
+            <span>/</span>
+            <span className="text-stone-200">Mon Compte Client</span>
+          </nav>
+          <ThemeToggle />
+        </div>
 
         <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-6 sm:p-8 mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-4">

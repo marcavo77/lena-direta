@@ -15,6 +15,7 @@ import {
 import { CartDrawer } from "@/components/mobile/CartDrawer"
 import { MobileNavDrawer } from "@/components/mobile/MobileNavDrawer"
 import { WarehouseSelectorModal } from "@/components/layout/WarehouseSelectorModal"
+import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { createClient } from "@/lib/supabase/client"
 import { useCartStore } from "@/lib/store/cart"
 
@@ -73,18 +74,24 @@ export function Header() {
         {/* ================= BARRE SUPÉRIEURE (Inspirée de Brazeco - Captures 1 & 2) ================= */}
         <div className="bg-stone-900 border-b border-stone-800 text-stone-300 text-xs py-2 px-4 sm:px-6">
           <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
-            {/* Gauche : Bouton Choisir mon entrepôt */}
-            <div className="flex items-center gap-3">
+            {/* Gauche : Bouton Choisir mon entrepôt & Toggle Thème (Capture) */}
+            <div className="flex items-center gap-2 sm:gap-3">
               <button
                 type="button"
                 onClick={() => setWarehouseModalOpen(true)}
-                className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black px-3.5 py-1.5 rounded-full text-[11px] uppercase tracking-wider transition-all shadow-sm active:scale-95 min-h-[32px]"
+                className="inline-flex items-center gap-1.5 sm:gap-2 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-[10px] sm:text-[11px] uppercase tracking-wider transition-all shadow-sm active:scale-95 min-h-[28px] sm:min-h-[32px] shrink-0"
               >
-                <Warehouse className="w-3.5 h-3.5" />
-                <span>
+                <Warehouse className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+                <span className="hidden sm:inline">
                   {fulfillmentMethod === "drive" ? "Dépôt Drive Sélectionné" : "Choisir mon entrepôt"}
                 </span>
+                <span className="sm:hidden inline">
+                  {fulfillmentMethod === "drive" ? "Drive Choisi" : "Mon entrepôt"}
+                </span>
               </button>
+
+              {/* Bouton Dark / Light Mode */}
+              <ThemeToggle />
 
               {/* Avis Vérifiés au centre/gauche */}
               <div className="hidden md:flex items-center gap-1.5 text-stone-300 text-[11px] font-semibold border-l border-stone-800 pl-3">
