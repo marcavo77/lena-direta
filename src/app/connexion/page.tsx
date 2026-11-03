@@ -16,12 +16,20 @@ import {
   Flame,
   FileText,
   Clock,
+  Eye,
+  EyeOff,
 } from "lucide-react"
+import { Header } from "@/components/layout/Header"
+import { Footer } from "@/components/layout/Footer"
 import { loginAction, signupAction } from "@/app/actions/auth"
 
 export default function AuthPage() {
   const router = useRouter()
   const [tab, setTab] = useState<"login" | "signup">("login")
+
+  const [showLoginPassword, setShowLoginPassword] = useState(false)
+  const [showSignupPassword, setShowSignupPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const [loading, setLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -81,8 +89,11 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="bg-[#121110] min-h-screen text-stone-100 py-10 sm:py-16">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6">
+    <div className="bg-[#121110] min-h-screen text-stone-100 flex flex-col font-sans">
+      <Header />
+
+      <main className="flex-1 py-10 sm:py-16">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6">
         {/* Fil d'Ariane */}
         <nav className="flex items-center gap-2 text-xs text-stone-400 mb-6 font-medium">
           <Link href="/" className="hover:text-amber-400 transition-colors">
@@ -189,14 +200,27 @@ export default function AuthPage() {
                   </div>
                   <div className="relative">
                     <input
-                      type="password"
+                      type={showLoginPassword ? "text" : "password"}
                       name="password"
                       required
                       autoComplete="current-password"
                       placeholder="••••••••"
-                      className="w-full bg-stone-900 border border-stone-700 rounded-xl px-4 py-3 pl-10 text-sm text-stone-100 focus:outline-none focus:border-amber-500 min-h-[44px]"
+                      className="w-full bg-stone-900 border border-stone-700 rounded-xl px-4 py-3 pl-10 pr-11 text-sm text-stone-100 focus:outline-none focus:border-amber-500 min-h-[44px]"
                     />
-                    <Lock className="w-4 h-4 text-stone-400 absolute left-3.5 top-3.5" />
+                    <Lock className="w-4 h-4 text-stone-400 absolute left-3.5 top-3.5 pointer-events-none" />
+                    <button
+                      type="button"
+                      onClick={() => setShowLoginPassword((prev) => !prev)}
+                      className="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center text-stone-400 hover:text-amber-400 transition-colors rounded-lg focus:outline-none"
+                      aria-label={showLoginPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                      title={showLoginPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                    >
+                      {showLoginPassword ? (
+                        <EyeOff className="w-4 h-4 text-amber-400" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </button>
                   </div>
                 </div>
 
@@ -273,26 +297,58 @@ export default function AuthPage() {
                     <label className="block text-xs font-bold text-stone-300 mb-1.5">
                       Mot de passe *
                     </label>
-                    <input
-                      type="password"
-                      name="password"
-                      required
-                      placeholder="Min. 6 caractères"
-                      className="w-full bg-stone-900 border border-stone-700 rounded-xl px-4 py-3 text-sm text-stone-100 focus:outline-none focus:border-amber-500 min-h-[44px]"
-                    />
+                    <div className="relative">
+                      <input
+                        type={showSignupPassword ? "text" : "password"}
+                        name="password"
+                        required
+                        placeholder="Min. 6 caractères"
+                        className="w-full bg-stone-900 border border-stone-700 rounded-xl px-4 py-3 pl-10 pr-11 text-sm text-stone-100 focus:outline-none focus:border-amber-500 min-h-[44px]"
+                      />
+                      <Lock className="w-4 h-4 text-stone-400 absolute left-3.5 top-3.5 pointer-events-none" />
+                      <button
+                        type="button"
+                        onClick={() => setShowSignupPassword((prev) => !prev)}
+                        className="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center text-stone-400 hover:text-amber-400 transition-colors rounded-lg focus:outline-none"
+                        aria-label={showSignupPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                        title={showSignupPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                      >
+                        {showSignupPassword ? (
+                          <EyeOff className="w-4 h-4 text-amber-400" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
                   </div>
 
                   <div>
                     <label className="block text-xs font-bold text-stone-300 mb-1.5">
                       Confirmer mot de passe *
                     </label>
-                    <input
-                      type="password"
-                      name="confirmPassword"
-                      required
-                      placeholder="••••••••"
-                      className="w-full bg-stone-900 border border-stone-700 rounded-xl px-4 py-3 text-sm text-stone-100 focus:outline-none focus:border-amber-500 min-h-[44px]"
-                    />
+                    <div className="relative">
+                      <input
+                        type={showConfirmPassword ? "text" : "password"}
+                        name="confirmPassword"
+                        required
+                        placeholder="••••••••"
+                        className="w-full bg-stone-900 border border-stone-700 rounded-xl px-4 py-3 pl-10 pr-11 text-sm text-stone-100 focus:outline-none focus:border-amber-500 min-h-[44px]"
+                      />
+                      <Lock className="w-4 h-4 text-stone-400 absolute left-3.5 top-3.5 pointer-events-none" />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword((prev) => !prev)}
+                        className="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center text-stone-400 hover:text-amber-400 transition-colors rounded-lg focus:outline-none"
+                        aria-label={showConfirmPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                        title={showConfirmPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="w-4 h-4 text-amber-400" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -382,6 +438,9 @@ export default function AuthPage() {
           </div>
         </div>
       </div>
+      </main>
+
+      <Footer />
     </div>
   )
 }

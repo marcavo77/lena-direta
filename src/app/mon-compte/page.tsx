@@ -16,6 +16,8 @@ import {
 } from "lucide-react"
 import { getUserProfileAndOrders, logoutAction } from "@/app/actions/auth"
 import { formatPrice } from "@/lib/utils"
+import { Header } from "@/components/layout/Header"
+import { Footer } from "@/components/layout/Footer"
 
 export const dynamic = "force-dynamic"
 
@@ -30,8 +32,11 @@ export default async function MonComptePage() {
   const shipping = (profile.shipping_address as { street?: string; postal_code?: string; city?: string }) || {}
 
   return (
-    <div className="bg-[#121110] min-h-screen text-stone-100 py-10 sm:py-16">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6">
+    <div className="bg-[#121110] min-h-screen text-stone-100 flex flex-col font-sans">
+      <Header />
+
+      <main className="flex-1 py-10 sm:py-16">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
         {/* Fil d'Ariane & En-tête */}
         <nav className="flex items-center gap-2 text-xs text-stone-400 mb-6 font-medium">
           <Link href="/" className="hover:text-amber-400 transition-colors">
@@ -228,6 +233,9 @@ export default async function MonComptePage() {
           </div>
         </div>
       </div>
+      </main>
+
+      <Footer />
     </div>
   )
 }
