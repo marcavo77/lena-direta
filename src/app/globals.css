@@ -203,3 +203,18 @@ html.light .theme-toggle-btn {
   border-color: #ded9cf !important;
   color: #d97706 !important;
 }
+
+/* Barres d'action collantes mobiles en Mode Clair (Capture) */
+html.light .fixed.bottom-0:not([data-vaul-drawer-wrapper] *) {
+  background-color: rgba(255, 255, 255, 0.96) !important;
+  border-color: #ded9cf !important;
+  box-shadow: 0 -4px 20px -2px rgba(28, 25, 23, 0.08) !important;
+}
+
+html.light .fixed.bottom-0 .text-stone-400 {
+  color: #78716c !important;
+}
+
+html.light .fixed.bottom-0 .text-stone-200 {
+  color: #1c1917 !important;
+}

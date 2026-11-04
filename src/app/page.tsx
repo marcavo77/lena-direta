@@ -4,6 +4,7 @@ import { StereCalculator } from "@/components/shop/StereCalculator"
 import { DeliveryChecker } from "@/components/shop/DeliveryChecker"
 import { Header } from "@/components/layout/Header"
 import { Footer } from "@/components/layout/Footer"
+import { HomeStickyBar } from "@/components/mobile/HomeStickyBar"
 import Image from "next/image"
 import Link from "next/link"
 import {
@@ -424,35 +425,8 @@ export default async function HomePage() {
 
       <Footer />
 
-      {/* BARRE D'ACTION COLLANTE SUR MOBILE (STICKY BOTTOM BAR MOBILE-FIRST) */}
-      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-stone-950/95 border-t border-stone-800 p-3 flex items-center justify-between gap-3 shadow-2xl backdrop-blur-sm">
-        <div>
-          <span className="block text-[10px] text-stone-400 uppercase tracking-wider font-semibold">
-            Bois de chauffe H1
-          </span>
-          <span className="text-sm font-bold text-amber-500">
-            Dès 399 € / palette
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <a
-            href="tel:0189000000"
-            className="w-11 h-11 rounded-lg bg-stone-900 border border-stone-800 flex items-center justify-center text-amber-500 shrink-0"
-            aria-label="Appeler le service client"
-          >
-            <PhoneCall className="w-4 h-4" />
-          </a>
-
-          <Link
-            href="/catalogue"
-            className="bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold px-4 py-2.5 rounded-lg text-xs uppercase tracking-wider flex items-center gap-1.5 transition-colors min-h-[44px]"
-          >
-            <span>Commander</span>
-            <ChevronRight className="w-4 h-4" />
-          </Link>
-        </div>
-      </div>
+      {/* BARRE D'ACTION COLLANTE SUR MOBILE AVEC ANIMATION SMART-SCROLL */}
+      <HomeStickyBar />
     </div>
   )
 }

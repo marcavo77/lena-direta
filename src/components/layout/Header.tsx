@@ -16,15 +16,24 @@ import { CartDrawer } from "@/components/mobile/CartDrawer"
 import { MobileNavDrawer } from "@/components/mobile/MobileNavDrawer"
 import { WarehouseSelectorModal } from "@/components/layout/WarehouseSelectorModal"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
+import { useScrollDirection } from "@/lib/hooks/useScrollDirection"
 import { createClient } from "@/lib/supabase/client"
 import { useCartStore } from "@/lib/store/cart"
 
 export function Header() {
+  const isVisible = useScrollDirection()
   const [warehouseModalOpen, setWarehouseModalOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const [user, setUser] = useState<{ email?: string; id?: string } | null>(null)
   const navRef = useRef<HTMLElement>(null)
   const { fulfillmentMethod } = useCartStore()
+
+  // Fermer les menus déroulants si la barre se masque au défilement
+  useEffect(() => {
+    if (!isVisible) {
+      setActiveDropdown(null)
+    }
+  }, [isVisible])
 
   // Détection de session client Supabase
   useEffect(() => {
@@ -70,7 +79,11 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full bg-stone-950 border-b border-stone-800 shadow-md">
+      <header
+        className={`sticky top-0 z-40 w-full bg-stone-950 border-b border-stone-800 shadow-md transition-transform duration-300 ease-in-out will-change-transform ${
+          isVisible ? "translate-y-0" : "-translate-y-full"
+        }`}
+      >
         {/* ================= BARRE SUPÉRIEURE (Inspirée de Brazeco - Captures 1 & 2) ================= */}
         <div className="bg-stone-900 border-b border-stone-800 text-stone-300 text-xs py-2 px-4 sm:px-6">
           <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">

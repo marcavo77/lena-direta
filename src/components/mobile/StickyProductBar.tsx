@@ -5,12 +5,14 @@ import { useCartStore } from "@/lib/store/cart"
 import { formatPrice } from "@/lib/utils"
 import type { Product } from "@/lib/supabase/database.types"
 import { ShoppingCart, Check } from "lucide-react"
+import { useScrollDirection } from "@/lib/hooks/useScrollDirection"
 
 interface StickyProductBarProps {
   product: Product
 }
 
 export function StickyProductBar({ product }: StickyProductBarProps) {
+  const isVisible = useScrollDirection()
   const [added, setAdded] = useState(false)
   const addItem = useCartStore((s) => s.addItem)
 
@@ -21,10 +23,14 @@ export function StickyProductBar({ product }: StickyProductBarProps) {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-30 sm:hidden bg-stone-950 border-t border-stone-800 p-3 flex items-center justify-between gap-3 shadow-2xl">
+    <div
+      className={`fixed bottom-0 left-0 right-0 z-30 sm:hidden bg-white/95 dark:bg-stone-950/95 border-t border-stone-200 dark:border-stone-800 p-3 flex items-center justify-between gap-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] dark:shadow-2xl backdrop-blur-sm transition-transform duration-300 ease-in-out will-change-transform ${
+        isVisible ? "translate-y-0" : "translate-y-full"
+      }`}
+    >
       <div className="min-w-0 flex-1">
-        <div className="text-xs font-bold text-stone-200 truncate">{product.name}</div>
-        <div className="text-base font-black text-amber-500">
+        <div className="text-xs font-bold text-stone-900 dark:text-stone-200 truncate">{product.name}</div>
+        <div className="text-base font-black text-amber-600 dark:text-amber-500">
           {formatPrice(product.unit_price_cents)}
         </div>
       </div>
