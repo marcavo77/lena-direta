@@ -55,8 +55,9 @@ export function Footer() {
             <div className="w-7 h-7 rounded-lg bg-amber-500 flex items-center justify-center">
               <Flame className="w-4 h-4 text-stone-950 fill-stone-950" />
             </div>
-            <span className="font-bold text-stone-100 text-lg">
-              Lena<span className="text-amber-500">Direta</span>
+            <span className="font-bold text-lg">
+              <span className="text-black dark:text-stone-100 logo-lena">Lena</span>
+              <span className="text-amber-500">Direta</span>
             </span>
           </div>
           <p className="text-xs text-stone-400 max-w-sm leading-relaxed">

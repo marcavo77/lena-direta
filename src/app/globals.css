@@ -114,9 +114,15 @@ html.light header .text-stone-400 {
   color: #44403c !important;
 }
 
-html.light header .hover\:text-amber-400:hover,
-html.light header .group-hover\:text-amber-400 {
+html.light header .hover\:text-amber-400:hover {
   color: #b45309 !important;
+}
+
+/* Logo LenaDireta — "Lena" en noir en mode clair */
+html.light .logo-lena,
+html.light header .logo-lena,
+html.light footer .logo-lena {
+  color: #000000 !important;
 }
 
 /* Menus déroulants, tiroirs et modales */

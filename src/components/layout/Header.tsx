@@ -180,10 +180,11 @@ export function Header() {
               <Flame className="w-6 h-6 fill-stone-950" />
             </div>
             <div>
-              <span className="text-xl font-black tracking-tight text-stone-100 group-hover:text-amber-400 transition-colors">
-                Lena<span className="text-amber-500">Direta</span>
+              <span className="text-xl font-black tracking-tight transition-colors">
+                <span className="text-black dark:text-stone-100 logo-lena">Lena</span>
+                <span className="text-amber-500">Direta</span>
               </span>
-              <span className="block text-[10px] text-stone-400 uppercase tracking-widest font-bold">
+              <span className="block text-[10px] text-stone-500 dark:text-stone-400 uppercase tracking-widest font-bold">
                 Exploitation &amp; Scierie
               </span>
             </div>

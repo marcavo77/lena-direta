@@ -94,8 +94,9 @@ export function MobileNavDrawer({ onOpenWarehouseModal }: MobileNavDrawerProps) 
                 <div className="w-8 h-8 rounded-lg bg-amber-500 text-stone-950 flex items-center justify-center">
                   <Flame className="w-5 h-5 fill-stone-950" />
                 </div>
-                <span className="font-black text-stone-100 text-base">
-                  Lena<span className="text-amber-500">Direta</span>
+                <span className="font-black text-base">
+                  <span className="text-black dark:text-stone-100 logo-lena">Lena</span>
+                  <span className="text-amber-500">Direta</span>
                 </span>
               </div>
 
