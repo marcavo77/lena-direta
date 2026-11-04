@@ -44,15 +44,15 @@ export function ProductCard({ product }: ProductCardProps) {
 
           {/* Badge officiel supérieur */}
           {product.badge && (
-            <div className="absolute top-3 left-3 bg-stone-950/90 border border-stone-700 text-stone-100 text-xs font-bold px-3 py-1 rounded-md uppercase tracking-wider">
+            <div className="absolute top-3 left-3 bg-stone-950/90 border border-stone-700 text-stone-900 dark:text-stone-100 text-xs font-bold px-3 py-1 rounded-md uppercase tracking-wider backdrop-blur-sm shadow-md">
               {product.badge}
             </div>
           )}
 
           {/* Badge Taux d'humidité certifié */}
           {product.humidity_rate && (
-            <div className="absolute bottom-3 left-3 bg-stone-950/90 border border-stone-700 text-stone-100 text-xs font-semibold px-2.5 py-1 rounded-md flex items-center gap-1.5">
-              <Droplet className="w-3.5 h-3.5 text-sky-400 fill-sky-400" />
+            <div className="absolute bottom-3 left-3 bg-stone-950/90 border border-stone-700 text-stone-900 dark:text-stone-100 text-xs font-semibold px-2.5 py-1 rounded-md flex items-center gap-1.5 backdrop-blur-sm shadow-md">
+              <Droplet className="w-3.5 h-3.5 text-sky-500 dark:text-sky-400 fill-sky-500 dark:fill-sky-400 shrink-0" />
               <span>&lt; {product.humidity_rate}% humidité certifié</span>
             </div>
           )}

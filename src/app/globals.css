@@ -153,10 +153,18 @@ html.light textarea:focus {
 }
 
 /* Badges d'état et étiquettes techniques */
-html.light .bg-stone-950\/90 {
+html.light .bg-stone-950\/90,
+html.light .bg-stone-950\/95 {
   background-color: rgba(247, 245, 239, 0.95) !important;
   color: #1c1917 !important;
   border-color: #ded9cf !important;
+}
+
+html.light .bg-stone-950\/90 span,
+html.light .bg-stone-950\/95 span,
+html.light .bg-stone-950\/90 div,
+html.light .bg-stone-950\/95 div {
+  color: #1c1917 !important;
 }
 
 html.light .bg-amber-500\/10 {

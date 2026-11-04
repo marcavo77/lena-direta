@@ -2,8 +2,8 @@ import { getPublicSupabase } from "@/lib/supabase/public"
 import { notFound } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
-import { Header } from "@/components/layout/Header"
 import { Footer } from "@/components/layout/Footer"
+import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { ProductPurchaseBox } from "@/components/shop/ProductPurchaseBox"
 import { StickyProductBar } from "@/components/mobile/StickyProductBar"
 import { DeliveryChecker } from "@/components/shop/DeliveryChecker"
@@ -99,28 +99,29 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100 flex flex-col font-sans">
-      <Header />
-
       <main className="flex-1 pb-20 sm:pb-12">
-        {/* Fil d'Ariane */}
-        <div className="bg-stone-900 border-b border-stone-800 py-3.5">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6">
-            <nav className="flex items-center gap-2 text-xs text-stone-400 font-medium">
-              <Link href="/" className="hover:text-amber-400">
+        {/* Fil d'Ariane & Bascule Thème (Sans Header pour focus achat direct) */}
+        <div className="bg-stone-900 border-b border-stone-800 py-3 sm:py-3.5">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-3">
+            <nav className="flex items-center gap-2 text-xs text-stone-400 font-medium overflow-hidden">
+              <Link href="/" className="hover:text-amber-400 transition-colors shrink-0">
                 Accueil
               </Link>
-              <ChevronRight className="w-3.5 h-3.5 text-stone-600" />
-              <Link href="/catalogue" className="hover:text-amber-400">
+              <ChevronRight className="w-3.5 h-3.5 text-stone-600 shrink-0" />
+              <Link href="/catalogue" className="hover:text-amber-400 transition-colors shrink-0">
                 Catalogue
               </Link>
-              <ChevronRight className="w-3.5 h-3.5 text-stone-600" />
+              <ChevronRight className="w-3.5 h-3.5 text-stone-600 shrink-0" />
               <span className="text-stone-200 truncate">{product.name}</span>
             </nav>
+            <div className="shrink-0 flex items-center gap-2">
+              <ThemeToggle />
+            </div>
           </div>
         </div>
 
         {/* Section Principale Fiche Produit (2 colonnes) */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
             {/* Colonne Gauche : Photos & Badges de Qualité (7 colonnes) */}
             <div className="lg:col-span-7 space-y-6">
@@ -135,15 +136,17 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 />
 
                 {product.badge && (
-                  <div className="absolute top-4 left-4 bg-stone-950/90 border border-stone-700 text-stone-100 text-xs font-bold px-3 py-1.5 rounded-md uppercase tracking-wider">
+                  <div className="absolute top-4 left-4 bg-stone-950/90 border border-stone-700 text-stone-900 dark:text-stone-100 text-xs font-bold px-3 py-1.5 rounded-md uppercase tracking-wider backdrop-blur-sm shadow-md">
                     {product.badge}
                   </div>
                 )}
 
                 {product.humidity_rate && (
-                  <div className="absolute bottom-4 left-4 bg-stone-950/95 border border-stone-700 text-stone-100 text-xs font-bold px-3.5 py-2 rounded-lg flex items-center gap-2 shadow-lg">
-                    <Droplet className="w-4 h-4 text-sky-400 fill-sky-400" />
-                    <span>Taux d&apos;humidité contrôlé : &lt; {product.humidity_rate}% H1</span>
+                  <div className="absolute bottom-4 left-4 bg-stone-950/90 border border-stone-700 text-stone-900 dark:text-stone-100 text-xs font-bold px-3.5 py-2 rounded-lg flex items-center gap-2 shadow-lg backdrop-blur-sm">
+                    <Droplet className="w-4 h-4 text-sky-500 dark:text-sky-400 fill-sky-500 dark:fill-sky-400 shrink-0" />
+                    <span className="text-stone-900 dark:text-stone-100 font-bold">
+                      Taux d&apos;humidité contrôlé : &lt; {product.humidity_rate}% H1
+                    </span>
                   </div>
                 )}
               </div>
@@ -173,8 +176,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             {/* Colonne Droite : Achat, Prix & Options (5 colonnes) */}
             <div className="lg:col-span-5 space-y-6">
               <div>
-                <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-amber-500 mb-2">
-                  <Flame className="w-4 h-4 fill-amber-500" />
+                <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-amber-600 dark:text-amber-500 mb-2">
+                  <Flame className="w-4 h-4 fill-amber-600 text-amber-600 dark:fill-amber-500 dark:text-amber-500 shrink-0" />
                   <span>Combustible Garanti Sans Fumé &amp; Écologique</span>
                 </div>
                 <h1 className="text-2xl sm:text-3xl font-black text-stone-100 leading-snug">
