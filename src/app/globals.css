@@ -33,29 +33,49 @@ body {
 html.light body,
 html.light .bg-stone-950,
 html.light .bg-\[\#121110\],
-html.light .bg-\[\#141211\] {
+html.light .bg-\[\#141211\],
+html.light .bg-\[\#141312\] {
   background-color: #f7f5ef !important;
   color: #1c1917;
 }
 
-/* Cartes, fiches produits, conteneurs et surfaces */
+/* Cartes, fiches produits, hero banners, conteneurs et surfaces */
 html.light .bg-stone-900,
 html.light .bg-\[\#1c1917\],
-html.light .bg-\[\#1a1816\] {
+html.light .bg-\[\#1a1816\],
+html.light .bg-\[\#181615\],
+html.light .bg-\[\#171514\],
+html.light .bg-\[\#161514\],
+html.light .bg-stone-900\/70 {
   background-color: #ffffff !important;
   color: #1c1917;
 }
 
 /* Surfaces secondaires et sous-niveaux doux */
+html.light .bg-stone-900\/10,
+html.light .bg-stone-900\/20,
 html.light .bg-stone-900\/30,
 html.light .bg-stone-900\/40,
 html.light .bg-stone-900\/50,
 html.light .bg-stone-900\/60,
-html.light .bg-stone-900\/80 {
+html.light .bg-stone-900\/80,
+html.light .bg-stone-900\/90,
+html.light .bg-stone-950\/10,
+html.light .bg-stone-950\/20,
+html.light .bg-stone-950\/30,
+html.light .bg-stone-950\/40,
+html.light .bg-stone-950\/50,
+html.light .bg-stone-950\/60,
+html.light .bg-stone-950\/70,
+html.light .bg-stone-950\/80:not(.fixed),
+html.light .bg-\[\#181615\] .bg-stone-900 {
   background-color: #eeece4 !important;
+  color: #1c1917 !important;
 }
 
 html.light .bg-stone-800,
+html.light .bg-stone-800\/40,
+html.light .bg-stone-800\/60,
 html.light .bg-stone-800\/80,
 html.light .bg-stone-800\/90 {
   background-color: #e5e2da !important;
@@ -63,15 +83,22 @@ html.light .bg-stone-800\/90 {
 }
 
 html.light .hover\:bg-stone-800:hover,
-html.light .hover\:bg-stone-900:hover {
+html.light .hover\:bg-stone-900:hover,
+html.light .hover\:bg-stone-900\/40:hover {
   background-color: #eeece4 !important;
 }
 
 /* Bordures nettes et précises (style scierie & menuiserie) */
 html.light .border-stone-800,
 html.light .border-stone-700,
+html.light .border-stone-800\/40,
 html.light .border-stone-800\/60,
 html.light .border-stone-800\/80 {
+  border-color: #ded9cf !important;
+}
+
+html.light .divide-stone-800 > :not([hidden]) ~ :not([hidden]),
+html.light .divide-stone-800\/80 > :not([hidden]) ~ :not([hidden]) {
   border-color: #ded9cf !important;
 }
 
