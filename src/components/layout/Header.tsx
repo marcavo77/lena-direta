@@ -24,14 +24,17 @@ export function Header() {
   const isVisible = useScrollDirection()
   const [warehouseModalOpen, setWarehouseModalOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [user, setUser] = useState<{ email?: string; id?: string } | null>(null)
   const navRef = useRef<HTMLElement>(null)
+  const userMenuRef = useRef<HTMLDivElement>(null)
   const { fulfillmentMethod } = useCartStore()
 
   // Fermer les menus déroulants si la barre se masque au défilement
   useEffect(() => {
     if (!isVisible) {
       setActiveDropdown(null)
+      setUserMenuOpen(false)
     }
   }, [isVisible])
 
@@ -59,11 +62,14 @@ export function Header() {
     }
   }, [])
 
-  // Fermeture du dropdown lors d'un clic en dehors
+  // Fermeture des menus lors d'un clic en dehors
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (navRef.current && !navRef.current.contains(event.target as Node)) {
         setActiveDropdown(null)
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false)
       }
     }
     document.addEventListener("mousedown", handleClickOutside)
@@ -132,44 +138,83 @@ export function Header() {
 
               {/* Bouton Se Connecter / Mon Espace (Flèche rouge de la capture 2) */}
               {user ? (
-                <div className="relative group">
+                <div
+                  ref={userMenuRef}
+                  className="relative"
+                  onMouseEnter={() => {
+                    if (typeof window !== "undefined" && window.innerWidth >= 640) {
+                      setUserMenuOpen(true)
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    if (typeof window !== "undefined" && window.innerWidth >= 640) {
+                      setUserMenuOpen(false)
+                    }
+                  }}
+                >
                   <button
                     type="button"
-                    className="flex items-center gap-1.5 text-stone-200 hover:text-amber-400 text-xs font-bold transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setUserMenuOpen((prev) => !prev)
+                    }}
+                    aria-expanded={userMenuOpen}
+                    aria-label="Menu compte utilisateur"
+                    className="flex items-center gap-1.5 text-stone-200 hover:text-amber-400 text-xs font-bold transition-colors py-1 px-1.5 rounded-lg active:bg-stone-800/40 select-none cursor-pointer"
                   >
-                    <User className="w-3.5 h-3.5 text-emerald-400" />
-                    <span className="max-w-[120px] truncate">{user.email?.split("@")[0]}</span>
-                    <ChevronDown className="w-3 h-3 text-stone-400" />
+                    <User className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    <span className="max-w-[95px] sm:max-w-[125px] truncate">{user.email?.split("@")[0]}</span>
+                    <ChevronDown
+                      className={`w-3 h-3 text-stone-400 transition-transform ${
+                        userMenuOpen ? "rotate-180 text-amber-400" : ""
+                      }`}
+                    />
                   </button>
-                  <div className="hidden group-hover:block absolute right-0 top-full pt-1 z-50">
-                    <div className="bg-[#1c1917] border border-stone-800 rounded-xl p-2 w-48 shadow-xl space-y-1 text-xs">
-                      <div className="px-3 py-1.5 text-[11px] text-stone-400 border-b border-stone-800 truncate">
-                        {user.email}
+
+                  {userMenuOpen && (
+                    <div className="absolute right-0 top-full pt-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
+                      <div className="bg-[#1c1917] border border-stone-800 rounded-xl p-2 w-52 sm:w-56 shadow-2xl space-y-1 text-xs">
+                        <div className="px-3 py-2 text-[11px] text-stone-400 border-b border-stone-800 truncate">
+                          <span className="block text-[9px] text-stone-500 uppercase tracking-wider font-extrabold">
+                            Compte Client
+                          </span>
+                          <span className="font-semibold text-stone-200 truncate block mt-0.5">
+                            {user.email}
+                          </span>
+                        </div>
+                        <Link
+                          href="/mon-compte"
+                          prefetch={true}
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center justify-between px-3 py-2.5 text-stone-200 hover:bg-stone-800 rounded-lg font-bold hover:text-amber-400 transition-colors"
+                        >
+                          <span>Mon Tableau de Bord</span>
+                          <span className="text-amber-400 text-[11px]">→</span>
+                        </Link>
+                        <Link
+                          href="/panier"
+                          prefetch={true}
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center justify-between px-3 py-2.5 text-stone-300 hover:bg-stone-800 rounded-lg transition-colors"
+                        >
+                          <span>Mon Panier</span>
+                        </Link>
+                        <div className="pt-1 border-t border-stone-800">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setUserMenuOpen(false)
+                              handleSignOut()
+                            }}
+                            className="w-full text-left flex items-center gap-2 px-3 py-2 text-rose-400 hover:bg-stone-800 rounded-lg transition-colors font-medium"
+                          >
+                            <LogOut className="w-3.5 h-3.5" />
+                            <span>Se déconnecter</span>
+                          </button>
+                        </div>
                       </div>
-                      <Link
-                        href="/mon-compte"
-                        prefetch={true}
-                        className="block px-3 py-1.5 text-stone-200 hover:bg-stone-800 rounded-lg font-bold hover:text-amber-400"
-                      >
-                        Mon Espace Client
-                      </Link>
-                      <Link
-                        href="/panier"
-                        prefetch={true}
-                        className="block px-3 py-1.5 text-stone-300 hover:bg-stone-800 rounded-lg"
-                      >
-                        Mon Panier
-                      </Link>
-                      <button
-                        type="button"
-                        onClick={handleSignOut}
-                        className="w-full text-left flex items-center gap-2 px-3 py-1.5 text-rose-400 hover:bg-stone-800 rounded-lg"
-                      >
-                        <LogOut className="w-3.5 h-3.5" />
-                        <span>Se déconnecter</span>
-                      </button>
                     </div>
-                  </div>
+                  )}
                 </div>
               ) : (
                 <Link
