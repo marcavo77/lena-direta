@@ -192,12 +192,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               <ProductPurchaseBox product={product} />
 
               {/* Vérification de code postal rapide intégrée */}
-              <div className="bg-stone-900/60 border border-stone-800 rounded-xl p-4">
-                <div className="text-xs font-bold text-stone-300 mb-2">
-                  Tester votre code postal pour cette palette :
-                </div>
-                <DeliveryChecker />
-              </div>
+              <DeliveryChecker compact />
             </div>
           </div>
         </section>
