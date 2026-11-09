@@ -132,8 +132,17 @@ export function Header() {
               </div>
             </div>
 
-            {/* Droite : WhatsApp + Espace Connexion (Capture 1) */}
+            {/* Droite : Contact & Assistance + WhatsApp + Espace Connexion */}
             <div className="flex items-center gap-4">
+              <Link
+                href="/contact"
+                className="hidden md:flex items-center gap-1.5 text-stone-300 hover:text-amber-400 font-bold transition-colors"
+                title="Page de Contact & Assistance"
+              >
+                <Mail className="w-3.5 h-3.5 text-amber-500" />
+                <span>Contact &amp; Assistance</span>
+              </Link>
+
               <a
                 href="https://wa.me/34672868332"
                 target="_blank"
