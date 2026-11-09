@@ -11,6 +11,7 @@ import {
   User,
   LogOut,
   Star,
+  Mail,
 } from "lucide-react"
 import { CartDrawer } from "@/components/mobile/CartDrawer"
 import { MobileNavDrawer } from "@/components/mobile/MobileNavDrawer"
@@ -509,19 +510,17 @@ export function Header() {
                       </div>
                       <div className="text-[11px] text-stone-400">Nangis, Melun, Meaux, Évry</div>
                     </Link>
-                    <a
-                      href="https://wa.me/34672868332"
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <Link
+                      href="/contact"
                       onClick={() => setActiveDropdown(null)}
-                      className="block p-2.5 rounded-lg hover:bg-stone-800 hover:text-emerald-400"
+                      className="block p-2.5 rounded-lg hover:bg-stone-800 hover:text-amber-400"
                     >
                       <div className="font-bold text-stone-100 flex items-center gap-1.5">
-                        <WhatsAppIcon className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                        <span>WhatsApp &amp; Assistance</span>
+                        <Mail className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                        <span>Contact &amp; Assistance</span>
                       </div>
-                      <div className="text-[11px] text-stone-400">Discussion directe +34 672 86 83 32</div>
-                    </a>
+                      <div className="text-[11px] text-stone-400">Envoyer un email ou faire une demande</div>
+                    </Link>
                   </div>
                 </div>
               )}

@@ -17,6 +17,7 @@ import {
   Trees,
   Award,
   LogOut,
+  Mail,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
@@ -440,9 +441,15 @@ export function MobileNavDrawer({ onOpenWarehouseModal }: MobileNavDrawerProps) 
                 <Link
                   href="/contact"
                   onClick={closeMenu}
-                  className="block p-3 rounded-xl border border-stone-800 font-bold uppercase tracking-wider text-stone-200 hover:bg-stone-900 hover:text-amber-400 transition-colors bg-stone-900/30"
+                  className="flex items-center justify-between p-3 rounded-xl border border-stone-800 font-bold uppercase tracking-wider text-stone-200 hover:bg-stone-900 hover:text-amber-400 transition-colors bg-stone-900/30"
                 >
-                  Contact &amp; Assistance Scierie
+                  <span className="flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-amber-500" />
+                    <span>Contact &amp; Assistance Scierie</span>
+                  </span>
+                  <span className="text-[10px] text-amber-500 font-bold bg-amber-500/10 px-2 py-0.5 rounded normal-case tracking-normal">
+                    Email
+                  </span>
                 </Link>
 
                 {/* Accordéon 5 : LeñaDirecta */}
@@ -474,6 +481,19 @@ export function MobileNavDrawer({ onOpenWarehouseModal }: MobileNavDrawerProps) 
                         className="block py-1.5 px-2 rounded hover:bg-stone-800 hover:text-amber-400"
                       >
                         Nos Forêts Françaises Certifiées PEFC
+                      </Link>
+                      <Link
+                        href="/contact"
+                        onClick={closeMenu}
+                        className="py-1.5 px-2 rounded hover:bg-stone-800 hover:text-amber-400 flex items-center justify-between text-stone-200 font-medium"
+                      >
+                        <span className="flex items-center gap-2">
+                          <Mail className="w-3.5 h-3.5 text-amber-500" />
+                          <span>Contact &amp; Envoi d&apos;email</span>
+                        </span>
+                        <span className="text-[10px] text-amber-500 font-bold bg-amber-500/10 px-1.5 py-0.5 rounded">
+                          Formulaire
+                        </span>
                       </Link>
                     </div>
                   )}
