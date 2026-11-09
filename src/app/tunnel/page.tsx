@@ -182,7 +182,7 @@ export default function CheckoutTunnelPage() {
         customerName,
         customerEmail,
         customerPhone,
-        streetAddress: fulfillmentMethod === "drive" ? "Retrait Dépôt LenaDireta Nangis (77)" : streetAddress,
+        streetAddress: fulfillmentMethod === "drive" ? "Retrait Dépôt LeñaDirecta Nangis (77)" : streetAddress,
         postalCode: fulfillmentMethod === "drive" ? "77370" : postalCode,
         city: fulfillmentMethod === "drive" ? "Nangis" : city,
         deliveryNotes,
@@ -439,7 +439,7 @@ export default function CheckoutTunnelPage() {
                       <div className="font-bold text-amber-400 mb-1 flex items-center gap-1.5">
                         <Warehouse className="w-4 h-4" /> Mode Retrait Drive Dépôt
                       </div>
-                      Vos palettes seront mises à disposition sous 24h ouvrées au Dépôt Central LenaDireta (D140, 77370 Nangis). Munissez-vous de votre confirmation et d'un véhicule adapté.
+                      Vos palettes seront mises à disposition sous 24h ouvrées au Dépôt Central LeñaDirecta (D140, 77370 Nangis). Munissez-vous de votre confirmation et d'un véhicule adapté.
                     </div>
                   )}
                 </div>
@@ -657,7 +657,7 @@ export default function CheckoutTunnelPage() {
                       <div className="mt-3.5 pt-3 border-t border-amber-500/20 text-xs text-stone-300 grid grid-cols-1 sm:grid-cols-3 gap-2 bg-stone-950/60 p-3 rounded-lg font-mono">
                         <div>
                           <span className="text-[10px] uppercase text-stone-500 font-sans block">Titulaire</span>
-                          <span className="font-bold text-stone-200">LENADIRETA SAS</span>
+                          <span className="font-bold text-stone-200">LEÑADIRECTA SAS</span>
                         </div>
                         <div>
                           <span className="text-[10px] uppercase text-stone-500 font-sans block">Banque</span>

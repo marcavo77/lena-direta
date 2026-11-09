@@ -152,8 +152,8 @@ export function MobileNavDrawer({ onOpenWarehouseModal }: MobileNavDrawerProps) 
                     <Flame className="w-5 h-5 fill-stone-950" />
                   </div>
                   <span className="font-black text-base">
-                    <span className="text-black dark:text-stone-100 logo-lena">Lena</span>
-                    <span className="text-amber-500">Direta</span>
+                    <span className="text-black dark:text-stone-100 logo-lena">Leña</span>
+                    <span className="text-amber-500">Directa</span>
                   </span>
                 </div>
 
@@ -444,14 +444,14 @@ export function MobileNavDrawer({ onOpenWarehouseModal }: MobileNavDrawerProps) 
                   Contact &amp; Assistance Scierie
                 </Link>
 
-                {/* Accordéon 5 : LenaDireta */}
+                {/* Accordéon 5 : LeñaDirecta */}
                 <div className="border border-stone-800/80 rounded-xl overflow-hidden bg-stone-900/40">
                   <button
                     type="button"
                     onClick={() => toggleSection("lenadireta")}
                     className="w-full p-3.5 flex items-center justify-between font-bold text-stone-200 uppercase tracking-wider text-xs"
                   >
-                    <span>LenaDireta</span>
+                    <span>LeñaDirecta</span>
                     <ChevronDown
                       className={`w-4 h-4 text-stone-400 transition-transform ${
                         expandedSection === "lenadireta" ? "rotate-180 text-amber-400" : ""

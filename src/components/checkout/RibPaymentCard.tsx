@@ -22,7 +22,7 @@ export function RibPaymentCard({
 
   const iban = "FR76 1027 8000 0000 1234 5678 901"
   const bic = "AGRIFRPP"
-  const titulaire = "LENADIRETA SAS"
+  const titulaire = "LEÑADIRECTA SAS"
   const banque = "Crédit Agricole d'Île-de-France"
 
   const copyToClipboard = (text: string, fieldName: string) => {

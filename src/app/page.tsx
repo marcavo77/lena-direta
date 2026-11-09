@@ -62,7 +62,7 @@ export default async function HomePage() {
             {/* 2. Titre d'accroche Spécialiste */}
             <div className="text-center max-w-3xl mx-auto pt-2">
               <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-stone-100 tracking-tight">
-                LenaDireta, spécialiste du bois de chauffage
+                LeñaDirecta, spécialiste du bois de chauffage
               </h1>
               <p className="mt-2.5 text-xs sm:text-base text-stone-400 font-medium">
                 Nos combustibles 100% naturels pour une énergie renouvelable, un haut pouvoir calorifique et un séchage certifié.
@@ -322,7 +322,7 @@ export default async function HomePage() {
                 Retours d&apos;Expérience
               </span>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-100 mt-1">
-                Ils se chauffent avec LenaDireta
+                Ils se chauffent avec LeñaDirecta
               </h2>
               <p className="text-xs sm:text-sm text-stone-400 mt-1">
                 Avis 100% authentiques recueillis après déchargement et contrôle humidimètre.

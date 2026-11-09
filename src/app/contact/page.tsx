@@ -229,7 +229,7 @@ export default function ContactPage() {
                       Exploitation &amp; Scierie
                     </span>
                     <h3 className="font-bold text-base text-stone-100">
-                      LenaDireta SAS
+                      LeñaDirecta SAS
                     </h3>
                   </div>
                 </div>
@@ -260,7 +260,7 @@ export default function ContactPage() {
                 </div>
 
                 <p className="text-stone-400 leading-relaxed text-[11px]">
-                  Pour tout justificatif de virement, transmettez l&apos;avis bancaire avec votre numéro de commande à <strong className="text-stone-200">contact@lenadireta.fr</strong>.
+                  Pour tout justificatif de virement, transmettez l&apos;avis bancaire avec votre numéro de commande à <strong className="text-stone-200">contact@lenadirecta.fr</strong>.
                 </p>
               </div>
             </div>

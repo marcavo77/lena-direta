@@ -18,7 +18,7 @@ import {
 } from "lucide-react"
 
 export const metadata = {
-  title: "Bois de Chauffage en Stères & Palettes | LenaDireta Scierie",
+  title: "Bois de Chauffage en Stères & Palettes | LeñaDirecta Scierie",
   description:
     "Bûches de chêne, charme et hêtre fendues et séchées sous abri (< 20% humidité). Coupes 25cm, 33cm et 50cm rangées sur palettes de 2 à 4 stères.",
 }

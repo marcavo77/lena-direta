@@ -14,9 +14,9 @@ import {
 } from "lucide-react"
 
 export const metadata = {
-  title: "Livraison de Bois de Chauffage & Conditions d'Accès | LenaDireta",
+  title: "Livraison de Bois de Chauffage & Conditions d'Accès | LeñaDirecta",
   description:
-    "Découvrez le protocole complet de livraison LenaDireta par camion porteur 19 tonnes avec chariot embarqué tout-terrain. Dimensions, exigences de voie et dépose au garage.",
+    "Découvrez le protocole complet de livraison LeñaDirecta par camion porteur 19 tonnes avec chariot embarqué tout-terrain. Dimensions, exigences de voie et dépose au garage.",
 }
 
 export default function DeliveryAndAccessPage() {
@@ -42,7 +42,7 @@ export default function DeliveryAndAccessPage() {
             Livraison &amp; Protocole d'Accessibilité
           </h1>
           <p className="text-sm sm:text-base text-stone-300 mt-3 max-w-3xl leading-relaxed">
-            La livraison de bois fendu ou de granulés en palette (jusqu'à 1,2 tonne par palette) requiert un matériel adapté. Chez LenaDireta, nous assurons une logistique transparente avec prise de rendez-vous téléphonique et chariot tout-terrain pour déposer vos palettes exactement là où vous en avez besoin.
+            La livraison de bois fendu ou de granulés en palette (jusqu'à 1,2 tonne par palette) requiert un matériel adapté. Chez LeñaDirecta, nous assurons une logistique transparente avec prise de rendez-vous téléphonique et chariot tout-terrain pour déposer vos palettes exactement là où vous en avez besoin.
           </p>
         </div>
 
@@ -108,7 +108,7 @@ export default function DeliveryAndAccessPage() {
                 2. Chariot tout-terrain embarqué (Moffett / Manitou)
               </h2>
               <p className="text-xs text-stone-400">
-                L'atout LenaDireta : dépose directe dans votre cour, devant le garage ou l'abri de jardin
+                L'atout LeñaDirecta : dépose directe dans votre cour, devant le garage ou l'abri de jardin
               </p>
             </div>
           </div>
@@ -122,7 +122,7 @@ export default function DeliveryAndAccessPage() {
                 La majorité des transporteurs classiques disposent seulement d'un transpalette manuel à petites roulettes dures. Ce matériel se bloque au moindre caillou, ne roule pas sur le gravier et ne peut pas monter de trottoir.
               </p>
               <p className="leading-relaxed text-stone-400">
-                Chez LenaDireta, nos camions sont équipés d'un chariot élévateur tout-terrain suspendu à l'arrière du camion. Grâce à ses roues larges tout-terrain motrices, il franchit les graviers, l'herbe tassée et les pentes modérées pour déposer la palette au plus près de votre stockage.
+                Chez LeñaDirecta, nos camions sont équipés d'un chariot élévateur tout-terrain suspendu à l'arrière du camion. Grâce à ses roues larges tout-terrain motrices, il franchit les graviers, l'herbe tassée et les pentes modérées pour déposer la palette au plus près de votre stockage.
               </p>
             </div>
 
@@ -160,7 +160,7 @@ export default function DeliveryAndAccessPage() {
             </div>
             <div>
               <h2 className="text-xl font-bold text-stone-100">
-                3. Les 4 étapes de votre livraison LenaDireta
+                3. Les 4 étapes de votre livraison LeñaDirecta
               </h2>
               <p className="text-xs text-stone-400">
                 De la préparation sous hangar jusqu'à la signature du bordereau

@@ -237,7 +237,7 @@ export default async function OrderConfirmationPage({ params }: ConfirmationPage
             href="/"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold px-6 py-3.5 rounded-xl text-xs uppercase tracking-wider transition-all min-h-[44px]"
           >
-            <span>Retour à l'accueil LenaDireta</span>
+            <span>Retour à l'accueil LeñaDirecta</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
 

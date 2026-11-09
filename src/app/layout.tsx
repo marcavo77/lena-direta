@@ -21,7 +21,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: "LenaDireta | Bois de Chauffage Sec & Granulés Premium Livrés Directement",
+  title: "LeñaDirecta | Bois de Chauffage Sec & Granulés Premium Livrés Directement",
   description:
     "Achetez votre bois de chauffage dur (Chêne, Charme, Hêtre) séché sous abri (< 20% humidité) et granulés Din+. Livraison camion avec chariot embarqué tout-terrain à votre domicile.",
   keywords: [
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     "bois fendu 33 cm",
     "bois fendu 50 cm",
   ],
-  authors: [{ name: "LenaDireta" }],
+  authors: [{ name: "LeñaDirecta" }],
   icons: {
     icon: [
       { url: "/icon.svg", type: "image/svg+xml" },
@@ -48,11 +48,11 @@ export const metadata: Metadata = {
     shortcut: "/favicon.ico",
   },
   openGraph: {
-    title: "LenaDireta | Bois de Chauffage Sec & Granulés Premium",
+    title: "LeñaDirecta | Bois de Chauffage Sec & Granulés Premium",
     description:
       "Vente en ligne et livraison de bois de chauffage dur et pellets certifiés haute performance.",
     url: "https://lena-direta.com",
-    siteName: "LenaDireta",
+    siteName: "LeñaDirecta",
     locale: "fr_FR",
     type: "website",
   },

@@ -20,7 +20,7 @@ import {
 } from "lucide-react"
 
 export const metadata = {
-  title: "Bois Compressé & Bûches Densifiées | LenaDireta Scierie",
+  title: "Bois Compressé & Bûches Densifiées | LeñaDirecta Scierie",
   description:
     "Achetez vos bûches densifiées de jour, packs nuit longue durée (8h) et pavés 100% chêne. Livraison sur palette avec chariot tout-terrain.",
 }
@@ -148,7 +148,7 @@ export default async function BoisCompressePage() {
                   <tr className="border-b border-stone-800 text-stone-400 uppercase tracking-wider text-[11px]">
                     <th className="py-3 px-4">Critère de performance</th>
                     <th className="py-3 px-4 bg-amber-500/10 text-amber-400 font-bold rounded-t-lg">
-                      Bûches Compressées LenaDireta
+                      Bûches Compressées LeñaDirecta
                     </th>
                     <th className="py-3 px-4 text-stone-300">Bûches Traditionnelles</th>
                   </tr>

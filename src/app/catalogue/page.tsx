@@ -10,7 +10,7 @@ import Link from "next/link"
 export const revalidate = 60
 
 export const metadata = {
-  title: "Catalogue Combustibles Bois & Granulés | LenaDireta",
+  title: "Catalogue Combustibles Bois & Granulés | LeñaDirecta",
   description:
     "Découvrez notre catalogue complet de bois de chauffage sec (<20% H1) en 25cm, 33cm, 50cm, granulés de bois Din+ et bûches compressées. Tarifs directs producteur avec livraison chariot tout-terrain.",
 }

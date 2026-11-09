@@ -190,7 +190,7 @@ export default function AuthPage() {
                       onClick={(e) => {
                         e.preventDefault()
                         alert(
-                          "Pour réinitialiser votre mot de passe, contactez notre support à support@lenadireta.fr ou appelez le 01 89 00 00 00."
+                          "Pour réinitialiser votre mot de passe, contactez notre support à support@lenadirecta.fr ou appelez le 01 89 00 00 00."
                         )
                       }}
                       className="text-[11px] text-stone-400 hover:text-amber-400 transition-colors"
@@ -375,7 +375,7 @@ export default function AuthPage() {
             <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-6 sm:p-7 space-y-5">
               <h3 className="font-bold text-base text-stone-100 flex items-center gap-2">
                 <Flame className="w-5 h-5 text-amber-500" />
-                <span>Pourquoi créer un compte LenaDireta ?</span>
+                <span>Pourquoi créer un compte LeñaDirecta ?</span>
               </h3>
 
               <div className="space-y-4 text-xs text-stone-300">

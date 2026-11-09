@@ -56,8 +56,8 @@ export function Footer() {
               <Flame className="w-4 h-4 text-stone-950 fill-stone-950" />
             </div>
             <span className="font-bold text-lg">
-              <span className="text-black dark:text-stone-100 logo-lena">Lena</span>
-              <span className="text-amber-500">Direta</span>
+              <span className="text-black dark:text-stone-100 logo-lena">Leña</span>
+              <span className="text-amber-500">Directa</span>
             </span>
           </div>
           <p className="text-xs text-stone-400 max-w-sm leading-relaxed">
@@ -104,7 +104,7 @@ export function Footer() {
       </div>
 
       <div className="border-t border-stone-800 py-6 text-center text-xs text-stone-500">
-        © {new Date().getFullYear()} LenaDireta Exploitation. Tous droits réservés. Bois de chauffage &amp; biocombustibles français.
+        © {new Date().getFullYear()} LeñaDirecta Exploitation. Tous droits réservés. Bois de chauffage &amp; biocombustibles français.
       </div>
     </footer>
   )

@@ -287,7 +287,7 @@ export default function CartPage() {
                     <MapPin className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                     <div>
                       <span className="font-bold text-stone-100">Adresse du Dépôt Central : </span>
-                      LenaDireta Exploitation — D140, 77370 Nangis. Du lundi au samedi de 8h à 18h sur présentation de votre confirmation.
+                      LeñaDirecta Exploitation — D140, 77370 Nangis. Du lundi au samedi de 8h à 18h sur présentation de votre confirmation.
                     </div>
                   </div>
                 )}

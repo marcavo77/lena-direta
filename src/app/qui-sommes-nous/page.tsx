@@ -13,9 +13,9 @@ import {
 } from "lucide-react"
 
 export const metadata = {
-  title: "Qui Sommes-Nous ? Exploitation Forestière Artisanale | LenaDireta",
+  title: "Qui Sommes-Nous ? Exploitation Forestière Artisanale | LeñaDirecta",
   description:
-    "Découvrez l'histoire de LenaDireta : exploitant forestier et scierie engagée pour une filière bois 100% française, durable et certifiée PEFC.",
+    "Découvrez l'histoire de LeñaDirecta : exploitant forestier et scierie engagée pour une filière bois 100% française, durable et certifiée PEFC.",
 }
 
 export default function AboutPage() {
@@ -41,7 +41,7 @@ export default function AboutPage() {
             L'Excellence du Bois de Chauffage Français
           </h1>
           <p className="text-sm sm:text-base text-stone-300 mt-4 leading-relaxed max-w-3xl">
-            Chez LenaDireta, nous ne sommes pas un simple intermédiaire du web : nous sommes des passionnés de la filière sylvicole française. Depuis notre exploitation centrale en Île-de-France et nos scieries partenaires de Bourgogne, nous sélectionnons les plus nobles feuillus durs pour offrir une chaleur authentique, performante et sans fumée.
+            Chez LeñaDirecta, nous ne sommes pas un simple intermédiaire du web : nous sommes des passionnés de la filière sylvicole française. Depuis notre exploitation centrale en Île-de-France et nos scieries partenaires de Bourgogne, nous sélectionnons les plus nobles feuillus durs pour offrir une chaleur authentique, performante et sans fumée.
           </p>
         </div>
 
@@ -149,7 +149,7 @@ export default function AboutPage() {
           </h2>
           <div className="text-xs text-stone-300 space-y-2">
             <p>
-              <strong>LenaDireta Exploitation &amp; Dépôt Central</strong>
+              <strong>LeñaDirecta Exploitation &amp; Dépôt Central</strong>
               <br />
               Route Départementale 140, 77370 Nangis, Seine-et-Marne (France).
             </p>

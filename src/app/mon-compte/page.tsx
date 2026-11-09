@@ -200,7 +200,7 @@ export default async function MonComptePage() {
               <div className="bg-stone-900 border border-stone-800 rounded-xl p-3 text-xs space-y-2 font-mono">
                 <div>
                   <div className="text-[10px] uppercase font-bold text-stone-400 font-sans">Titulaire</div>
-                  <div className="text-stone-200 font-semibold">LENADIRETA SAS</div>
+                  <div className="text-stone-200 font-semibold">LEÑADIRECTA SAS</div>
                 </div>
                 <div>
                   <div className="text-[10px] uppercase font-bold text-stone-400 font-sans">Banque</div>

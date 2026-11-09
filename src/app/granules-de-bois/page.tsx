@@ -18,7 +18,7 @@ import {
 } from "lucide-react"
 
 export const metadata = {
-  title: "Granulés de Bois & Pellets Din+ / EnPlus A1 | LenaDireta Scierie",
+  title: "Granulés de Bois & Pellets Din+ / EnPlus A1 | LeñaDirecta Scierie",
   description:
     "Pellets de bois 100% résineux certifiés Din+ et EnPlus A1. Palettes de 66 sacs de 15 kg ou vrac camion souffleur avec pesée certifiée.",
 }

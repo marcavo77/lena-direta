@@ -67,11 +67,11 @@ export async function generateMetadata({ params }: ProductPageProps) {
     .single()
 
   if (!product) {
-    return { title: "Produit non trouvé | LenaDireta" }
+    return { title: "Produit non trouvé | LeñaDirecta" }
   }
 
   return {
-    title: `${product.name} | LenaDireta`,
+    title: `${product.name} | LeñaDirecta`,
     description: product.short_description || "Bois de chauffage et granulés premium livrés à domicile.",
   }
 }

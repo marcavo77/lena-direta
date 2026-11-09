@@ -236,15 +236,15 @@ export function Header() {
 
         {/* ================= BARRE DE NAVIGATION PRINCIPALE (Capture 1) ================= */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-18 sm:h-20 flex items-center justify-between gap-4">
-          {/* Logo LenaDireta */}
+          {/* Logo LeñaDirecta */}
           <Link href="/" prefetch={true} className="flex items-center gap-3 group shrink-0">
             <div className="w-10 h-10 rounded-lg bg-amber-500 text-stone-950 flex items-center justify-center shadow-sm">
               <Flame className="w-6 h-6 fill-stone-950" />
             </div>
             <div>
               <span className="text-xl font-black tracking-tight transition-colors">
-                <span className="text-black dark:text-stone-100 logo-lena">Lena</span>
-                <span className="text-amber-500">Direta</span>
+                <span className="text-black dark:text-stone-100 logo-lena">Leña</span>
+                <span className="text-amber-500">Directa</span>
               </span>
               <span className="block text-[10px] text-stone-500 dark:text-stone-400 uppercase tracking-widest font-bold">
                 Exploitation &amp; Scierie
@@ -462,7 +462,7 @@ export function Header() {
               )}
             </div>
 
-            {/* LENADIRETA ▾ */}
+            {/* LEÑADIRECTA ▾ */}
             <div
               className="relative"
               onMouseEnter={() => setActiveDropdown("lenadireta")}
@@ -477,7 +477,7 @@ export function Header() {
                 }
                 className="flex items-center gap-1 hover:text-amber-400 transition-colors py-2 whitespace-nowrap"
               >
-                <span>LenaDireta</span>
+                <span>LeñaDirecta</span>
                 <ChevronDown className="w-3.5 h-3.5 text-stone-400 shrink-0" />
               </button>
 

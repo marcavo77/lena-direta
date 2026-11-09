@@ -19,7 +19,7 @@ import {
 } from "lucide-react"
 
 export const metadata = {
-  title: "Infos Pratiques, Guides & FAQ Bois de Chauffage | LenaDireta",
+  title: "Infos Pratiques, Guides & FAQ Bois de Chauffage | LeñaDirecta",
   description:
     "Tous nos conseils pratiques : stockage du bois sec, allumage inversé Top-Down, accès camion 19T et modalités de paiement par virement bancaire.",
 }

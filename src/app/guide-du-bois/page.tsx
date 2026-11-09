@@ -13,7 +13,7 @@ import {
 } from "lucide-react"
 
 export const metadata = {
-  title: "Guide Expert du Bois de Chauffage & Allumage Top-Down | LenaDireta",
+  title: "Guide Expert du Bois de Chauffage & Allumage Top-Down | LeñaDirecta",
   description:
     "Maîtrisez l'art du chauffage au bois : méthode d'allumage inversé Top-Down, table de conversion stère en m³, guide des essences et astuces pour reconnaître un bois sec.",
 }
