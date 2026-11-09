@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { createPortal } from "react-dom"
 import { Warehouse, MapPin, Check, X, Truck, Clock, ArrowRight } from "lucide-react"
 import { useCartStore } from "@/lib/store/cart"
 
@@ -53,8 +54,48 @@ interface WarehouseSelectorModalProps {
 export function WarehouseSelectorModal({ isOpen, onClose }: WarehouseSelectorModalProps) {
   const { fulfillmentMethod, setFulfillmentMethod } = useCartStore()
   const [selectedWarehouseId, setSelectedWarehouseId] = useState<string>("nangis-77")
+  const [mounted, setMounted] = useState(false)
 
-  if (!isOpen) return null
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Verrouillage du scroll arrière-plan
+  useEffect(() => {
+    if (!isOpen) return
+
+    const scrollY = window.scrollY
+    const originalBodyOverflow = document.body.style.overflow
+    const originalBodyPosition = document.body.style.position
+    const originalBodyTop = document.body.style.top
+    const originalBodyWidth = document.body.style.width
+    const originalHtmlOverflow = document.documentElement.style.overflow
+
+    document.body.style.overflow = "hidden"
+    document.documentElement.style.overflow = "hidden"
+    document.body.style.position = "fixed"
+    document.body.style.top = `-${scrollY}px`
+    document.body.style.width = "100%"
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose()
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown)
+
+    return () => {
+      document.body.style.overflow = originalBodyOverflow
+      document.documentElement.style.overflow = originalHtmlOverflow
+      document.body.style.position = originalBodyPosition
+      document.body.style.top = originalBodyTop
+      document.body.style.width = originalBodyWidth
+      window.scrollTo(0, scrollY)
+      window.removeEventListener("keydown", handleKeyDown)
+    }
+  }, [isOpen, onClose])
+
+  if (!isOpen || !mounted) return null
 
   const handleSelect = (wId: string) => {
     setSelectedWarehouseId(wId)
@@ -67,8 +108,19 @@ export function WarehouseSelectorModal({ isOpen, onClose }: WarehouseSelectorMod
     onClose()
   }
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/80 backdrop-blur-sm animate-in fade-in duration-200">
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-stone-950/80 backdrop-blur-sm animate-in fade-in duration-200"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Choisir mon entrepôt de retrait"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose()
+      }}
+      onTouchMove={(e) => {
+        if (e.target === e.currentTarget) e.preventDefault()
+      }}
+    >
       <div className="bg-[#1c1917] border border-stone-800 rounded-2xl max-w-lg w-full p-6 text-stone-100 shadow-2xl relative space-y-5">
         {/* En-tête */}
         <div className="flex items-center justify-between pb-3 border-b border-stone-800">
@@ -155,6 +207,7 @@ export function WarehouseSelectorModal({ isOpen, onClose }: WarehouseSelectorMod
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

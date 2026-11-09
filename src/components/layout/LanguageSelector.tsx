@@ -385,7 +385,7 @@ export function LanguageSelector({
       {/* ================= OVERLAY BACKDROP SUR MOBILE (Tapotement extérieur ferme le menu) ================= */}
       {isOpen && (
         <div
-          className="sm:hidden fixed inset-0 bg-stone-950/60 backdrop-blur-xs z-40 animate-in fade-in duration-150"
+          className="sm:hidden fixed inset-0 bg-stone-950/60 backdrop-blur-xs z-[110] animate-in fade-in duration-150"
           onClick={() => setIsOpen(false)}
           aria-hidden="true"
         />
@@ -396,7 +396,7 @@ export function LanguageSelector({
         <div
           role="listbox"
           aria-label="Sélectionner une langue de traduction"
-          className="language-dropdown fixed top-12 left-3 right-3 max-w-[340px] mx-auto z-50 rounded-2xl bg-[#1c1917] border border-stone-800 p-2 shadow-2xl animate-in fade-in zoom-in-95 duration-150 backdrop-blur-md sm:fixed-none sm:absolute sm:top-full sm:left-auto sm:right-0 sm:inset-x-auto sm:mt-1.5 sm:w-64 sm:max-w-none sm:rounded-xl sm:p-1.5"
+          className="language-dropdown fixed top-12 left-3 right-3 max-w-[340px] mx-auto z-[120] rounded-2xl bg-[#1c1917] border border-stone-800 p-2 shadow-2xl animate-in fade-in zoom-in-95 duration-150 backdrop-blur-md sm:fixed-none sm:absolute sm:top-full sm:left-auto sm:right-0 sm:inset-x-auto sm:mt-1.5 sm:w-64 sm:max-w-none sm:rounded-xl sm:p-1.5"
         >
           {/* En-tête du menu avec bouton de fermeture sur mobile */}
           <div className="px-2.5 py-1.5 mb-1 border-b border-stone-800/80 flex items-center justify-between text-stone-400">

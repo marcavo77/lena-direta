@@ -244,8 +244,46 @@ html.light footer .text-stone-100 {
 }
 
 /* Tiroirs latéraux Vaul & modales */
-html.light .fixed.inset-0.bg-stone-950\/80 {
+html.light .fixed.inset-0.bg-stone-950\/80,
+html.light .fixed.inset-0.bg-stone-950\/85 {
   background-color: rgba(28, 25, 23, 0.45) !important;
+}
+
+/* MobileNavDrawer en Mode Clair */
+html.light .mobile-drawer-content {
+  background-color: #fbf9f5 !important;
+  border-color: #ded9cf !important;
+  color: #1c1917 !important;
+}
+html.light .mobile-drawer-content .bg-stone-950 {
+  background-color: #ffffff !important;
+  border-color: #ded9cf !important;
+}
+html.light .mobile-drawer-content .bg-\[\#181615\] {
+  background-color: #f5f3ec !important;
+  border-color: #ded9cf !important;
+}
+html.light .mobile-drawer-content .bg-stone-900\/40,
+html.light .mobile-drawer-content .bg-stone-900\/30 {
+  background-color: #f5f3ec !important;
+  border-color: #ded9cf !important;
+}
+html.light .mobile-drawer-content .bg-stone-900 {
+  background-color: #ece8de !important;
+  border-color: #ded9cf !important;
+}
+html.light .mobile-drawer-content .text-stone-100,
+html.light .mobile-drawer-content .text-stone-200 {
+  color: #1c1917 !important;
+}
+html.light .mobile-drawer-content .text-stone-300,
+html.light .mobile-drawer-content .text-stone-400 {
+  color: #44403c !important;
+}
+html.light .mobile-drawer-content .border-stone-800,
+html.light .mobile-drawer-content .border-stone-800\/80,
+html.light .mobile-drawer-content .border-stone-800\/60 {
+  border-color: #ded9cf !important;
 }
 
 /* Bouton ThemeToggle en mode clair */
