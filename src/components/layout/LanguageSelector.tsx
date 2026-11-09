@@ -1,33 +1,189 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
-import { Globe, ChevronDown, Check } from "lucide-react"
+import React, { useState, useEffect, useRef } from "react"
+import { Globe, ChevronDown, Check, X } from "lucide-react"
 
 export interface Language {
   code: string
   name: string
   nativeName: string
-  flag: string
 }
 
 export const SUPPORTED_LANGUAGES: Language[] = [
-  { code: "fr", name: "Français", nativeName: "Français", flag: "🇫🇷" },
-  { code: "en", name: "Anglais", nativeName: "English", flag: "🇬🇧" },
-  { code: "es", name: "Espagnol", nativeName: "Español", flag: "🇪🇸" },
-  { code: "pt", name: "Portugais", nativeName: "Português", flag: "🇵🇹" },
-  { code: "de", name: "Allemand", nativeName: "Deutsch", flag: "🇩🇪" },
-  { code: "it", name: "Italien", nativeName: "Italiano", flag: "🇮🇹" },
-  { code: "nl", name: "Néerlandais", nativeName: "Nederlands", flag: "🇳🇱" },
-  { code: "pl", name: "Polonais", nativeName: "Polski", flag: "🇵🇱" },
-  { code: "ro", name: "Roumain", nativeName: "Română", flag: "🇷🇴" },
-  { code: "cs", name: "Tchèque", nativeName: "Čeština", flag: "🇨🇿" },
-  { code: "uk", name: "Ukrainien", nativeName: "Українська", flag: "🇺🇦" },
-  { code: "ar", name: "Arabe", nativeName: "العربية", flag: "🇦🇪" },
+  { code: "fr", name: "Français", nativeName: "Français" },
+  { code: "en", name: "Anglais", nativeName: "English" },
+  { code: "es", name: "Espagnol", nativeName: "Español" },
+  { code: "pt", name: "Portugais", nativeName: "Português" },
+  { code: "de", name: "Allemand", nativeName: "Deutsch" },
+  { code: "it", name: "Italien", nativeName: "Italiano" },
+  { code: "nl", name: "Néerlandais", nativeName: "Nederlands" },
+  { code: "pl", name: "Polonais", nativeName: "Polski" },
+  { code: "ro", name: "Roumain", nativeName: "Română" },
+  { code: "cs", name: "Tchèque", nativeName: "Čeština" },
+  { code: "uk", name: "Ukrainien", nativeName: "Українська" },
+  { code: "ar", name: "Arabe", nativeName: "العربية" },
 ]
+
+/**
+ * Composant de rendu de drapeau vectoriel SVG pur
+ * Garantit un affichage net et coloré sur 100% des systèmes (Windows, Mac, iOS, Android)
+ */
+export function FlagIcon({
+  code,
+  className = "w-5 h-3.5",
+}: {
+  code: string
+  className?: string
+}) {
+  const baseClasses = `inline-block object-cover rounded-[2px] shadow-xs border border-black/15 shrink-0 align-middle ${className}`
+
+  switch (code.toLowerCase()) {
+    case "fr":
+      // Drapeau France (Bleu / Blanc / Rouge)
+      return (
+        <svg viewBox="0 0 24 16" className={baseClasses} xmlns="http://www.w3.org/2000/svg">
+          <rect width="8" height="16" fill="#002654" />
+          <rect x="8" width="8" height="16" fill="#FFFFFF" />
+          <rect x="16" width="8" height="16" fill="#CE1126" />
+        </svg>
+      )
+
+    case "en":
+    case "gb":
+      // Union Jack (Royaume-Uni)
+      return (
+        <svg viewBox="0 0 60 30" className={baseClasses} xmlns="http://www.w3.org/2000/svg">
+          <clipPath id="uk-clip">
+            <rect width="60" height="30" />
+          </clipPath>
+          <g clipPath="url(#uk-clip)">
+            <rect width="60" height="30" fill="#012169" />
+            <path d="M0 0 L60 30 M60 0 L0 30" stroke="#FFFFFF" strokeWidth="6" />
+            <path d="M0 0 L30 15 M60 30 L30 15 M60 0 L30 15 M0 30 L30 15" stroke="#C8102E" strokeWidth="2" />
+            <path d="M30 0 v30 M0 15 h60" stroke="#FFFFFF" strokeWidth="10" />
+            <path d="M30 0 v30 M0 15 h60" stroke="#C8102E" strokeWidth="6" />
+          </g>
+        </svg>
+      )
+
+    case "es":
+      // Drapeau Espagne (Rouge / Jaune / Rouge + Blason stylisé)
+      return (
+        <svg viewBox="0 0 24 16" className={baseClasses} xmlns="http://www.w3.org/2000/svg">
+          <rect width="24" height="4" fill="#AA151B" />
+          <rect y="4" width="24" height="8" fill="#F1BF00" />
+          <rect y="12" width="24" height="4" fill="#AA151B" />
+          <g transform="translate(6, 6) scale(0.65)">
+            <path d="M0 0 h4 v3 a2 2 0 0 1 -4 0 z" fill="#AA151B" />
+            <path d="M0.8 0.8 h2.4 v2 a1 1 0 0 1 -2 0 z" fill="#F1BF00" />
+            <circle cx="2" cy="-0.8" r="0.9" fill="#AA151B" />
+          </g>
+        </svg>
+      )
+
+    case "pt":
+      // Drapeau Portugal (Vert 38% / Rouge 62% + Sphère armillaire)
+      return (
+        <svg viewBox="0 0 24 16" className={baseClasses} xmlns="http://www.w3.org/2000/svg">
+          <rect width="9" height="16" fill="#046A38" />
+          <rect x="9" width="15" height="16" fill="#DA291C" />
+          <circle cx="9" cy="8" r="3.2" fill="#FFC72C" />
+          <circle cx="9" cy="8" r="2.2" fill="#DA291C" />
+          <rect x="8" y="6.6" width="2" height="2.8" rx="0.3" fill="#FFFFFF" />
+          <rect x="8.5" y="7.1" width="1" height="1.8" fill="#002654" />
+        </svg>
+      )
+
+    case "de":
+      // Drapeau Allemagne (Noir / Rouge / Or)
+      return (
+        <svg viewBox="0 0 24 16" className={baseClasses} xmlns="http://www.w3.org/2000/svg">
+          <rect width="24" height="5.33" fill="#000000" />
+          <rect y="5.33" width="24" height="5.33" fill="#DD0000" />
+          <rect y="10.66" width="24" height="5.34" fill="#FFCE00" />
+        </svg>
+      )
+
+    case "it":
+      // Drapeau Italie (Vert / Blanc / Rouge)
+      return (
+        <svg viewBox="0 0 24 16" className={baseClasses} xmlns="http://www.w3.org/2000/svg">
+          <rect width="8" height="16" fill="#009246" />
+          <rect x="8" width="8" height="16" fill="#FFFFFF" />
+          <rect x="16" width="8" height="16" fill="#CE2B37" />
+        </svg>
+      )
+
+    case "nl":
+      // Drapeau Pays-Bas (Rouge / Blanc / Bleu)
+      return (
+        <svg viewBox="0 0 24 16" className={baseClasses} xmlns="http://www.w3.org/2000/svg">
+          <rect width="24" height="5.33" fill="#C8102E" />
+          <rect y="5.33" width="24" height="5.33" fill="#FFFFFF" />
+          <rect y="10.66" width="24" height="5.34" fill="#21468B" />
+        </svg>
+      )
+
+    case "pl":
+      // Drapeau Pologne (Blanc / Rouge)
+      return (
+        <svg viewBox="0 0 24 16" className={baseClasses} xmlns="http://www.w3.org/2000/svg">
+          <rect width="24" height="8" fill="#FFFFFF" />
+          <rect y="8" width="24" height="8" fill="#DC143C" />
+        </svg>
+      )
+
+    case "ro":
+      // Drapeau Roumanie (Bleu / Jaune / Rouge)
+      return (
+        <svg viewBox="0 0 24 16" className={baseClasses} xmlns="http://www.w3.org/2000/svg">
+          <rect width="8" height="16" fill="#002B7F" />
+          <rect x="8" width="8" height="16" fill="#FCD116" />
+          <rect x="16" width="8" height="16" fill="#CE1126" />
+        </svg>
+      )
+
+    case "cs":
+      // Drapeau République Tchèque (Blanc / Rouge + Triangle Bleu)
+      return (
+        <svg viewBox="0 0 24 16" className={baseClasses} xmlns="http://www.w3.org/2000/svg">
+          <rect width="24" height="8" fill="#FFFFFF" />
+          <rect y="8" width="24" height="8" fill="#D7141A" />
+          <polygon points="0,0 12,8 0,16" fill="#11457E" />
+        </svg>
+      )
+
+    case "uk":
+      // Drapeau Ukraine (Bleu / Jaune)
+      return (
+        <svg viewBox="0 0 24 16" className={baseClasses} xmlns="http://www.w3.org/2000/svg">
+          <rect width="24" height="8" fill="#0057B7" />
+          <rect y="8" width="24" height="8" fill="#FFDD00" />
+        </svg>
+      )
+
+    case "ar":
+      // Drapeau Émirats Arabes Unis / Monde Arabe (Vert / Blanc / Noir + Bande Rouge)
+      return (
+        <svg viewBox="0 0 24 16" className={baseClasses} xmlns="http://www.w3.org/2000/svg">
+          <rect x="6" width="18" height="5.33" fill="#00732F" />
+          <rect x="6" y="5.33" width="18" height="5.33" fill="#FFFFFF" />
+          <rect x="6" y="10.66" width="18" height="5.34" fill="#000000" />
+          <rect width="6" height="16" fill="#FF0000" />
+        </svg>
+      )
+
+    default:
+      return (
+        <span className={`${baseClasses} bg-stone-700 flex items-center justify-center text-[9px] font-bold text-stone-200`}>
+          {code.toUpperCase()}
+        </span>
+      )
+  }
+}
 
 export function LanguageSelector({
   className = "",
-  compact = false,
 }: {
   className?: string
   compact?: boolean
@@ -35,9 +191,9 @@ export function LanguageSelector({
   const [isOpen, setIsOpen] = useState(false)
   const [currentLang, setCurrentLang] = useState<string>("fr")
   const [mounted, setMounted] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
-  // Lecture des cookies
+  // Lecture d'un cookie
   const getCookie = (name: string): string | null => {
     if (typeof document === "undefined") return null
     const value = `; ${document.cookie}`
@@ -115,7 +271,7 @@ export function LanguageSelector({
     if (!isOpen) return
 
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsOpen(false)
       }
     }
@@ -203,8 +359,8 @@ export function LanguageSelector({
   }
 
   return (
-    <div ref={dropdownRef} className={`relative inline-block text-left shrink-0 ${className}`}>
-      {/* Bouton Déclencheur (Compact & Ergonomique) */}
+    <div ref={containerRef} className={`relative inline-block text-left shrink-0 ${className}`}>
+      {/* Bouton Déclencheur avec vrai drapeau SVG + Code Langue + Flèche */}
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
@@ -212,11 +368,9 @@ export function LanguageSelector({
         aria-haspopup="listbox"
         aria-label={`Langue actuelle : ${selectedLang.name}. Cliquer pour changer de langue`}
         title={`Traduire le site (Actuellement : ${selectedLang.name})`}
-        className="language-toggle-btn inline-flex items-center gap-1 sm:gap-1.5 h-7 sm:h-8 px-2 sm:px-2.5 rounded-full bg-stone-800/90 hover:bg-stone-700 text-stone-200 hover:text-amber-400 border border-stone-700/80 transition-all shadow-sm active:scale-95 cursor-pointer select-none shrink-0"
+        className="language-toggle-btn inline-flex items-center gap-1.5 h-7 sm:h-8 px-2 sm:px-2.5 rounded-full bg-stone-800/90 hover:bg-stone-700 text-stone-200 hover:text-amber-400 border border-stone-700/80 transition-all shadow-sm active:scale-95 cursor-pointer select-none shrink-0"
       >
-        <span className="text-xs sm:text-sm leading-none shrink-0" aria-hidden="true">
-          {selectedLang.flag}
-        </span>
+        <FlagIcon code={selectedLang.code} className="w-4 h-2.5 sm:w-4.5 sm:h-3 rounded-[2px]" />
         <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-stone-100">
           {selectedLang.code}
         </span>
@@ -228,14 +382,23 @@ export function LanguageSelector({
         />
       </button>
 
-      {/* Menu Déroulant des Langues */}
+      {/* ================= OVERLAY BACKDROP SUR MOBILE (Tapotement extérieur ferme le menu) ================= */}
+      {isOpen && (
+        <div
+          className="sm:hidden fixed inset-0 bg-stone-950/60 backdrop-blur-xs z-40 animate-in fade-in duration-150"
+          onClick={() => setIsOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* ================= MENU DÉROULANT DES LANGUES (Optimisé Mobile-First) ================= */}
       {isOpen && (
         <div
           role="listbox"
           aria-label="Sélectionner une langue de traduction"
-          className="language-dropdown absolute left-0 sm:left-auto sm:right-0 mt-1.5 w-60 sm:w-64 max-h-80 overflow-y-auto rounded-xl bg-[#1c1917] border border-stone-800 p-1.5 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 backdrop-blur-md"
+          className="language-dropdown fixed top-12 left-3 right-3 max-w-[340px] mx-auto z-50 rounded-2xl bg-[#1c1917] border border-stone-800 p-2 shadow-2xl animate-in fade-in zoom-in-95 duration-150 backdrop-blur-md sm:fixed-none sm:absolute sm:top-full sm:left-auto sm:right-0 sm:inset-x-auto sm:mt-1.5 sm:w-64 sm:max-w-none sm:rounded-xl sm:p-1.5"
         >
-          {/* En-tête du menu */}
+          {/* En-tête du menu avec bouton de fermeture sur mobile */}
           <div className="px-2.5 py-1.5 mb-1 border-b border-stone-800/80 flex items-center justify-between text-stone-400">
             <div className="flex items-center gap-1.5">
               <Globe className="w-3.5 h-3.5 text-amber-500" />
@@ -243,13 +406,23 @@ export function LanguageSelector({
                 Traduction automatique
               </span>
             </div>
-            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-stone-800 text-stone-400">
-              {SUPPORTED_LANGUAGES.length} langues
-            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-stone-800 text-stone-400">
+                {SUPPORTED_LANGUAGES.length} langues
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                aria-label="Fermer le sélecteur de langue"
+                className="sm:hidden w-6 h-6 rounded-md bg-stone-800/80 text-stone-400 hover:text-stone-100 flex items-center justify-center"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
 
-          {/* Liste des langues */}
-          <div className="space-y-0.5">
+          {/* Liste des langues (Scrollable avec touch targets confortables) */}
+          <div className="max-h-[60vh] sm:max-h-80 overflow-y-auto space-y-0.5 pr-0.5">
             {SUPPORTED_LANGUAGES.map((lang) => {
               const isSelected = lang.code === currentLang
               return (
@@ -259,16 +432,17 @@ export function LanguageSelector({
                   role="option"
                   aria-selected={isSelected}
                   onClick={() => handleSelectLanguage(lang.code)}
-                  className={`language-item-hover w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-left text-xs transition-colors group ${
+                  className={`language-item-hover w-full flex items-center justify-between px-2.5 py-2.5 sm:py-2 rounded-lg text-left text-xs transition-colors group ${
                     isSelected
                       ? "bg-amber-500/15 text-amber-400 font-bold border border-amber-500/30"
                       : "text-stone-200 hover:bg-stone-800/80 hover:text-amber-400"
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="text-base leading-none shrink-0" aria-hidden="true">
-                      {lang.flag}
-                    </span>
+                    <FlagIcon
+                      code={lang.code}
+                      className="w-5 h-3.5 sm:w-5 sm:h-3.5 rounded-[2px] shrink-0"
+                    />
                     <div className="flex flex-col min-w-0">
                       <span className="truncate font-semibold text-stone-100 group-hover:text-amber-400">
                         {lang.nativeName}
