@@ -18,6 +18,7 @@ import { getUserProfileAndOrders, logoutAction } from "@/app/actions/auth"
 import { formatPrice } from "@/lib/utils"
 import { Footer } from "@/components/layout/Footer"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
+import { LanguageSelector } from "@/components/layout/LanguageSelector"
 
 export const dynamic = "force-dynamic"
 
@@ -44,7 +45,10 @@ export default async function MonComptePage() {
             <span>/</span>
             <span className="text-stone-200">Mon Compte Client</span>
           </nav>
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <LanguageSelector />
+          </div>
         </div>
 
         <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-6 sm:p-8 mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

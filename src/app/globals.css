@@ -255,6 +255,88 @@ html.light .theme-toggle-btn {
   color: #d97706 !important;
 }
 
+/* Bouton LanguageSelector & Menu Déroulant en Mode Clair */
+html.light .language-toggle-btn {
+  background-color: #ffffff !important;
+  border-color: #ded9cf !important;
+  color: #1c1917 !important;
+}
+html.light .language-toggle-btn span {
+  color: #1c1917 !important;
+}
+html.light .language-dropdown {
+  background-color: #ffffff !important;
+  border-color: #ded9cf !important;
+  color: #1c1917 !important;
+  box-shadow: 0 10px 25px -5px rgba(28, 25, 23, 0.12), 0 8px 10px -6px rgba(28, 25, 23, 0.08) !important;
+}
+html.light .language-dropdown .border-stone-800\/80 {
+  border-color: #ded9cf !important;
+}
+html.light .language-dropdown .text-stone-300,
+html.light .language-dropdown .text-stone-100 {
+  color: #1c1917 !important;
+}
+html.light .language-dropdown .text-stone-400 {
+  color: #78716c !important;
+}
+html.light .language-dropdown .bg-stone-800 {
+  background-color: #f1efe8 !important;
+  color: #57534e !important;
+}
+html.light .language-dropdown .bg-stone-800\/80 {
+  background-color: #f1efe8 !important;
+  color: #57534e !important;
+  border-color: #ded9cf !important;
+}
+html.light .language-item-hover:hover {
+  background-color: #f5f4ef !important;
+}
+
+/* ==========================================================================
+   Google Website Translator — Design Intégré LenaDireta
+   Masquage complet de la bannière et des iframes parasites Google
+   ========================================================================== */
+.goog-te-banner-frame,
+.goog-te-banner-frame.skiptranslate,
+iframe.goog-te-banner-frame,
+iframe.skiptranslate {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  width: 0 !important;
+}
+
+body {
+  top: 0px !important;
+  position: static !important;
+}
+
+#goog-gt-tt,
+.goog-te-balloon-frame,
+.goog-tooltip,
+.goog-tooltip:hover {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+.goog-text-highlight {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+font {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+#google_translate_element {
+  display: none !important;
+  position: absolute !important;
+  top: -9999px !important;
+  left: -9999px !important;
+}
+
 /* Barres d'action collantes mobiles en Mode Clair (Capture) */
 html.light .fixed.bottom-0:not([data-vaul-drawer-wrapper] *) {
   background-color: rgba(255, 255, 255, 0.96) !important;

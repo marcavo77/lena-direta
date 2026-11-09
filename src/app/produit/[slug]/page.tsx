@@ -4,6 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Footer } from "@/components/layout/Footer"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
+import { LanguageSelector } from "@/components/layout/LanguageSelector"
 import { ProductPurchaseBox } from "@/components/shop/ProductPurchaseBox"
 import { StickyProductBar } from "@/components/mobile/StickyProductBar"
 import { DeliveryChecker } from "@/components/shop/DeliveryChecker"
@@ -116,6 +117,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             </nav>
             <div className="shrink-0 flex items-center gap-2">
               <ThemeToggle />
+              <LanguageSelector />
             </div>
           </div>
         </div>

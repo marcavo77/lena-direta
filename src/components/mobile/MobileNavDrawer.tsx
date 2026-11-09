@@ -19,6 +19,7 @@ import {
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
+import { LanguageSelector } from "@/components/layout/LanguageSelector"
 
 interface MobileNavDrawerProps {
   onOpenWarehouseModal: () => void
@@ -100,8 +101,9 @@ export function MobileNavDrawer({ onOpenWarehouseModal }: MobileNavDrawerProps) 
                 </span>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <ThemeToggle />
+                <LanguageSelector />
                 <button
                   type="button"
                   onClick={closeMenu}
