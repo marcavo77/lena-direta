@@ -98,7 +98,7 @@ export default function CartPage() {
         )
       } else {
         setPcMessage(
-          res.message || "Zone hors couverture directe. Contactez notre service logistique au 01 89 00 00 00."
+          res.message || "Zone hors couverture directe. Contactez notre service logistique sur WhatsApp au +34 672 86 83 32."
         )
       }
     } catch {

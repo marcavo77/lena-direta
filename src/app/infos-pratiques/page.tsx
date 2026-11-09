@@ -17,6 +17,7 @@ import {
   AlertTriangle,
   ArrowRight,
 } from "lucide-react"
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon"
 
 export const metadata = {
   title: "Infos Pratiques, Guides & FAQ Bois de Chauffage | LeñaDirecta",
@@ -204,15 +205,15 @@ export default function InfosPratiquesPage() {
         <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
           <div className="bg-stone-900/80 border border-stone-800 rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="space-y-1">
-              <div className="flex items-center gap-2 text-amber-500 font-bold text-xs uppercase tracking-wider">
-                <Phone className="w-4 h-4" />
+              <div className="flex items-center gap-2 text-emerald-400 font-bold text-xs uppercase tracking-wider">
+                <WhatsAppIcon className="w-4 h-4" />
                 <span>Besoin d&apos;un conseil personnalisé ?</span>
               </div>
               <h3 className="text-lg sm:text-xl font-bold text-stone-100">
                 Nos conseillers forestiers sont à votre écoute
               </h3>
               <p className="text-xs text-stone-400">
-                Du lundi au samedi de 8h00 à 19h00 au 01 89 00 00 00 ou par formulaire en ligne.
+                Du lundi au samedi de 8h00 à 19h00 sur WhatsApp au <strong>+34 672 86 83 32</strong> ou par formulaire en ligne.
               </p>
             </div>
 

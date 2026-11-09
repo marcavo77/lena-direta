@@ -203,7 +203,7 @@ export default function CheckoutTunnelPage() {
         setSubmitting(false)
       }
     } catch {
-      setErrorMessage("Erreur technique. Veuillez contacter notre service commercial au 01 89 00 00 00.")
+      setErrorMessage("Erreur technique. Veuillez contacter notre service commercial sur WhatsApp au +34 672 86 83 32.")
       setSubmitting(false)
     }
   }

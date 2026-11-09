@@ -21,6 +21,7 @@ import {
 import { createClient } from "@/lib/supabase/client"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { LanguageSelector } from "@/components/layout/LanguageSelector"
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon"
 
 interface MobileNavDrawerProps {
   onOpenWarehouseModal: () => void
@@ -479,14 +480,16 @@ export function MobileNavDrawer({ onOpenWarehouseModal }: MobileNavDrawerProps) 
                 </div>
               </div>
 
-              {/* Pied du tiroir avec téléphone */}
+              {/* Pied du tiroir avec WhatsApp */}
               <div className="p-4 border-t border-stone-800 bg-stone-950 space-y-2 shrink-0">
                 <a
-                  href="tel:0189000000"
-                  className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-amber-500 text-stone-950 font-bold text-xs uppercase tracking-wider active:scale-[0.99] transition-transform"
+                  href="https://wa.me/34672868332"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider active:scale-[0.99] transition-transform"
                 >
-                  <Phone className="w-4 h-4" />
-                  <span>01 89 00 00 00 (8h - 18h)</span>
+                  <WhatsAppIcon className="w-4 h-4" />
+                  <span>+34 672 86 83 32 (WhatsApp)</span>
                 </a>
 
                 <div className="text-center text-[10px] text-stone-400 pt-1 flex items-center justify-center gap-1.5">

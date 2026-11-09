@@ -21,6 +21,7 @@ import {
 } from "lucide-react"
 import { Header } from "@/components/layout/Header"
 import { Footer } from "@/components/layout/Footer"
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon"
 import { loginAction, signupAction } from "@/app/actions/auth"
 
 export default function AuthPage() {
@@ -190,7 +191,7 @@ export default function AuthPage() {
                       onClick={(e) => {
                         e.preventDefault()
                         alert(
-                          "Pour réinitialiser votre mot de passe, contactez notre support à support@lenadirecta.fr ou appelez le 01 89 00 00 00."
+                          "Pour réinitialiser votre mot de passe, contactez notre support à contact@lenadireta.com ou sur WhatsApp au +34 672 86 83 32."
                         )
                       }}
                       className="text-[11px] text-stone-400 hover:text-amber-400 transition-colors"
@@ -422,17 +423,20 @@ export default function AuthPage() {
               </div>
             </div>
 
-            {/* Aide par Téléphone */}
+            {/* Aide par WhatsApp */}
             <div className="bg-stone-900/60 border border-stone-800 rounded-2xl p-5 text-xs text-stone-300 flex items-center justify-between gap-4">
               <div>
                 <div className="font-bold text-stone-100">Besoin d'aide pour commander ?</div>
-                <div className="text-stone-400 text-[11px] mt-0.5">Nos conseillers vous répondent du lundi au samedi.</div>
+                <div className="text-stone-400 text-[11px] mt-0.5">Discussion directe sur WhatsApp du lundi au samedi.</div>
               </div>
               <a
-                href="tel:0189000000"
-                className="shrink-0 bg-stone-800 hover:bg-stone-700 text-amber-400 font-bold px-3.5 py-2 rounded-xl text-xs transition-colors"
+                href="https://wa.me/34672868332"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3.5 py-2 rounded-xl text-xs transition-colors"
               >
-                01 89 00 00 00
+                <WhatsAppIcon className="w-3.5 h-3.5" />
+                <span>+34 672 86 83 32</span>
               </a>
             </div>
           </div>

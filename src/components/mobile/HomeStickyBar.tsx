@@ -1,7 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { PhoneCall, ChevronRight } from "lucide-react"
+import { ChevronRight } from "lucide-react"
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon"
 import { useScrollDirection } from "@/lib/hooks/useScrollDirection"
 
 export function HomeStickyBar() {
@@ -24,11 +25,13 @@ export function HomeStickyBar() {
 
       <div className="flex items-center gap-2">
         <a
-          href="tel:0189000000"
-          className="w-11 h-11 rounded-lg bg-stone-100 hover:bg-stone-200 dark:bg-stone-900 dark:hover:bg-stone-800 border border-stone-200 dark:border-stone-800 flex items-center justify-center text-amber-600 dark:text-amber-500 shrink-0 transition-colors"
-          aria-label="Appeler le service client"
+          href="https://wa.me/34672868332"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-11 h-11 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-500 shrink-0 transition-colors"
+          aria-label="Discuter sur WhatsApp (+34 672 86 83 32)"
         >
-          <PhoneCall className="w-4 h-4" />
+          <WhatsAppIcon className="w-5 h-5 text-emerald-500" />
         </a>
 
         <Link

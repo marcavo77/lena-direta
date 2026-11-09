@@ -18,6 +18,7 @@ import {
   Truck,
   Flame,
 } from "lucide-react"
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon"
 
 export default function ContactPage() {
   const [submitting, setSubmitting] = useState(false)
@@ -192,29 +193,32 @@ export default function ContactPage() {
 
             {/* Colonne Droite : Coordonnées Directes & Infos Utiles (5 cols) */}
             <div className="lg:col-span-5 space-y-6">
-              {/* Téléphone direct */}
+              {/* WhatsApp direct */}
               <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-6 space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-500 flex items-center justify-center shrink-0">
-                    <Phone className="w-5 h-5" />
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0">
+                    <WhatsAppIcon className="w-5 h-5 text-emerald-400" />
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-500">
-                      Standard Téléphonique Direct
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+                      Discussion WhatsApp Directe
                     </span>
                     <h3 className="font-bold text-base text-stone-100">
-                      01 89 00 00 00
+                      +34 672 86 83 32
                     </h3>
                   </div>
                 </div>
                 <p className="text-xs text-stone-400 leading-relaxed">
-                  Ligne directe sans surtaxe. Nos conseillers sont joignables du <strong>lundi au samedi de 8h00 à 19h00</strong>.
+                  Discussion instantanée sans attente. Nos conseillers répondent à vos messages du <strong>lundi au samedi de 8h00 à 19h00</strong>.
                 </p>
                 <a
-                  href="tel:0189000000"
-                  className="block text-center py-2.5 px-4 rounded-xl bg-stone-900 border border-stone-800 hover:border-amber-500 text-amber-400 font-bold text-xs transition-colors"
+                  href="https://wa.me/34672868332"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-colors"
                 >
-                  Appeler maintenant
+                  <WhatsAppIcon className="w-4 h-4" />
+                  <span>Démarrer une discussion WhatsApp</span>
                 </a>
               </div>
 

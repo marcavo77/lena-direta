@@ -17,6 +17,7 @@ import { MobileNavDrawer } from "@/components/mobile/MobileNavDrawer"
 import { WarehouseSelectorModal } from "@/components/layout/WarehouseSelectorModal"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { LanguageSelector } from "@/components/layout/LanguageSelector"
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon"
 import { useScrollDirection } from "@/lib/hooks/useScrollDirection"
 import { createClient } from "@/lib/supabase/client"
 import { useCartStore } from "@/lib/store/cart"
@@ -130,14 +131,17 @@ export function Header() {
               </div>
             </div>
 
-            {/* Droite : Téléphone + Espace Connexion (Capture 2) */}
+            {/* Droite : WhatsApp + Espace Connexion (Capture 1) */}
             <div className="flex items-center gap-4">
               <a
-                href="tel:0189000000"
-                className="hidden sm:flex items-center gap-1.5 text-stone-300 hover:text-amber-400 font-bold transition-colors"
+                href="https://wa.me/34672868332"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden sm:flex items-center gap-1.5 text-stone-300 hover:text-emerald-400 font-bold transition-colors"
+                title="Discuter sur WhatsApp"
               >
-                <Phone className="w-3.5 h-3.5 text-amber-500" />
-                <span>01 89 00 00 00</span>
+                <WhatsAppIcon className="w-3.5 h-3.5 text-emerald-500" />
+                <span>+34 672 86 83 32</span>
               </a>
 
               {/* Bouton Se Connecter / Mon Espace (Flèche rouge de la capture 2) */}
@@ -505,14 +509,19 @@ export function Header() {
                       </div>
                       <div className="text-[11px] text-stone-400">Nangis, Melun, Meaux, Évry</div>
                     </Link>
-                    <Link
-                      href="/contact"
+                    <a
+                      href="https://wa.me/34672868332"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       onClick={() => setActiveDropdown(null)}
-                      className="block p-2.5 rounded-lg hover:bg-stone-800 hover:text-amber-400"
+                      className="block p-2.5 rounded-lg hover:bg-stone-800 hover:text-emerald-400"
                     >
-                      <div className="font-bold text-stone-100">Contact &amp; Assistance</div>
-                      <div className="text-[11px] text-stone-400">Ligne directe 01 89 00 00 00</div>
-                    </Link>
+                      <div className="font-bold text-stone-100 flex items-center gap-1.5">
+                        <WhatsAppIcon className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                        <span>WhatsApp &amp; Assistance</span>
+                      </div>
+                      <div className="text-[11px] text-stone-400">Discussion directe +34 672 86 83 32</div>
+                    </a>
                   </div>
                 </div>
               )}

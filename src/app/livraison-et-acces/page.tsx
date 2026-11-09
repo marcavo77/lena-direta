@@ -12,6 +12,7 @@ import {
   HelpCircle,
   Warehouse,
 } from "lucide-react"
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon"
 
 export const metadata = {
   title: "Livraison de Bois de Chauffage & Conditions d'Accès | LeñaDirecta",
@@ -269,11 +270,13 @@ export default function DeliveryAndAccessPage() {
             </Link>
 
             <a
-              href="tel:0189000000"
-              className="inline-flex items-center justify-center gap-2 bg-stone-950 border border-stone-800 hover:border-amber-500 text-stone-200 font-bold px-5 py-3.5 rounded-xl text-xs transition-colors min-h-[44px]"
+              href="https://wa.me/34672868332"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 bg-emerald-600/10 border border-emerald-500/30 hover:border-emerald-500 text-emerald-400 font-bold px-5 py-3.5 rounded-xl text-xs transition-colors min-h-[44px]"
             >
-              <Phone className="w-4 h-4 text-amber-500" />
-              <span>01 89 00 00 00</span>
+              <WhatsAppIcon className="w-4 h-4 text-emerald-400" />
+              <span>WhatsApp : +34 672 86 83 32</span>
             </a>
           </div>
         </div>

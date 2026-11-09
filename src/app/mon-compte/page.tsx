@@ -19,6 +19,7 @@ import { formatPrice } from "@/lib/utils"
 import { Footer } from "@/components/layout/Footer"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { LanguageSelector } from "@/components/layout/LanguageSelector"
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon"
 
 export const dynamic = "force-dynamic"
 
@@ -221,18 +222,21 @@ export default async function MonComptePage() {
 
             {/* Assistance Scierie */}
             <div className="bg-stone-900/60 border border-stone-800 rounded-2xl p-5 text-xs text-stone-300 space-y-2">
-              <div className="font-bold text-stone-100 flex items-center gap-1.5">
-                <Phone className="w-4 h-4 text-amber-500" />
-                <span>Service Client &amp; Expéditions</span>
+              <div className="font-bold text-stone-100 flex items-center gap-1.5 text-emerald-400">
+                <WhatsAppIcon className="w-4 h-4 text-emerald-400" />
+                <span>Support Client &amp; Expéditions</span>
               </div>
               <p className="text-stone-400 text-[11px] leading-relaxed">
-                Une question sur un cubage, un accès ou un virement ? Nos conseillers sont joignables du lundi au samedi.
+                Une question sur un cubage, un accès ou un virement ? Nos conseillers répondent en direct sur WhatsApp du lundi au samedi.
               </p>
               <a
-                href="tel:0189000000"
-                className="block text-center font-bold text-amber-400 hover:text-amber-300 py-2 bg-stone-900 border border-stone-800 rounded-xl"
+                href="https://wa.me/34672868332"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 w-full font-bold text-white py-2.5 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-xs transition-colors"
               >
-                01 89 00 00 00
+                <WhatsAppIcon className="w-4 h-4" />
+                <span>WhatsApp : +34 672 86 83 32</span>
               </a>
             </div>
           </div>

@@ -17,6 +17,7 @@ import {
   Sparkles,
 } from "lucide-react"
 import { useCartStore } from "@/lib/store/cart"
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon"
 
 const DEPOTS = [
   {
@@ -25,7 +26,7 @@ const DEPOTS = [
     badge: "Exploitation Forestière • Stock permanent",
     address: "Route Forestière de la Scierie",
     city: "77370 Nangis",
-    phone: "01 89 00 00 00",
+    phone: "+34 672 86 83 32",
     hours: "Lun - Ven : 8h00 - 18h30 • Sam : 8h00 - 16h00",
     description: "Siège de l'exploitation. Tous nos produits sont stockés sous hangars ventilés. Pont-bascule et chariots gros tonnage.",
     access: "Accès poids lourds, véhicules légers et remorques sans restriction.",
@@ -36,7 +37,7 @@ const DEPOTS = [
     badge: "Hub Régional",
     address: "14 Avenue des Artisans",
     city: "77000 Melun",
-    phone: "01 89 00 00 00",
+    phone: "+34 672 86 83 32",
     hours: "Lun - Ven : 8h30 - 18h00 • Sam : 8h30 - 13h00",
     description: "Plateforme logistique pour l'agglomération melunaise et Fontainebleau. Chargement rapide au chariot élévateur.",
     access: "Proche N105 et A5. Accès facile remorques et utilitaires.",
@@ -47,7 +48,7 @@ const DEPOTS = [
     badge: "Hub Régional",
     address: "ZI des Saules, Rue des Scieurs",
     city: "77100 Meaux",
-    phone: "01 89 00 00 00",
+    phone: "+34 672 86 83 32",
     hours: "Lun - Ven : 8h00 - 18h00 • Sam : 8h00 - 12h30",
     description: "Dépôt desservant tout le nord 77, l'Oise et le Val-d'Oise. Bûches 33cm, 50cm et pellets Din+ en stock continu.",
     access: "À 5 minutes de la RN3. Quai de chargement et cariste disponible.",
@@ -58,7 +59,7 @@ const DEPOTS = [
     badge: "Plateforme Essonne",
     address: "Plateforme Logistique des Bois, Route de Melun",
     city: "91100 Corbeil-Essonnes",
-    phone: "01 89 00 00 00",
+    phone: "+34 672 86 83 32",
     hours: "Lun - Ven : 8h30 - 17h30 • Sam fermé",
     description: "Centre logistique dédié à l'Essonne et au Sud Francilien. Chargement direct sur plateau ou dans véhicule utilitaire.",
     access: "Sortie immédiate Francilienne N104 / A6.",
@@ -171,10 +172,15 @@ export default function NosDepotsPage() {
                         <span>{dep.hours}</span>
                       </div>
 
-                      <div className="flex items-center gap-2 text-stone-300">
-                        <Phone className="w-4 h-4 text-amber-500 shrink-0" />
-                        <span>{dep.phone}</span>
-                      </div>
+                      <a
+                        href="https://wa.me/34672868332"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-stone-300 hover:text-emerald-400 transition-colors"
+                      >
+                        <WhatsAppIcon className="w-4 h-4 text-emerald-500 shrink-0" />
+                        <span>WhatsApp : {dep.phone}</span>
+                      </a>
                     </div>
 
                     <div className="p-3 bg-stone-900/60 border border-stone-800/80 rounded-xl text-[11px] text-stone-400">
