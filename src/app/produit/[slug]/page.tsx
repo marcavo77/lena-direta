@@ -136,15 +136,15 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 />
 
                 {product.badge && (
-                  <div className="absolute top-4 left-4 bg-stone-950/90 border border-stone-700 text-stone-900 dark:text-stone-100 text-xs font-bold px-3 py-1.5 rounded-md uppercase tracking-wider backdrop-blur-sm shadow-md">
+                  <div className="absolute top-4 left-4 bg-stone-950/90 border border-stone-700 text-stone-100 text-xs font-bold px-3 py-1.5 rounded-md uppercase tracking-wider backdrop-blur-sm shadow-md">
                     {product.badge}
                   </div>
                 )}
 
                 {product.humidity_rate && (
-                  <div className="absolute bottom-4 left-4 bg-stone-950/90 border border-stone-700 text-stone-900 dark:text-stone-100 text-xs font-bold px-3.5 py-2 rounded-lg flex items-center gap-2 shadow-lg backdrop-blur-sm">
-                    <Droplet className="w-4 h-4 text-sky-500 dark:text-sky-400 fill-sky-500 dark:fill-sky-400 shrink-0" />
-                    <span className="text-stone-900 dark:text-stone-100 font-bold">
+                  <div className="absolute bottom-4 left-4 bg-stone-950/90 border border-stone-700 text-stone-100 text-xs font-bold px-3.5 py-2 rounded-lg flex items-center gap-2 shadow-lg backdrop-blur-sm">
+                    <Droplet className="w-4 h-4 text-sky-400 fill-sky-400 shrink-0" />
+                    <span className="text-stone-100 font-bold">
                       Taux d&apos;humidité contrôlé : &lt; {product.humidity_rate}% H1
                     </span>
                   </div>
