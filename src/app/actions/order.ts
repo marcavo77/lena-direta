@@ -2,6 +2,8 @@
 
 import { z } from "zod"
 import { createClient } from "@/lib/supabase/server"
+import { LOCAL_PRODUCTS } from "@/lib/products"
+import type { Product } from "@/lib/supabase/database.types"
 
 // Schéma de validation Zod strict pour la création de commande
 const createOrderSchema = z.object({
@@ -77,14 +79,33 @@ export async function createOrder(input: CreateOrderInput) {
     } = await supabase.auth.getUser()
     const currentUserId = authUser?.id || null
 
-    // 2. Vérification des prix côté serveur d'après la base Supabase
+    // 2. Vérification des prix côté serveur d'après la base Supabase et le catalogue scierie
     const productIds = rawItems.map((i) => i.productId)
-    const { data: dbProducts, error: prodErr } = await supabase
-      .from("products")
-      .select("*")
-      .in("id", productIds)
+    let dbProducts: Product[] = []
+    try {
+      const { data, error: prodErr } = await supabase
+        .from("products")
+        .select("*")
+        .in("id", productIds)
 
-    if (prodErr || !dbProducts || dbProducts.length === 0) {
+      if (data && !prodErr) {
+        dbProducts = [...data]
+      }
+    } catch (e) {
+      console.warn("Erreur fetch DB products:", e)
+    }
+
+    // Compléter avec le catalogue local si certains produits (ex: charbon) ne sont pas encore insérés en DB
+    for (const pid of productIds) {
+      if (!dbProducts.some((p) => p.id === pid)) {
+        const local = LOCAL_PRODUCTS.find((p) => p.id === pid)
+        if (local) {
+          dbProducts.push(local)
+        }
+      }
+    }
+
+    if (dbProducts.length === 0) {
       return { success: false, error: "Impossible de récupérer les articles commandés." }
     }
 

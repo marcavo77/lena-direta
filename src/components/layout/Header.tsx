@@ -421,6 +421,61 @@ export function Header() {
               )}
             </div>
 
+            {/* CHARBON DE BOIS ▾ */}
+            <div
+              className="relative"
+              onMouseEnter={() => setActiveDropdown("charbon")}
+              onMouseLeave={() => setActiveDropdown(null)}
+            >
+              <Link
+                href="/charbon-de-bois"
+                prefetch={true}
+                className="flex items-center gap-1 hover:text-amber-400 transition-colors py-2 whitespace-nowrap"
+              >
+                <span>Charbon de Bois</span>
+                <ChevronDown className="w-3.5 h-3.5 text-stone-400 shrink-0" />
+              </Link>
+
+              {activeDropdown === "charbon" && (
+                <div className="absolute left-0 top-full pt-1 w-68 z-50">
+                  <div className="bg-[#1c1917] border border-stone-800 rounded-xl p-2 shadow-2xl space-y-1 text-xs normal-case">
+                    <Link
+                      href="/charbon-de-bois"
+                      onClick={() => setActiveDropdown(null)}
+                      className="block p-2.5 rounded-lg hover:bg-stone-800 hover:text-amber-400"
+                    >
+                      <div className="font-bold text-stone-100">Charbon Hexagonal Resto 10 kg</div>
+                      <div className="text-[11px] text-stone-400">Trou central effet cheminée, 5h+ braises</div>
+                    </Link>
+                    <Link
+                      href="/charbon-de-bois"
+                      onClick={() => setActiveDropdown(null)}
+                      className="block p-2.5 rounded-lg hover:bg-stone-800 hover:text-amber-400"
+                    >
+                      <div className="font-bold text-stone-100">Pack Duo 20 kg (Éco)</div>
+                      <div className="text-[11px] text-stone-400">Zéro fumée ni projections pour Kamado</div>
+                    </Link>
+                    <Link
+                      href="/charbon-de-bois"
+                      onClick={() => setActiveDropdown(null)}
+                      className="block p-2.5 rounded-lg hover:bg-stone-800 hover:text-amber-400"
+                    >
+                      <div className="font-bold text-stone-100">Palette Pro 1 Tonne / Demi-palette</div>
+                      <div className="text-[11px] text-stone-400">Tarif grossiste direct pour restaurateurs</div>
+                    </Link>
+                    <Link
+                      href="/charbon-de-bois"
+                      onClick={() => setActiveDropdown(null)}
+                      className="block p-2.5 rounded-lg hover:bg-stone-800 hover:text-amber-400"
+                    >
+                      <div className="font-bold text-stone-100">Charbon Artisanal Français 50L</div>
+                      <div className="text-[11px] text-stone-400">Gros morceaux de chêne et charme épurés</div>
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* INFOS PRATIQUES ▾ */}
             <div
               className="relative"

@@ -1,4 +1,4 @@
-import { getPublicSupabase } from "@/lib/supabase/public"
+import { getAllProducts } from "@/lib/products"
 import { ProductCard } from "@/components/shop/ProductCard"
 import { StereCalculator } from "@/components/shop/StereCalculator"
 import { DeliveryChecker } from "@/components/shop/DeliveryChecker"
@@ -22,22 +22,15 @@ import {
   Trees,
   Warehouse,
   ArrowRight,
+  Sparkles,
 } from "lucide-react"
 
 // Mise en cache CDN Vercel & régénération en arrière-plan toutes les 60 secondes pour une navigation instantanée
 export const revalidate = 60
 
 export default async function HomePage() {
-  const supabase = getPublicSupabase()
-
-  // Récupération des combustibles actifs
-  const { data: products } = await supabase
-    .from("products")
-    .select("*")
-    .eq("is_active", true)
-    .order("unit_price_cents", { ascending: false })
-
-  const productList = products || []
+  // Récupération de tous les combustibles actifs (y compris la gamme Charbon de Bois)
+  const productList = await getAllProducts()
 
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100 flex flex-col selection:bg-amber-500 selection:text-stone-950 font-sans">
@@ -60,31 +53,10 @@ export default async function HomePage() {
               </p>
             </div>
 
-            {/* 3. Les 4 Cartes Catégories Clés (Inspirées des captures 1 & 3) */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-6">
-              {/* Carte 1 : Bois compressé */}
-              <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-3.5 sm:p-5 flex flex-col items-center justify-between hover:border-amber-500/50 transition-all group">
-                <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-stone-900 border border-stone-800 mb-3 sm:mb-4">
-                  <Image
-                    src="/images/products/buches-compressees.jpg"
-                    alt="Bois compressé"
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute top-2 right-2 bg-stone-950/80 border border-amber-500/30 text-amber-400 text-[10px] font-black uppercase px-2 py-0.5 rounded">
-                    100% Chêne
-                  </div>
-                </div>
-                <Link
-                  href="/bois-compresse"
-                  className="w-full text-center bg-[#ea580c] hover:bg-[#c2410c] active:scale-95 text-white font-bold py-2.5 sm:py-3 px-3 rounded-full text-xs sm:text-sm tracking-wide transition-colors shadow-sm min-h-[44px] flex items-center justify-center"
-                >
-                  Bois compressé
-                </Link>
-              </div>
-
-              {/* Carte 2 : Bois de chauffage */}
-              <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-3.5 sm:p-5 flex flex-col items-center justify-between hover:border-amber-500/50 transition-all group">
+            {/* 3. Les 5 Cartes Catégories Clés (Inspirées des captures 1 & 3) */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4">
+              {/* Carte 1 : Bois de chauffage */}
+              <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-3.5 sm:p-4 flex flex-col items-center justify-between hover:border-amber-500/50 transition-all group">
                 <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-stone-900 border border-stone-800 mb-3 sm:mb-4">
                   <Image
                     src="/images/products/chene-charme-33cm.jpg"
@@ -98,14 +70,35 @@ export default async function HomePage() {
                 </div>
                 <Link
                   href="/bois-de-chauffage"
-                  className="w-full text-center bg-[#ea580c] hover:bg-[#c2410c] active:scale-95 text-white font-bold py-2.5 sm:py-3 px-3 rounded-full text-xs sm:text-sm tracking-wide transition-colors shadow-sm min-h-[44px] flex items-center justify-center"
+                  className="w-full text-center bg-[#ea580c] hover:bg-[#c2410c] active:scale-95 text-white font-bold py-2.5 sm:py-3 px-2 rounded-full text-xs tracking-wide transition-colors shadow-sm min-h-[44px] flex items-center justify-center"
                 >
                   Bois de chauffage
                 </Link>
               </div>
 
+              {/* Carte 2 : Bois compressé */}
+              <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-3.5 sm:p-4 flex flex-col items-center justify-between hover:border-amber-500/50 transition-all group">
+                <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-stone-900 border border-stone-800 mb-3 sm:mb-4">
+                  <Image
+                    src="/images/products/buches-compressees.jpg"
+                    alt="Bois compressé"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute top-2 right-2 bg-stone-950/80 border border-amber-500/30 text-amber-400 text-[10px] font-black uppercase px-2 py-0.5 rounded">
+                    100% Chêne
+                  </div>
+                </div>
+                <Link
+                  href="/bois-compresse"
+                  className="w-full text-center bg-[#ea580c] hover:bg-[#c2410c] active:scale-95 text-white font-bold py-2.5 sm:py-3 px-2 rounded-full text-xs tracking-wide transition-colors shadow-sm min-h-[44px] flex items-center justify-center"
+                >
+                  Bois compressé
+                </Link>
+              </div>
+
               {/* Carte 3 : Granulés de bois */}
-              <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-3.5 sm:p-5 flex flex-col items-center justify-between hover:border-amber-500/50 transition-all group">
+              <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-3.5 sm:p-4 flex flex-col items-center justify-between hover:border-amber-500/50 transition-all group">
                 <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-stone-900 border border-stone-800 mb-3 sm:mb-4">
                   <Image
                     src="/images/products/pellets-din-plus.jpg"
@@ -119,14 +112,35 @@ export default async function HomePage() {
                 </div>
                 <Link
                   href="/granules-de-bois"
-                  className="w-full text-center bg-[#ea580c] hover:bg-[#c2410c] active:scale-95 text-white font-bold py-2.5 sm:py-3 px-3 rounded-full text-xs sm:text-sm tracking-wide transition-colors shadow-sm min-h-[44px] flex items-center justify-center"
+                  className="w-full text-center bg-[#ea580c] hover:bg-[#c2410c] active:scale-95 text-white font-bold py-2.5 sm:py-3 px-2 rounded-full text-xs tracking-wide transition-colors shadow-sm min-h-[44px] flex items-center justify-center"
                 >
                   Granulés de bois
                 </Link>
               </div>
 
-              {/* Carte 4 : Retrait Drive & Dépôts */}
-              <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-3.5 sm:p-5 flex flex-col items-center justify-between hover:border-amber-500/50 transition-all group">
+              {/* Carte 4 : Charbon de bois hexagonal & artisanal */}
+              <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-3.5 sm:p-4 flex flex-col items-center justify-between hover:border-amber-500/50 transition-all group">
+                <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-stone-900 border border-stone-800 mb-3 sm:mb-4">
+                  <Image
+                    src="/images/products/charbon-hexagonal-extrude.png"
+                    alt="Charbon de bois hexagonal de restaurant"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute top-2 right-2 bg-stone-950/80 border border-amber-500/30 text-amber-400 text-[10px] font-black uppercase px-2 py-0.5 rounded">
+                    Braise 5h+
+                  </div>
+                </div>
+                <Link
+                  href="/charbon-de-bois"
+                  className="w-full text-center bg-[#ea580c] hover:bg-[#c2410c] active:scale-95 text-white font-bold py-2.5 sm:py-3 px-2 rounded-full text-xs tracking-wide transition-colors shadow-sm min-h-[44px] flex items-center justify-center"
+                >
+                  Charbon de bois
+                </Link>
+              </div>
+
+              {/* Carte 5 : Retrait Drive & Dépôts */}
+              <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-3.5 sm:p-4 flex flex-col items-center justify-between hover:border-amber-500/50 transition-all group col-span-2 sm:col-span-1">
                 <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-stone-900 border border-stone-800 mb-3 sm:mb-4">
                   <Image
                     src="/images/livraison-camion.jpg"
@@ -140,9 +154,9 @@ export default async function HomePage() {
                 </div>
                 <Link
                   href="/nos-depots"
-                  className="w-full text-center bg-[#ea580c] hover:bg-[#c2410c] active:scale-95 text-white font-bold py-2.5 sm:py-3 px-3 rounded-full text-xs sm:text-sm tracking-wide transition-colors shadow-sm min-h-[44px] flex items-center justify-center"
+                  className="w-full text-center bg-[#ea580c] hover:bg-[#c2410c] active:scale-95 text-white font-bold py-2.5 sm:py-3 px-2 rounded-full text-xs tracking-wide transition-colors shadow-sm min-h-[44px] flex items-center justify-center"
                 >
-                  Nos 4 Dépôts Drive
+                  Nos 4 Dépôts
                 </Link>
               </div>
             </div>

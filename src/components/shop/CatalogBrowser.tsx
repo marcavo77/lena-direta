@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react"
 import { ProductCard } from "@/components/shop/ProductCard"
 import type { Product } from "@/lib/supabase/database.types"
-import { SlidersHorizontal, Flame, Trees, RotateCcw, ArrowUpDown } from "lucide-react"
+import { SlidersHorizontal, Flame, Trees, RotateCcw, ArrowUpDown, Sparkles } from "lucide-react"
 
 interface CatalogBrowserProps {
   initialProducts: Product[]
@@ -17,6 +17,7 @@ export function CatalogBrowser({ initialProducts }: CatalogBrowserProps) {
 
   const categories = [
     { id: "all", label: "Tous les combustibles" },
+    { id: "charbon_bois", label: "Charbon de bois & Hexagonal" },
     { id: "bois_buches", label: "Bûches de bois dur" },
     { id: "granules_pellets", label: "Granulés & Pellets Din+" },
     { id: "buches_compressees", label: "Bûches densifiées" },
@@ -25,6 +26,7 @@ export function CatalogBrowser({ initialProducts }: CatalogBrowserProps) {
 
   const lengths = [
     { id: "all", label: "Toutes longueurs" },
+    { id: 15, label: "15 cm (Briquettes)" },
     { id: 25, label: "25 cm" },
     { id: 33, label: "33 cm" },
     { id: 50, label: "50 cm" },
@@ -32,9 +34,10 @@ export function CatalogBrowser({ initialProducts }: CatalogBrowserProps) {
 
   const packagings = [
     { id: "all", label: "Tous formats" },
-    { id: "palette", label: "Palettes complètes" },
-    { id: "sac", label: "Sacs (Pellets)" },
+    { id: "palette", label: "Palettes & Demi-palettes" },
+    { id: "sac", label: "Sacs & Cartons (10kg, 15kg, 50L)" },
     { id: "filet", label: "Filets" },
+    { id: "vrac", label: "Vrac camion souffleur" },
   ]
 
   const filteredProducts = useMemo(() => {
@@ -77,6 +80,7 @@ export function CatalogBrowser({ initialProducts }: CatalogBrowserProps) {
                 : "bg-stone-900 text-stone-300 border border-stone-800 hover:border-stone-700"
             }`}
           >
+            {cat.id === "charbon_bois" && <Sparkles className="w-4 h-4 text-amber-500" />}
             {cat.id === "bois_buches" && <Trees className="w-4 h-4" />}
             {cat.id === "granules_pellets" && <Flame className="w-4 h-4 fill-current" />}
             <span>{cat.label}</span>

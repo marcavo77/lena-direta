@@ -377,6 +377,61 @@ export function MobileNavDrawer({ onOpenWarehouseModal }: MobileNavDrawerProps) 
                   )}
                 </div>
 
+                {/* Accordéon 4 : Charbon de Bois & Restauration */}
+                <div className="border border-stone-800/80 rounded-xl overflow-hidden bg-stone-900/40">
+                  <button
+                    type="button"
+                    onClick={() => toggleSection("charbon")}
+                    className="w-full p-3.5 flex items-center justify-between font-bold text-stone-200 uppercase tracking-wider text-xs"
+                  >
+                    <span>Charbon de Bois (Pro &amp; Resto)</span>
+                    <ChevronDown
+                      className={`w-4 h-4 text-stone-400 transition-transform ${
+                        expandedSection === "charbon" ? "rotate-180 text-amber-400" : ""
+                      }`}
+                    />
+                  </button>
+                  {expandedSection === "charbon" && (
+                    <div className="p-3 pt-0 space-y-2 text-stone-300 border-t border-stone-800/60 mt-1">
+                      <Link
+                        href="/charbon-de-bois"
+                        onClick={closeMenu}
+                        className="block py-1.5 px-2 rounded bg-stone-900 font-bold text-amber-400"
+                      >
+                        Tout voir en Charbon de Bois →
+                      </Link>
+                      <Link
+                        href="/produit/charbon-de-bois-hexagonal-extrude-sac-10kg"
+                        onClick={closeMenu}
+                        className="block py-1.5 px-2 rounded hover:bg-stone-800 hover:text-amber-400"
+                      >
+                        Charbon Hexagonal Resto 10 kg (Trou central)
+                      </Link>
+                      <Link
+                        href="/produit/pack-duo-20kg-charbon-hexagonal-haute-performance"
+                        onClick={closeMenu}
+                        className="block py-1.5 px-2 rounded hover:bg-stone-800 hover:text-amber-400"
+                      >
+                        Pack Duo 20 kg (2 x 10 kg)
+                      </Link>
+                      <Link
+                        href="/produit/palette-pro-charbon-hexagonal-extrude-1000kg"
+                        onClick={closeMenu}
+                        className="block py-1.5 px-2 rounded hover:bg-stone-800 hover:text-amber-400"
+                      >
+                        Palette Pro 1 Tonne (100 sacs de 10 kg)
+                      </Link>
+                      <Link
+                        href="/produit/charbon-de-bois-artisanal-chene-charme-sac-50l"
+                        onClick={closeMenu}
+                        className="block py-1.5 px-2 rounded hover:bg-stone-800 hover:text-amber-400"
+                      >
+                        Charbon Artisanal Français (Sac 50L)
+                      </Link>
+                    </div>
+                  )}
+                </div>
+
                 {/* Accordéon 4 : Infos Pratiques */}
                 <div className="border border-stone-800/80 rounded-xl overflow-hidden bg-stone-900/40">
                   <button

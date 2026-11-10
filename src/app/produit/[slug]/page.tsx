@@ -1,4 +1,4 @@
-import { getPublicSupabase } from "@/lib/supabase/public"
+import { getProductBySlug, getRelatedProducts, getAllProductSlugs } from "@/lib/products"
 import { notFound } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
@@ -22,34 +22,14 @@ import {
   Info,
   Ruler,
   HelpCircle,
+  Sparkles,
 } from "lucide-react"
 
 // Cache CDN Vercel instantané & régénération en arrière-plan
 export const revalidate = 60
 
 export async function generateStaticParams() {
-  try {
-    const supabase = getPublicSupabase()
-    const { data: products } = await supabase.from("products").select("slug")
-    if (products && products.length > 0) {
-      return products.map((p) => ({ slug: p.slug }))
-    }
-  } catch (error) {
-    console.warn("Could not fetch slugs from Supabase during build:", error)
-  }
-
-  return [
-    { slug: "chene-charme-33cm-palette-3-steres" },
-    { slug: "chene-hetre-50cm-palette-4-steres" },
-    { slug: "bois-de-chauffage-25cm-palette-2-steres" },
-    { slug: "buches-compressees-jour-palette-96-packs" },
-    { slug: "buches-compressees-nuit-pack-96-packs" },
-    { slug: "paves-bois-compresse-100-chene-palette" },
-    { slug: "pellets-granules-din-plus-palette-66-sacs" },
-    { slug: "granules-vrac-camion-souffleur-tonne" },
-    { slug: "allume-feu-naturel-laine-bois-carton-300" },
-    { slug: "filets-buchettes-allumage-ecologique-10-filets" },
-  ]
+  return await getAllProductSlugs()
 }
 
 interface ProductPageProps {
@@ -58,13 +38,7 @@ interface ProductPageProps {
 
 export async function generateMetadata({ params }: ProductPageProps) {
   const { slug } = await params
-  const supabase = getPublicSupabase()
-
-  const { data: product } = await supabase
-    .from("products")
-    .select("name, short_description")
-    .eq("slug", slug)
-    .single()
+  const product = await getProductBySlug(slug)
 
   if (!product) {
     return { title: "Produit non trouvé | LeñaDirecta" }
@@ -72,31 +46,22 @@ export async function generateMetadata({ params }: ProductPageProps) {
 
   return {
     title: `${product.name} | LeñaDirecta`,
-    description: product.short_description || "Bois de chauffage et granulés premium livrés à domicile.",
+    description: product.short_description || "Bois de chauffage, granulés et charbon premium livrés à domicile.",
   }
 }
 
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { slug } = await params
-  const supabase = getPublicSupabase()
 
   // 1. Fetch produit principal
-  const { data: product } = await supabase
-    .from("products")
-    .select("*")
-    .eq("slug", slug)
-    .single()
+  const product = await getProductBySlug(slug)
 
   if (!product) {
     notFound()
   }
 
   // 2. Fetch produits recommandés / complémentaires
-  const { data: relatedProducts } = await supabase
-    .from("products")
-    .select("*")
-    .neq("slug", slug)
-    .limit(3)
+  const relatedProducts = await getRelatedProducts(slug, 3)
 
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100 flex flex-col font-sans">

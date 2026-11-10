@@ -1,4 +1,4 @@
-import { getPublicSupabase } from "@/lib/supabase/public"
+import { getAllProducts } from "@/lib/products"
 import { CatalogBrowser } from "@/components/shop/CatalogBrowser"
 import { DeliveryChecker } from "@/components/shop/DeliveryChecker"
 import { Header } from "@/components/layout/Header"
@@ -10,21 +10,13 @@ import Link from "next/link"
 export const revalidate = 60
 
 export const metadata = {
-  title: "Catalogue Combustibles Bois & Granulés | LeñaDirecta",
+  title: "Catalogue Combustibles Bois, Granulés & Charbon | LeñaDirecta",
   description:
-    "Découvrez notre catalogue complet de bois de chauffage sec (<20% H1) en 25cm, 33cm, 50cm, granulés de bois Din+ et bûches compressées. Tarifs directs producteur avec livraison chariot tout-terrain.",
+    "Découvrez notre catalogue complet : bois de chauffage sec (<20% H1), charbon de bois hexagonal qualité restaurant 5h+, granulés Din+ et bûches compressées. Tarifs directs producteur avec livraison chariot tout-terrain.",
 }
 
 export default async function CataloguePage() {
-  const supabase = getPublicSupabase()
-
-  const { data: products } = await supabase
-    .from("products")
-    .select("*")
-    .eq("is_active", true)
-    .order("unit_price_cents", { ascending: false })
-
-  const productList = products || []
+  const productList = await getAllProducts()
 
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100 flex flex-col font-sans">
