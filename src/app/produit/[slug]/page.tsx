@@ -122,19 +122,29 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               <div className="grid grid-cols-3 gap-3">
                 <div className="bg-stone-900 border border-stone-800 rounded-xl p-3.5 text-center">
                   <Award className="w-5 h-5 text-amber-500 mx-auto mb-1.5" />
-                  <div className="text-xs font-bold text-stone-200">Norme NF H1</div>
-                  <div className="text-[11px] text-stone-400 mt-0.5">Prêt à brûler direct</div>
+                  <div className="text-xs font-bold text-stone-200">
+                    {product.category === "poeles" ? "EcoDesign 2022" : "Norme NF H1"}
+                  </div>
+                  <div className="text-[11px] text-stone-400 mt-0.5">
+                    {product.category === "poeles" ? "Flamme Verte 7*" : "Prêt à brûler direct"}
+                  </div>
                 </div>
 
                 <div className="bg-stone-900 border border-stone-800 rounded-xl p-3.5 text-center">
-                  <Trees className="w-5 h-5 text-emerald-500 mx-auto mb-1.5" />
-                  <div className="text-xs font-bold text-stone-200">PEFC 100%</div>
-                  <div className="text-[11px] text-stone-400 mt-0.5">Forêts durables</div>
+                  <ShieldCheck className="w-5 h-5 text-emerald-500 mx-auto mb-1.5" />
+                  <div className="text-xs font-bold text-stone-200">
+                    {product.category === "poeles" ? "Garantie 5 Ans" : "PEFC 100%"}
+                  </div>
+                  <div className="text-[11px] text-stone-400 mt-0.5">
+                    {product.category === "poeles" ? "Fonte & Acier épais" : "Forêts durables"}
+                  </div>
                 </div>
 
                 <div className="bg-stone-900 border border-stone-800 rounded-xl p-3.5 text-center">
                   <Truck className="w-5 h-5 text-amber-500 mx-auto mb-1.5" />
-                  <div className="text-xs font-bold text-stone-200">Chariot Tout-Terrain</div>
+                  <div className="text-xs font-bold text-stone-200">
+                    {product.category === "poeles" ? "Palette Caissée" : "Chariot Tout-Terrain"}
+                  </div>
                   <div className="text-[11px] text-stone-400 mt-0.5">Dépose au garage</div>
                 </div>
               </div>
@@ -145,7 +155,11 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               <div>
                 <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-amber-600 dark:text-amber-500 mb-2">
                   <Flame className="w-4 h-4 fill-amber-600 text-amber-600 dark:fill-amber-500 dark:text-amber-500 shrink-0" />
-                  <span>Combustible Garanti Sans Fumé &amp; Écologique</span>
+                  <span>
+                    {product.category === "poeles"
+                      ? "Chauffage Autonome & Cuisson Écologique"
+                      : "Combustible Garanti Sans Fumée & Écologique"}
+                  </span>
                 </div>
                 <h1 className="text-2xl sm:text-3xl font-black text-stone-100 leading-snug">
                   {product.name}
@@ -180,17 +194,23 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               {/* Tableau technique */}
               <div className="bg-stone-950 border border-stone-800 rounded-xl overflow-hidden">
                 <div className="px-5 py-3.5 bg-stone-900 border-b border-stone-800 font-bold text-xs uppercase tracking-wider text-amber-500">
-                  Caractéristiques Physiques
+                  {product.category === "poeles" ? "Spécifications Techniques" : "Caractéristiques Physiques"}
                 </div>
                 <div className="divide-y divide-stone-800 text-xs">
                   <div className="px-5 py-3 flex justify-between">
                     <span className="text-stone-400">Conditionnement</span>
-                    <span className="font-semibold text-stone-200 capitalize">{product.packaging}</span>
+                    <span className="font-semibold text-stone-200 capitalize">
+                      {product.category === "poeles" ? "Palette caissée sécurisée" : product.packaging}
+                    </span>
                   </div>
                   {product.wood_length_cm && (
                     <div className="px-5 py-3 flex justify-between">
-                      <span className="text-stone-400">Longueur des bûches</span>
-                      <span className="font-bold text-amber-400">{product.wood_length_cm} cm (± 2 cm)</span>
+                      <span className="text-stone-400">
+                        {product.category === "poeles" ? "Longueur max des bûches" : "Longueur des bûches"}
+                      </span>
+                      <span className="font-bold text-amber-400">
+                        {product.wood_length_cm} cm {product.category !== "poeles" && "(± 2 cm)"}
+                      </span>
                     </div>
                   )}
                   {product.volume_stere && (
@@ -201,13 +221,17 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                   )}
                   {product.weight_kg && (
                     <div className="px-5 py-3 flex justify-between">
-                      <span className="text-stone-400">Poids indicatif</span>
+                      <span className="text-stone-400">
+                        {product.category === "poeles" ? "Poids net de l'appareil" : "Poids indicatif"}
+                      </span>
                       <span className="font-semibold text-stone-200">≈ {product.weight_kg} kg</span>
                     </div>
                   )}
                   {product.species && product.species.length > 0 && (
                     <div className="px-5 py-3 flex justify-between">
-                      <span className="text-stone-400">Essences de bois</span>
+                      <span className="text-stone-400">
+                        {product.category === "poeles" ? "Matériaux & Foyer" : "Essences de bois"}
+                      </span>
                       <span className="font-semibold text-stone-200">{product.species.join(", ")}</span>
                     </div>
                   )}
@@ -217,6 +241,12 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                       <span className="font-bold text-emerald-400">H1 (&lt; {product.humidity_rate}%) Séché</span>
                     </div>
                   )}
+                  {product.category === "poeles" && (
+                    <div className="px-5 py-3 flex justify-between">
+                      <span className="text-stone-400">Normes environnementales</span>
+                      <span className="font-bold text-emerald-400">EcoDesign 2022 / Flamme Verte 7*</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -224,33 +254,64 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               <div className="bg-stone-950 border border-stone-800 rounded-xl overflow-hidden flex flex-col justify-between">
                 <div>
                   <div className="px-5 py-3.5 bg-stone-900 border-b border-stone-800 font-bold text-xs uppercase tracking-wider text-amber-500">
-                    Performances Énergétiques &amp; Rendement
+                    {product.category === "poeles"
+                      ? "Performances & Conseils Chauffage"
+                      : "Performances Énergétiques & Rendement"}
                   </div>
                   <div className="p-5 space-y-4 text-xs text-stone-300 leading-relaxed">
-                    <div className="flex items-start gap-3">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                      <div>
-                        <strong>Pouvoir Calorifique Inférieur (PCI) :</strong> Fournit environ <strong>2 000 kWh</strong> par stère de bois dur fendu sec, soit un rendement énergétique supérieur de 30% par rapport à un bois mi-sec à 30% d&apos;humidité.
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                      <div>
-                        <strong>Protection du Foyer &amp; Vitre Propre :</strong> Grâce au faible taux d&apos;humidité, la combustion est complète et ne dépose presque aucune suie ni goudron dans les tuyaux de fumisterie.
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                      <div>
-                        <strong>Méthode d&apos;Allumage Recommandée :</strong> Utilisez la méthode d&apos;allumage par le haut (Top-Down) : placez les grosses bûches en bas et le petit bois d&apos;allumage avec l&apos;allume-feu sur le dessus pour diviser les fumées par 4.
-                      </div>
-                    </div>
+                    {product.category === "poeles" ? (
+                      <>
+                        <div className="flex items-start gap-3">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                          <div>
+                            <strong>Rendement Énergétique Supérieur (&gt; 80%) :</strong> La double combustion réinjecte l&apos;air préchauffé pour brûler les gaz résiduels, réduisant la consommation de bois de près de 30%.
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                          <div>
+                            <strong>Système Vitre Propre &amp; Étanche :</strong> Un flux d&apos;air continu balaie la face interne de la vitre en vitrocéramique pour empêcher les dépôts de suie et garantir une vision nette du feu.
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                          <div>
+                            <strong>Four de Cuisson Intégré (selon modèle) :</strong> Le four supérieur en acier inoxydable ou émaillé monte rapidement en température avec un contrôle thermique précis au thermomètre pour toutes vos cuissons au feu de bois.
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex items-start gap-3">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                          <div>
+                            <strong>Pouvoir Calorifique Inférieur (PCI) :</strong> Fournit environ <strong>2 000 kWh</strong> par stère de bois dur fendu sec, soit un rendement énergétique supérieur de 30% par rapport à un bois mi-sec à 30% d&apos;humidité.
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                          <div>
+                            <strong>Protection du Foyer &amp; Vitre Propre :</strong> Grâce au faible taux d&apos;humidité, la combustion est complète et ne dépose presque aucune suie ni goudron dans les tuyaux de fumisterie.
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                          <div>
+                            <strong>Méthode d&apos;Allumage Recommandée :</strong> Utilisez la méthode d&apos;allumage par le haut (Top-Down) : placez les grosses bûches en bas et le petit bois d&apos;allumage avec l&apos;allume-feu sur le dessus pour diviser les fumées par 4.
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
 
                 <div className="p-5 border-t border-stone-800 bg-stone-900/50 text-xs text-stone-400 flex items-center gap-2">
                   <Info className="w-4 h-4 text-amber-500 shrink-0" />
-                  <span>Stockage conseillé : sous abri ventilé ou garage, surélevé du sol par des tasseaux.</span>
+                  <span>
+                    {product.category === "poeles"
+                      ? "Installation par un professionnel qualifié RGE recommandée pour bénéficier des aides de l'État (MaPrimeRénov')."
+                      : "Stockage conseillé : sous abri ventilé ou garage, surélevé du sol par des tasseaux."}
+                  </span>
                 </div>
               </div>
             </div>

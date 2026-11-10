@@ -476,6 +476,61 @@ export function Header() {
               )}
             </div>
 
+            {/* POÊLES À BOIS ▾ */}
+            <div
+              className="relative"
+              onMouseEnter={() => setActiveDropdown("poeles")}
+              onMouseLeave={() => setActiveDropdown(null)}
+            >
+              <Link
+                href="/poeles-a-bois"
+                prefetch={true}
+                className="flex items-center gap-1 hover:text-amber-400 transition-colors py-2 whitespace-nowrap"
+              >
+                <span>Poêles à Bois</span>
+                <ChevronDown className="w-3.5 h-3.5 text-stone-400 shrink-0" />
+              </Link>
+
+              {activeDropdown === "poeles" && (
+                <div className="absolute left-0 top-full pt-1 w-72 z-50">
+                  <div className="bg-[#1c1917] border border-stone-800 rounded-xl p-2 shadow-2xl space-y-1 text-xs normal-case">
+                    <Link
+                      href="/poeles-a-bois"
+                      onClick={() => setActiveDropdown(null)}
+                      className="block p-2.5 rounded-lg hover:bg-stone-800 hover:text-amber-400"
+                    >
+                      <div className="font-bold text-stone-100">Poêle avec Four de Cuisson 9 kW</div>
+                      <div className="text-[11px] text-stone-400">Chauffage + Four vitré supérieur (1 290 €)</div>
+                    </Link>
+                    <Link
+                      href="/poeles-a-bois"
+                      onClick={() => setActiveDropdown(null)}
+                      className="block p-2.5 rounded-lg hover:bg-stone-800 hover:text-amber-400"
+                    >
+                      <div className="font-bold text-stone-100">Cuisinière Grand Four 11 kW</div>
+                      <div className="text-[11px] text-stone-400">Bûches 50 cm &amp; four inox panoramique</div>
+                    </Link>
+                    <Link
+                      href="/poeles-a-bois"
+                      onClick={() => setActiveDropdown(null)}
+                      className="block p-2.5 rounded-lg hover:bg-stone-800 hover:text-amber-400"
+                    >
+                      <div className="font-bold text-stone-100">Poêle Scandinave Fonte 7 kW</div>
+                      <div className="text-[11px] text-stone-400">Rendement 82% &amp; forte inertie thermique</div>
+                    </Link>
+                    <Link
+                      href="/poeles-a-bois"
+                      onClick={() => setActiveDropdown(null)}
+                      className="block p-2.5 rounded-lg hover:bg-stone-800 hover:text-amber-400"
+                    >
+                      <div className="font-bold text-stone-100">Poêle à Granulés Connecté WiFi 9 kW</div>
+                      <div className="text-[11px] text-stone-400">Programmable smartphone &amp; silence 24h</div>
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* INFOS PRATIQUES ▾ */}
             <div
               className="relative"

@@ -64,7 +64,7 @@ export function ProductCard({ product }: ProductCardProps) {
           <div className="flex flex-wrap items-center gap-2 mb-3">
             {product.wood_length_cm && (
               <span className="text-xs bg-stone-950 text-stone-300 border border-stone-800 px-2.5 py-0.5 rounded font-mono font-semibold">
-                Bûches {product.wood_length_cm} cm
+                {product.category === "poeles" ? `Bûches max ${product.wood_length_cm} cm` : `Bûches ${product.wood_length_cm} cm`}
               </span>
             )}
             {product.volume_stere && (
@@ -89,11 +89,13 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.short_description || product.description}
           </p>
 
-          {/* Essences de bois dur */}
+          {/* Essences de bois dur ou matériaux pour poêles */}
           {product.species && product.species.length > 0 && (
             <div className="mt-3.5 flex items-center gap-1.5 text-xs text-stone-400">
               <Trees className="w-4 h-4 text-emerald-500 shrink-0" />
-              <span className="truncate">Essences : {product.species.join(", ")}</span>
+              <span className="truncate">
+                {product.category === "poeles" ? "Matériaux" : "Essences"} : {product.species.join(", ")}
+              </span>
             </div>
           )}
 

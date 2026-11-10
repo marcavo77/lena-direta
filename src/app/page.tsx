@@ -53,8 +53,8 @@ export default async function HomePage() {
               </p>
             </div>
 
-            {/* 3. Les 5 Cartes Catégories Clés (Inspirées des captures 1 & 3) */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4">
+            {/* 3. Les 6 Cartes Catégories Clés */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4">
               {/* Carte 1 : Bois de chauffage */}
               <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-3.5 sm:p-4 flex flex-col items-center justify-between hover:border-amber-500/50 transition-all group">
                 <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-stone-900 border border-stone-800 mb-3 sm:mb-4">
@@ -139,8 +139,29 @@ export default async function HomePage() {
                 </Link>
               </div>
 
-              {/* Carte 5 : Retrait Drive & Dépôts */}
-              <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-3.5 sm:p-4 flex flex-col items-center justify-between hover:border-amber-500/50 transition-all group col-span-2 sm:col-span-1">
+              {/* Carte 5 : Poêles à bois & Fours */}
+              <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-3.5 sm:p-4 flex flex-col items-center justify-between hover:border-amber-500/50 transition-all group">
+                <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-stone-900 border border-stone-800 mb-3 sm:mb-4">
+                  <Image
+                    src="/images/products/poele-a-bois-avec-four-gourmet.jpg"
+                    alt="Poêles à bois avec four de cuisson et granulés"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute top-2 right-2 bg-stone-950/80 border border-amber-500/30 text-amber-400 text-[10px] font-black uppercase px-2 py-0.5 rounded">
+                    Avec Four
+                  </div>
+                </div>
+                <Link
+                  href="/poeles-a-bois"
+                  className="w-full text-center bg-[#ea580c] hover:bg-[#c2410c] active:scale-95 text-white font-bold py-2.5 sm:py-3 px-2 rounded-full text-xs tracking-wide transition-colors shadow-sm min-h-[44px] flex items-center justify-center"
+                >
+                  Poêles à bois
+                </Link>
+              </div>
+
+              {/* Carte 6 : Retrait Drive & Dépôts */}
+              <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-3.5 sm:p-4 flex flex-col items-center justify-between hover:border-amber-500/50 transition-all group">
                 <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-stone-900 border border-stone-800 mb-3 sm:mb-4">
                   <Image
                     src="/images/livraison-camion.jpg"

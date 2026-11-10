@@ -16,10 +16,11 @@ export function CatalogBrowser({ initialProducts }: CatalogBrowserProps) {
   const [sortBy, setSortBy] = useState<"featured" | "price_asc" | "price_desc">("featured")
 
   const categories = [
-    { id: "all", label: "Tous les combustibles" },
-    { id: "charbon_bois", label: "Charbon de bois & Hexagonal" },
+    { id: "all", label: "Tous les produits" },
+    { id: "poeles", label: "Poêles à bois & Four" },
     { id: "bois_buches", label: "Bûches de bois dur" },
     { id: "granules_pellets", label: "Granulés & Pellets Din+" },
+    { id: "charbon_bois", label: "Charbon de bois & Hexagonal" },
     { id: "buches_compressees", label: "Bûches densifiées" },
     { id: "allumage", label: "Allumage & Petit bois" },
   ]
@@ -80,6 +81,7 @@ export function CatalogBrowser({ initialProducts }: CatalogBrowserProps) {
                 : "bg-stone-900 text-stone-300 border border-stone-800 hover:border-stone-700"
             }`}
           >
+            {cat.id === "poeles" && <Flame className="w-4 h-4 text-amber-500" />}
             {cat.id === "charbon_bois" && <Sparkles className="w-4 h-4 text-amber-500" />}
             {cat.id === "bois_buches" && <Trees className="w-4 h-4" />}
             {cat.id === "granules_pellets" && <Flame className="w-4 h-4 fill-current" />}

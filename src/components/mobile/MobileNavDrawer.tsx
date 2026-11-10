@@ -432,6 +432,61 @@ export function MobileNavDrawer({ onOpenWarehouseModal }: MobileNavDrawerProps) 
                   )}
                 </div>
 
+                {/* Accordéon 5 : Poêles à Bois & Cuisinières */}
+                <div className="border border-stone-800/80 rounded-xl overflow-hidden bg-stone-900/40">
+                  <button
+                    type="button"
+                    onClick={() => toggleSection("poeles")}
+                    className="w-full p-3.5 flex items-center justify-between font-bold text-stone-200 uppercase tracking-wider text-xs"
+                  >
+                    <span>Poêles à Bois &amp; Cuisinières</span>
+                    <ChevronDown
+                      className={`w-4 h-4 text-stone-400 transition-transform ${
+                        expandedSection === "poeles" ? "rotate-180 text-amber-400" : ""
+                      }`}
+                    />
+                  </button>
+                  {expandedSection === "poeles" && (
+                    <div className="p-3 pt-0 space-y-2 text-stone-300 border-t border-stone-800/60 mt-1">
+                      <Link
+                        href="/poeles-a-bois"
+                        onClick={closeMenu}
+                        className="block py-1.5 px-2 rounded bg-stone-900 font-bold text-amber-400"
+                      >
+                        Tout voir en Poêles à Bois →
+                      </Link>
+                      <Link
+                        href="/produit/poele-a-bois-avec-four-integre-gourmet-9kw"
+                        onClick={closeMenu}
+                        className="block py-1.5 px-2 rounded hover:bg-stone-800 hover:text-amber-400"
+                      >
+                        Poêle avec Four Intégré Gourmet 9 kW
+                      </Link>
+                      <Link
+                        href="/produit/poele-cuisiniere-grand-four-panoramique-11kw"
+                        onClick={closeMenu}
+                        className="block py-1.5 px-2 rounded hover:bg-stone-800 hover:text-amber-400"
+                      >
+                        Cuisinière Grand Four 11 kW (Bûches 50cm)
+                      </Link>
+                      <Link
+                        href="/produit/poele-a-bois-fonte-scandinave-epure-7kw"
+                        onClick={closeMenu}
+                        className="block py-1.5 px-2 rounded hover:bg-stone-800 hover:text-amber-400"
+                      >
+                        Poêle Scandinave Fonte 7 kW
+                      </Link>
+                      <Link
+                        href="/produit/poele-a-granules-etanche-connecte-wifi-9kw"
+                        onClick={closeMenu}
+                        className="block py-1.5 px-2 rounded hover:bg-stone-800 hover:text-amber-400"
+                      >
+                        Poêle à Granulés Étanche WiFi 9 kW
+                      </Link>
+                    </div>
+                  )}
+                </div>
+
                 {/* Accordéon 4 : Infos Pratiques */}
                 <div className="border border-stone-800/80 rounded-xl overflow-hidden bg-stone-900/40">
                   <button
