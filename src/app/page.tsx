@@ -5,6 +5,7 @@ import { DeliveryChecker } from "@/components/shop/DeliveryChecker"
 import { Header } from "@/components/layout/Header"
 import { Footer } from "@/components/layout/Footer"
 import { HomeStickyBar } from "@/components/mobile/HomeStickyBar"
+import { HeroCarousel } from "@/components/home/HeroCarousel"
 import Image from "next/image"
 import Link from "next/link"
 import {
@@ -46,24 +47,14 @@ export default async function HomePage() {
         {/* ================= HERO SECTION INSPIRÉE DE BRAZECO (Captures 1 & 3) ================= */}
         <section className="pt-4 pb-12 sm:pt-6 sm:pb-16 bg-[#121110] border-b border-stone-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8">
-            {/* 1. Grande Bannière Producteur Français (Téléchargée par l'utilisateur) */}
-            <div className="relative w-full rounded-2xl overflow-hidden border border-stone-800 bg-[#c2410c] shadow-xl">
-              <div className="relative h-44 sm:h-64 md:h-72 lg:h-80 w-full">
-                <Image
-                  src="/images/hero-banner.jpeg"
-                  alt="Producteur et distributeur français de bûches compressées, bois de chauffage et granulés"
-                  fill
-                  priority
-                  className="object-cover object-center"
-                />
-              </div>
-            </div>
+            {/* 1. Grand Carrousel Auto avec Texte Réel Traduisible (Bois, Pellets, Charbon) */}
+            <HeroCarousel />
 
             {/* 2. Titre d'accroche Spécialiste */}
             <div className="text-center max-w-3xl mx-auto pt-2">
-              <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-stone-100 tracking-tight">
+              <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-stone-100 tracking-tight">
                 LeñaDirecta, spécialiste du bois de chauffage
-              </h1>
+              </h2>
               <p className="mt-2.5 text-xs sm:text-base text-stone-400 font-medium">
                 Nos combustibles 100% naturels pour une énergie renouvelable, un haut pouvoir calorifique et un séchage certifié.
               </p>
