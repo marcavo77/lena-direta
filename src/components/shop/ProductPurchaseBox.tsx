@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { useCartStore } from "@/lib/store/cart"
 import { formatPrice } from "@/lib/utils"
 import type { Product } from "@/lib/supabase/database.types"
@@ -15,6 +16,7 @@ import {
   Sparkles,
   PhoneCall,
   Clock,
+  ArrowRight,
 } from "lucide-react"
 
 interface ProductPurchaseBoxProps {
@@ -22,6 +24,7 @@ interface ProductPurchaseBoxProps {
 }
 
 export function ProductPurchaseBox({ product }: ProductPurchaseBoxProps) {
+  const router = useRouter()
   const [quantity, setQuantity] = useState<number>(1)
   const [deliveryMode, setDeliveryMode] = useState<"delivery" | "drive">("delivery")
   const [added, setAdded] = useState<boolean>(false)
@@ -44,6 +47,11 @@ export function ProductPurchaseBox({ product }: ProductPurchaseBoxProps) {
     addItem(product, quantity)
     setAdded(true)
     setTimeout(() => setAdded(false), 2200)
+  }
+
+  const handleDirectOrder = () => {
+    addItem(product, quantity)
+    router.push("/tunnel")
   }
 
   return (
@@ -171,28 +179,39 @@ export function ProductPurchaseBox({ product }: ProductPurchaseBoxProps) {
           </div>
         </div>
 
-        {/* Bouton d'ajout au panier grand format */}
-        <button
-          type="button"
-          onClick={handleAddToCart}
-          className={`w-full min-h-[52px] rounded-xl font-black text-base flex items-center justify-center gap-2.5 transition-colors shadow-lg active:scale-98 ${
-            added
-              ? "bg-emerald-600 text-white"
-              : "bg-amber-500 hover:bg-amber-400 text-stone-950"
-          }`}
-        >
-          {added ? (
-            <>
-              <Check className="w-5 h-5 stroke-[3]" />
-              <span>{quantity} palette(s) ajoutée(s) au panier !</span>
-            </>
-          ) : (
-            <>
-              <ShoppingCart className="w-5 h-5" />
-              <span>Ajouter au panier • {formatPrice(totalCents)}</span>
-            </>
-          )}
-        </button>
+        {/* Actions Panier & Commande Directe */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            className={`min-h-[52px] rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all border active:scale-98 ${
+              added
+                ? "bg-emerald-600 text-white border-emerald-500 shadow-md"
+                : "bg-stone-950 hover:bg-stone-800 text-stone-200 border-stone-700 hover:border-amber-500/50 hover:text-amber-400"
+            }`}
+          >
+            {added ? (
+              <>
+                <Check className="w-5 h-5 stroke-[3]" />
+                <span>Ajouté ({quantity}) !</span>
+              </>
+            ) : (
+              <>
+                <ShoppingCart className="w-5 h-5" />
+                <span>Ajouter au panier</span>
+              </>
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleDirectOrder}
+            className="min-h-[52px] rounded-xl font-black text-sm flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-stone-950 transition-all shadow-lg active:scale-98"
+          >
+            <span>Commander</span>
+            <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+          </button>
+        </div>
 
         {/* Rassurance sous le bouton */}
         <div className="pt-2 flex flex-col gap-2 text-xs text-stone-400">
