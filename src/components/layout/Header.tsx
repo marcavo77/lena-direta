@@ -95,7 +95,7 @@ export function Header() {
       >
         {/* ================= BARRE SUPÉRIEURE (Inspirée de Brazeco - Captures 1 & 2) ================= */}
         <div className="bg-stone-900 border-b border-stone-800 text-stone-300 text-xs py-2 px-4 sm:px-6">
-          <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+          <div className="max-w-[1440px] mx-auto flex items-center justify-between gap-3">
             {/* Gauche : Bouton Choisir mon entrepôt & Toggle Thème (Capture) */}
             <div className="flex items-center gap-1.5 sm:gap-2.5">
               <button
@@ -249,9 +249,9 @@ export function Header() {
         </div>
 
         {/* ================= BARRE DE NAVIGATION PRINCIPALE (Capture 1) ================= */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-18 sm:h-20 flex items-center justify-between gap-4">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 h-18 sm:h-20 flex items-center justify-between gap-2 lg:gap-3 xl:gap-6">
           {/* Logo LeñaDirecta */}
-          <Link href="/" prefetch={true} className="flex items-center gap-3 group shrink-0">
+          <Link href="/" prefetch={true} className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
             <div className="w-10 h-10 rounded-lg bg-amber-500 text-stone-950 flex items-center justify-center shadow-sm">
               <Flame className="w-6 h-6 fill-stone-950" />
             </div>
@@ -269,7 +269,7 @@ export function Header() {
           {/* Navlinks Desktop avec Menus Déroulants (Inspiré de Brazeco - Capture 1) */}
           <nav
             ref={navRef}
-            className="hidden lg:flex items-center gap-4 xl:gap-7 text-xs xl:text-sm font-bold uppercase tracking-wider text-stone-300 whitespace-nowrap"
+            className="hidden lg:flex items-center gap-2 xl:gap-3.5 2xl:gap-6 text-xs xl:text-[13px] 2xl:text-sm font-bold uppercase tracking-wide text-stone-300 whitespace-nowrap min-w-0"
           >
             {/* BOUTIQUE */}
             <Link
@@ -385,7 +385,7 @@ export function Header() {
                 prefetch={true}
                 className="flex items-center gap-1 hover:text-amber-400 transition-colors py-2 whitespace-nowrap"
               >
-                <span>Granulés de Bois</span>
+                <span>Granulés<span className="hidden 2xl:inline"> de Bois</span></span>
                 <ChevronDown className="w-3.5 h-3.5 text-stone-400 shrink-0" />
               </Link>
 
@@ -432,7 +432,7 @@ export function Header() {
                 prefetch={true}
                 className="flex items-center gap-1 hover:text-amber-400 transition-colors py-2 whitespace-nowrap"
               >
-                <span>Charbon de Bois</span>
+                <span>Charbon<span className="hidden 2xl:inline"> de Bois</span></span>
                 <ChevronDown className="w-3.5 h-3.5 text-stone-400 shrink-0" />
               </Link>
 
@@ -487,7 +487,7 @@ export function Header() {
                 prefetch={true}
                 className="flex items-center gap-1 hover:text-amber-400 transition-colors py-2 whitespace-nowrap"
               >
-                <span>Poêles à Bois</span>
+                <span>Poêles<span className="hidden 2xl:inline"> à Bois</span></span>
                 <ChevronDown className="w-3.5 h-3.5 text-stone-400 shrink-0" />
               </Link>
 
@@ -542,7 +542,7 @@ export function Header() {
                 prefetch={true}
                 className="flex items-center gap-1 hover:text-amber-400 transition-colors py-2 whitespace-nowrap"
               >
-                <span>Infos Pratiques</span>
+                <span>Infos<span className="hidden xl:inline"> Pratiques</span></span>
                 <ChevronDown className="w-3.5 h-3.5 text-stone-400 shrink-0" />
               </Link>
 
@@ -646,8 +646,8 @@ export function Header() {
             </div>
           </nav>
 
-          {/* Côté Droit : Panier + Menu Hamburger Mobile (Capture 3) */}
-          <div className="flex items-center gap-2.5">
+          {/* Côté Droit : Panier + Menu Hamburger Mobile (Toujours garanti visible, shrink-0) */}
+          <div className="flex items-center gap-2.5 shrink-0 z-10 ml-auto lg:ml-0">
             <CartDrawer />
 
             {/* Menu Hamburger Mobile (Flèche rouge de la capture 3) */}
