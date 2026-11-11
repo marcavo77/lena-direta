@@ -208,6 +208,20 @@ export function MobileNavDrawer({ onOpenWarehouseModal }: MobileNavDrawerProps) 
                       <span className="text-[10px] text-amber-400 font-bold shrink-0">Mon Compte →</span>
                     </Link>
 
+                    {user.email === "admin@lena-directa.company" && (
+                      <Link
+                        href="/admin"
+                        onClick={closeMenu}
+                        className="w-full flex items-center justify-between p-3 rounded-xl bg-amber-950/60 border border-amber-800/80 text-amber-400 font-black text-xs hover:bg-amber-900/60 transition-colors"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Flame className="w-4 h-4 text-amber-400 shrink-0" />
+                          <span>Administration Scierie</span>
+                        </div>
+                        <span className="text-[10px] bg-amber-500 text-stone-950 px-1.5 py-0.2 rounded font-black">Admin</span>
+                      </Link>
+                    )}
+
                     <button
                       type="button"
                       onClick={handleSignOut}

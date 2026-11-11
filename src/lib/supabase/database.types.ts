@@ -105,6 +105,7 @@ export interface Database {
           email: string
           full_name: string | null
           id: string
+          is_admin: boolean | null
           phone: string | null
           shipping_address: Json | null
           updated_at: string
@@ -114,6 +115,7 @@ export interface Database {
           email: string
           full_name?: string | null
           id: string
+          is_admin?: boolean | null
           phone?: string | null
           shipping_address?: Json | null
           updated_at?: string
@@ -123,6 +125,7 @@ export interface Database {
           email?: string
           full_name?: string | null
           id?: string
+          is_admin?: boolean | null
           phone?: string | null
           shipping_address?: Json | null
           updated_at?: string

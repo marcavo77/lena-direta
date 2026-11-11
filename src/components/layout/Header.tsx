@@ -194,12 +194,28 @@ export function Header() {
                       <div className="bg-[#1c1917] border border-stone-800 rounded-xl p-2 w-52 sm:w-56 shadow-2xl space-y-1 text-xs">
                         <div className="px-3 py-2 text-[11px] text-stone-400 border-b border-stone-800 truncate">
                           <span className="block text-[9px] text-stone-500 uppercase tracking-wider font-extrabold">
-                            Compte Client
+                            {user.email === "admin@lena-directa.company" ? "Administrateur Scierie" : "Compte Client"}
                           </span>
                           <span className="font-semibold text-stone-200 truncate block mt-0.5">
                             {user.email}
                           </span>
                         </div>
+
+                        {user.email === "admin@lena-directa.company" && (
+                          <Link
+                            href="/admin"
+                            prefetch={false}
+                            onClick={() => setUserMenuOpen(false)}
+                            className="flex items-center justify-between px-3 py-2 text-amber-400 bg-amber-950/40 hover:bg-amber-900/40 rounded-lg font-bold border border-amber-800/60 transition-colors my-1 text-xs"
+                          >
+                            <span className="flex items-center gap-1.5">
+                              <Flame className="w-3.5 h-3.5 text-amber-400" />
+                              <span>Administration Scierie</span>
+                            </span>
+                            <span className="text-[10px] bg-amber-500 text-stone-950 px-1.5 py-0.2 rounded font-black">Admin</span>
+                          </Link>
+                        )}
+
                         <Link
                           href="/mon-compte"
                           prefetch={true}
