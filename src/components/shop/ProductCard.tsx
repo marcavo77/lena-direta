@@ -26,7 +26,7 @@ export function ProductCard({ product }: ProductCardProps) {
     setTimeout(() => setAdded(false), 2000)
   }
 
-  const handleDirectOrder = (e: React.MouseEvent) => {
+  const handleDirectCheckout = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     addItem(product, 1)
@@ -116,52 +116,53 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
       </div>
 
-      {/* Prix & Bouton de commande */}
+      {/* Prix & Boutons d'action (Ajout panier & Commande directe) */}
       <div className="p-5 pt-0">
-        <div className="pt-4 border-t border-stone-800 flex items-end justify-between gap-2.5">
+        <div className="pt-4 border-t border-stone-800 flex items-center justify-between gap-2.5">
           <Link href={`/produit/${product.slug}`} prefetch={true} className="block min-w-0">
-            <div className="text-[11px] text-stone-400 uppercase tracking-wider font-semibold">
+            <div className="text-[10px] sm:text-[11px] text-stone-400 uppercase tracking-wider font-semibold">
               Prix TTC livré
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-amber-500 tracking-tight">
+            <div className="text-xl sm:text-2xl lg:text-3xl font-black text-amber-500 tracking-tight leading-none mt-0.5">
               {formatPrice(product.unit_price_cents)}
             </div>
             {pricePerStere && (
-              <div className="text-xs text-stone-400 truncate">
+              <div className="text-[11px] sm:text-xs text-stone-400 truncate mt-0.5">
                 soit <span className="font-semibold text-stone-200">{formatPrice(pricePerStere)}</span> / stère
               </div>
             )}
           </Link>
 
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            {/* Bouton Icône Panier (Ajout rapide au panier sans quitter la page) */}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Bouton Panier : Ajout au panier sans quitter la page */}
             <button
               type="button"
               onClick={handleAddToCart}
-              title="Ajouter au panier"
-              aria-label={`Ajouter ${product.name} au panier`}
-              className={`min-h-[44px] min-w-[44px] w-11 h-11 rounded-lg font-bold flex items-center justify-center transition-all border active:scale-95 ${
+              aria-label="Ajouter au panier"
+              title={added ? "Produit ajouté au panier !" : "Ajouter au panier"}
+              className={`min-h-[44px] min-w-[44px] sm:min-h-[46px] sm:min-w-[46px] p-2.5 rounded-lg font-bold flex items-center justify-center transition-all active:scale-95 border ${
                 added
                   ? "bg-emerald-600 text-white border-emerald-500 shadow-sm"
-                  : "bg-stone-950 hover:bg-stone-800 text-stone-300 border-stone-700 hover:border-amber-500/60 hover:text-amber-400"
+                  : "bg-stone-800 hover:bg-stone-700 text-amber-400 hover:text-amber-300 border-stone-700 hover:border-amber-500/40 shadow-sm"
               }`}
             >
               {added ? (
-                <Check className="w-5 h-5 stroke-[3] text-white" />
+                <Check className="w-5 h-5 stroke-[2.5]" />
               ) : (
                 <ShoppingCart className="w-5 h-5" />
               )}
             </button>
 
-            {/* Bouton Commander (Achat direct vers le tunnel) */}
+            {/* Bouton Commander : Redirige directement vers le tunnel de commande */}
             <button
               type="button"
-              onClick={handleDirectOrder}
-              title="Commander directement ce produit"
-              className="min-h-[44px] px-3.5 sm:px-4 py-2.5 rounded-lg font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 bg-amber-500 hover:bg-amber-400 text-stone-950 transition-all active:scale-95 shadow-sm"
+              onClick={handleDirectCheckout}
+              aria-label="Commander directement"
+              title="Passer commande directement"
+              className="min-h-[44px] sm:min-h-[46px] px-3.5 sm:px-4 py-2.5 rounded-lg font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all active:scale-95 bg-amber-500 hover:bg-amber-400 text-stone-950 shadow-sm"
             >
+              <ArrowRight className="w-4 h-4 stroke-[2.5] shrink-0" />
               <span>Commander</span>
-              <ArrowRight className="w-4 h-4 stroke-[2.5]" />
             </button>
           </div>
         </div>

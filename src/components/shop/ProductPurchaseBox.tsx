@@ -49,7 +49,7 @@ export function ProductPurchaseBox({ product }: ProductPurchaseBoxProps) {
     setTimeout(() => setAdded(false), 2200)
   }
 
-  const handleDirectOrder = () => {
+  const handleDirectCheckout = () => {
     addItem(product, quantity)
     router.push("/tunnel")
   }
@@ -179,25 +179,25 @@ export function ProductPurchaseBox({ product }: ProductPurchaseBoxProps) {
           </div>
         </div>
 
-        {/* Actions Panier & Commande Directe */}
+        {/* Actions : Ajouter au panier + Commande directe */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <button
             type="button"
             onClick={handleAddToCart}
-            className={`min-h-[52px] rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all border active:scale-98 ${
+            className={`min-h-[52px] rounded-xl font-bold text-sm sm:text-base flex items-center justify-center gap-2 transition-all active:scale-98 border ${
               added
                 ? "bg-emerald-600 text-white border-emerald-500 shadow-md"
-                : "bg-stone-950 hover:bg-stone-800 text-stone-200 border-stone-700 hover:border-amber-500/50 hover:text-amber-400"
+                : "bg-stone-800 hover:bg-stone-700 text-stone-100 border-stone-700"
             }`}
           >
             {added ? (
               <>
-                <Check className="w-5 h-5 stroke-[3]" />
-                <span>Ajouté ({quantity}) !</span>
+                <Check className="w-5 h-5 stroke-[2.5]" />
+                <span>Ajouté au panier !</span>
               </>
             ) : (
               <>
-                <ShoppingCart className="w-5 h-5" />
+                <ShoppingCart className="w-5 h-5 text-amber-400" />
                 <span>Ajouter au panier</span>
               </>
             )}
@@ -205,11 +205,11 @@ export function ProductPurchaseBox({ product }: ProductPurchaseBoxProps) {
 
           <button
             type="button"
-            onClick={handleDirectOrder}
-            className="min-h-[52px] rounded-xl font-black text-sm flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-stone-950 transition-all shadow-lg active:scale-98"
+            onClick={handleDirectCheckout}
+            className="min-h-[52px] rounded-xl font-black text-sm sm:text-base flex items-center justify-center gap-2 transition-all active:scale-98 bg-amber-500 hover:bg-amber-400 text-stone-950 shadow-md"
           >
-            <span>Commander</span>
-            <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+            <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+            <span>Commander direct</span>
           </button>
         </div>
 
