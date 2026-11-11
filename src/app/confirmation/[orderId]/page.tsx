@@ -89,10 +89,12 @@ export default async function OrderConfirmationPage({ params }: ConfirmationPage
         {/* Coordonnées Bancaires (RIB) & Instructions de Virement */}
         <div className="mb-8">
           <RibPaymentCard
+            orderId={order.id}
             orderNumber={order.order_number}
             totalFormatted={formatPrice(order.total_cents)}
             depositFormatted={formatPrice(Math.round(order.total_cents * 0.3))}
             paymentMethod={shipping.payment_method || "transfer"}
+            paymentStatus={order.payment_status}
             customerPhone={order.customer_phone}
           />
         </div>

@@ -201,38 +201,62 @@ export function Header() {
                           </span>
                         </div>
 
-                        {user.email === "admin@lena-directa.company" && (
-                          <Link
-                            href="/admin"
-                            prefetch={false}
-                            onClick={() => setUserMenuOpen(false)}
-                            className="flex items-center justify-between px-3 py-2 text-amber-400 bg-amber-950/40 hover:bg-amber-900/40 rounded-lg font-bold border border-amber-800/60 transition-colors my-1 text-xs"
-                          >
-                            <span className="flex items-center gap-1.5">
-                              <Flame className="w-3.5 h-3.5 text-amber-400" />
-                              <span>Administration Scierie</span>
-                            </span>
-                            <span className="text-[10px] bg-amber-500 text-stone-950 px-1.5 py-0.2 rounded font-black">Admin</span>
-                          </Link>
-                        )}
+                        {user.email === "admin@lena-directa.company" ? (
+                          <>
+                            <Link
+                              href="/admin"
+                              prefetch={false}
+                              onClick={() => setUserMenuOpen(false)}
+                              className="flex items-center justify-between px-3 py-2 text-amber-400 bg-amber-950/40 hover:bg-amber-900/40 rounded-lg font-bold border border-amber-800/60 transition-colors my-1 text-xs"
+                            >
+                              <span className="flex items-center gap-1.5">
+                                <Flame className="w-3.5 h-3.5 text-amber-400" />
+                                <span>Administration Scierie</span>
+                              </span>
+                              <span className="text-[10px] bg-amber-500 text-stone-950 px-1.5 py-0.2 rounded font-black">Admin</span>
+                            </Link>
 
-                        <Link
-                          href="/mon-compte"
-                          prefetch={true}
-                          onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center justify-between px-3 py-2.5 text-stone-200 hover:bg-stone-800 rounded-lg font-bold hover:text-amber-400 transition-colors"
-                        >
-                          <span>Mon Tableau de Bord</span>
-                          <span className="text-amber-400 text-[11px]">→</span>
-                        </Link>
-                        <Link
-                          href="/panier"
-                          prefetch={true}
-                          onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center justify-between px-3 py-2.5 text-stone-300 hover:bg-stone-800 rounded-lg transition-colors"
-                        >
-                          <span>Mon Panier</span>
-                        </Link>
+                            <Link
+                              href="/admin?tab=orders"
+                              prefetch={false}
+                              onClick={() => setUserMenuOpen(false)}
+                              className="flex items-center justify-between px-3 py-2 text-stone-200 hover:bg-stone-800 rounded-lg font-medium hover:text-amber-400 transition-colors"
+                            >
+                              <span>Commandes &amp; Virements</span>
+                              <span className="text-amber-400 text-[11px]">→</span>
+                            </Link>
+
+                            <Link
+                              href="/admin?tab=customers"
+                              prefetch={false}
+                              onClick={() => setUserMenuOpen(false)}
+                              className="flex items-center justify-between px-3 py-2 text-stone-200 hover:bg-stone-800 rounded-lg font-medium hover:text-amber-400 transition-colors"
+                            >
+                              <span>Clients Inscrits</span>
+                              <span className="text-amber-400 text-[11px]">→</span>
+                            </Link>
+                          </>
+                        ) : (
+                          <>
+                            <Link
+                              href="/mon-compte"
+                              prefetch={true}
+                              onClick={() => setUserMenuOpen(false)}
+                              className="flex items-center justify-between px-3 py-2.5 text-stone-200 hover:bg-stone-800 rounded-lg font-bold hover:text-amber-400 transition-colors"
+                            >
+                              <span>Mon Tableau de Bord</span>
+                              <span className="text-amber-400 text-[11px]">→</span>
+                            </Link>
+                            <Link
+                              href="/panier"
+                              prefetch={true}
+                              onClick={() => setUserMenuOpen(false)}
+                              className="flex items-center justify-between px-3 py-2.5 text-stone-300 hover:bg-stone-800 rounded-lg transition-colors"
+                            >
+                              <span>Mon Panier</span>
+                            </Link>
+                          </>
+                        )}
                         <div className="pt-1 border-t border-stone-800">
                           <button
                             type="button"

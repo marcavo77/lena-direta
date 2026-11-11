@@ -196,19 +196,7 @@ export function MobileNavDrawer({ onOpenWarehouseModal }: MobileNavDrawerProps) 
                 {/* Bouton Espace Client ou Se Connecter */}
                 {user ? (
                   <div className="space-y-1.5">
-                    <Link
-                      href="/mon-compte"
-                      onClick={closeMenu}
-                      className="w-full flex items-center justify-between p-3 rounded-xl bg-stone-900 border border-stone-800 text-stone-100 font-bold text-xs hover:border-amber-500 transition-colors"
-                    >
-                      <div className="flex items-center gap-2 truncate">
-                        <User className="w-4 h-4 text-emerald-400 shrink-0" />
-                        <span className="truncate">{user.email}</span>
-                      </div>
-                      <span className="text-[10px] text-amber-400 font-bold shrink-0">Mon Compte →</span>
-                    </Link>
-
-                    {user.email === "admin@lena-directa.company" && (
+                    {user.email === "admin@lena-directa.company" ? (
                       <Link
                         href="/admin"
                         onClick={closeMenu}
@@ -218,7 +206,19 @@ export function MobileNavDrawer({ onOpenWarehouseModal }: MobileNavDrawerProps) 
                           <Flame className="w-4 h-4 text-amber-400 shrink-0" />
                           <span>Administration Scierie</span>
                         </div>
-                        <span className="text-[10px] bg-amber-500 text-stone-950 px-1.5 py-0.2 rounded font-black">Admin</span>
+                        <span className="text-[10px] bg-amber-500 text-stone-950 px-2 py-0.5 rounded font-black">Accéder</span>
+                      </Link>
+                    ) : (
+                      <Link
+                        href="/mon-compte"
+                        onClick={closeMenu}
+                        className="w-full flex items-center justify-between p-3 rounded-xl bg-stone-900 border border-stone-800 text-stone-100 font-bold text-xs hover:border-amber-500 transition-colors"
+                      >
+                        <div className="flex items-center gap-2 truncate">
+                          <User className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span className="truncate">{user.email}</span>
+                        </div>
+                        <span className="text-[10px] text-amber-400 font-bold shrink-0">Mon Compte →</span>
                       </Link>
                     )}
 

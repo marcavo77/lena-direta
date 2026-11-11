@@ -27,9 +27,11 @@ import { useCartStore } from "@/lib/store/cart"
 import { formatPrice } from "@/lib/utils"
 import { AccessDiagnostic } from "@/components/checkout/AccessDiagnostic"
 import { createOrder } from "@/app/actions/order"
+import { useIsAdmin } from "@/lib/hooks/useIsAdmin"
 
 export default function CheckoutTunnelPage() {
   const router = useRouter()
+  const { isAdmin } = useIsAdmin()
   const {
     items,
     getItemCount,
@@ -85,6 +87,33 @@ export default function CheckoutTunnelPage() {
   useEffect(() => {
     setIsHydrated(true)
   }, [])
+
+  if (isAdmin) {
+    return (
+      <div className="bg-[#121110] min-h-screen text-stone-100 flex items-center justify-center p-4">
+        <div className="bg-[#1c1917] border border-amber-500/30 rounded-2xl p-8 max-w-md w-full text-center space-y-4 shadow-xl">
+          <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto text-amber-500">
+            <ShieldCheck className="w-8 h-8" />
+          </div>
+          <h2 className="text-xl font-black text-stone-100">
+            Mode Administrateur Actif
+          </h2>
+          <p className="text-xs text-stone-400 leading-relaxed">
+            Les commandes ne peuvent pas être passées avec un compte administrateur. Accédez à votre tableau de bord pour gérer le catalogue, les clients et les livraisons.
+          </p>
+          <div className="pt-2">
+            <Link
+              href="/admin"
+              className="inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-xs px-5 py-3 rounded-xl transition-all uppercase tracking-wider w-full shadow-md min-h-[44px]"
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>Accéder au Tableau de Bord Admin</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   if (isHydrated && items.length === 0) {
     return (

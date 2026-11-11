@@ -20,6 +20,7 @@ import { Footer } from "@/components/layout/Footer"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { LanguageSelector } from "@/components/layout/LanguageSelector"
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon"
+import { NotifyPaymentButton } from "@/components/checkout/NotifyPaymentButton"
 
 export const dynamic = "force-dynamic"
 
@@ -31,6 +32,17 @@ export default async function MonComptePage() {
   }
 
   const { user, profile, orders } = data
+
+  // Redirection automatique des administrateurs vers le panneau d'administration dédié
+  const isAdmin =
+    Boolean((profile as any)?.is_admin) ||
+    user.email === "admin@lena-directa.company" ||
+    user.user_metadata?.role === "admin"
+
+  if (isAdmin) {
+    redirect("/admin")
+  }
+
   const shipping = (profile.shipping_address as { street?: string; postal_code?: string; city?: string }) || {}
 
   return (
@@ -133,12 +145,26 @@ export default async function MonComptePage() {
                               <span className="font-mono font-bold text-amber-400 text-sm">
                                 {ord.order_number}
                               </span>
-                              <span className="bg-amber-500/10 border border-amber-500/20 text-amber-400 px-2 py-0.5 rounded text-[10px] font-bold uppercase">
-                                {ord.status === "pending"
-                                  ? "En attente de virement"
-                                  : ord.status === "confirmed"
-                                  ? "Confirmée - Préparation hangar"
-                                  : ord.status}
+                              <span
+                                className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${
+                                  ord.status === "paid" || ord.status === "delivered" || ord.status === "preparing"
+                                    ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+                                    : ord.status === "payment_notified" || ord.payment_status === "transfer_notified"
+                                    ? "bg-amber-500/20 border-amber-500/40 text-amber-300"
+                                    : "bg-stone-800 border-stone-700 text-stone-300"
+                                }`}
+                              >
+                                {ord.status === "paid"
+                                  ? "Paiement Validé • En Préparation"
+                                  : ord.status === "payment_notified" || ord.payment_status === "transfer_notified"
+                                  ? "Virement signalé • Vérification scierie"
+                                  : ord.status === "preparing"
+                                  ? "En préparation hangar"
+                                  : ord.status === "out_for_delivery"
+                                  ? "En cours de livraison"
+                                  : ord.status === "delivered"
+                                  ? "Livrée à domicile"
+                                  : "En attente de virement"}
                               </span>
                             </div>
                             <span className="text-[11px] text-stone-400 mt-0.5 block">
@@ -164,8 +190,15 @@ export default async function MonComptePage() {
                           ))}
                         </div>
 
-                        {/* Action : Voir reçu et coordonnées de virement */}
-                        <div className="pt-2 border-t border-stone-800 flex justify-end">
+                        {/* Action : Signaler virement ou voir le reçu */}
+                        <div className="pt-3 border-t border-stone-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                          <NotifyPaymentButton
+                            orderId={ord.id}
+                            orderNumber={ord.order_number}
+                            paymentStatus={ord.payment_status}
+                            compact={true}
+                          />
+
                           <Link
                             href={`/confirmation/${ord.id}`}
                             className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-400 hover:text-amber-300"

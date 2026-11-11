@@ -7,9 +7,11 @@ import { ShoppingBag, X, Plus, Minus, Trash2, ArrowRight, ShieldCheck, Tag } fro
 import { useCartStore } from "@/lib/store/cart"
 import { formatPrice } from "@/lib/utils"
 import Image from "next/image"
+import { useIsAdmin } from "@/lib/hooks/useIsAdmin"
 
 export function CartDrawer() {
   const [open, setOpen] = useState(false)
+  const { isAdmin } = useIsAdmin()
   const {
     items,
     removeItem,
@@ -196,15 +198,26 @@ export function CartDrawer() {
                 </div>
               </div>
 
-              {/* Bouton de commande vers le tunnel */}
-              <Link
-                href="/tunnel"
-                onClick={() => setOpen(false)}
-                className="w-full bg-amber-500 hover:bg-amber-400 active:scale-95 text-stone-950 font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-all min-h-[48px] shadow-lg shadow-amber-500/10 text-base"
-              >
-                <span>Commander ({formatPrice(total)})</span>
-                <ArrowRight className="w-5 h-5" />
-              </Link>
+              {/* Bouton de commande vers le tunnel OU Bouton Admin */}
+              {isAdmin ? (
+                <Link
+                  href="/admin"
+                  onClick={() => setOpen(false)}
+                  className="w-full bg-amber-500 hover:bg-amber-400 active:scale-95 text-stone-950 font-black py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-all min-h-[48px] shadow-lg shadow-amber-500/10 text-sm uppercase tracking-wider"
+                >
+                  <ShieldCheck className="w-5 h-5" />
+                  <span>Accéder à l'Administration</span>
+                </Link>
+              ) : (
+                <Link
+                  href="/tunnel"
+                  onClick={() => setOpen(false)}
+                  className="w-full bg-amber-500 hover:bg-amber-400 active:scale-95 text-stone-950 font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-all min-h-[48px] shadow-lg shadow-amber-500/10 text-base"
+                >
+                  <span>Commander ({formatPrice(total)})</span>
+                  <ArrowRight className="w-5 h-5" />
+                </Link>
+              )}
 
               {/* Lien vers la page panier complète */}
               <Link

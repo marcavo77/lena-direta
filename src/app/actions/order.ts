@@ -79,6 +79,14 @@ export async function createOrder(input: CreateOrderInput) {
     } = await supabase.auth.getUser()
     const currentUserId = authUser?.id || null
 
+    // Interdiction stricte aux comptes administrateurs de passer commande
+    if (authUser?.email === "admin@lena-directa.company" || authUser?.user_metadata?.role === "admin") {
+      return {
+        success: false,
+        error: "Compte Administrateur : Vous ne pouvez pas passer de commande avec un compte administrateur. Accédez à votre tableau de bord pour gérer les produits, clients et commandes.",
+      }
+    }
+
     // 2. Vérification des prix côté serveur d'après la base Supabase et le catalogue scierie
     const productIds = rawItems.map((i) => i.productId)
     let dbProducts: Product[] = []
@@ -228,6 +236,8 @@ export async function createOrder(input: CreateOrderInput) {
         delivery_fee_cents: deliveryFeeCents,
         total_cents: totalCents,
         status: "pending",
+        payment_method: paymentMethod,
+        payment_status: "pending",
         delivery_slot: preferredTimeSlot,
       })
       .select("id, order_number")
@@ -252,5 +262,55 @@ export async function createOrder(input: CreateOrderInput) {
       success: false,
       error: "Une erreur inattendue est survenue lors du traitement.",
     }
+  }
+}
+
+/**
+ * Signale à l'administration que le client a effectué son virement bancaire
+ */
+export async function notifyTransferSent(orderId: string, reference?: string) {
+  try {
+    const supabase = await createClient()
+
+    const { data: existing, error: fetchErr } = await supabase
+      .from("orders")
+      .select("id, status, payment_status, order_number, admin_notes")
+      .eq("id", orderId)
+      .single()
+
+    if (fetchErr || !existing) {
+      return { success: false, error: "Commande introuvable." }
+    }
+
+    const noteAppend = reference
+      ? `\nVirement bancaire signalé par le client (Réf: ${reference.trim()}) le ${new Date().toLocaleString("fr-FR")}`
+      : `\nVirement bancaire signalé par le client le ${new Date().toLocaleString("fr-FR")}`
+
+    const updatedNotes = ((existing.admin_notes || "") + noteAppend).trim()
+
+    const { error: updateErr } = await supabase
+      .from("orders")
+      .update({
+        payment_status: "transfer_notified",
+        status: "payment_notified",
+        payment_notified_at: new Date().toISOString(),
+        admin_notes: updatedNotes,
+      })
+      .eq("id", orderId)
+
+    if (updateErr) {
+      console.error("Error updating transfer notified status:", updateErr)
+      return { success: false, error: "Erreur lors de la mise à jour du statut." }
+    }
+
+    const { revalidatePath } = await import("next/cache")
+    revalidatePath("/admin")
+    revalidatePath("/mon-compte")
+    revalidatePath(`/confirmation/${orderId}`)
+
+    return { success: true }
+  } catch (err) {
+    console.error("notifyTransferSent error:", err)
+    return { success: false, error: "Erreur serveur lors de la notification." }
   }
 }

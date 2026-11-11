@@ -1,10 +1,12 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useCartStore } from "@/lib/store/cart"
 import { formatPrice } from "@/lib/utils"
 import type { Product } from "@/lib/supabase/database.types"
+import { useIsAdmin } from "@/lib/hooks/useIsAdmin"
 import {
   ShoppingCart,
   Check,
@@ -25,6 +27,7 @@ interface ProductPurchaseBoxProps {
 
 export function ProductPurchaseBox({ product }: ProductPurchaseBoxProps) {
   const router = useRouter()
+  const { isAdmin } = useIsAdmin()
   const [quantity, setQuantity] = useState<number>(1)
   const [deliveryMode, setDeliveryMode] = useState<"delivery" | "drive">("delivery")
   const [added, setAdded] = useState<boolean>(false)
@@ -179,39 +182,58 @@ export function ProductPurchaseBox({ product }: ProductPurchaseBoxProps) {
           </div>
         </div>
 
-        {/* Actions : Ajouter au panier + Commande directe */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <button
-            type="button"
-            onClick={handleAddToCart}
-            className={`min-h-[52px] rounded-xl font-bold text-sm sm:text-base flex items-center justify-center gap-2 transition-all active:scale-98 border ${
-              added
-                ? "bg-emerald-600 text-white border-emerald-500 shadow-md"
-                : "bg-stone-800 hover:bg-stone-700 text-stone-100 border-stone-700"
-            }`}
-          >
-            {added ? (
-              <>
-                <Check className="w-5 h-5 stroke-[2.5]" />
-                <span>Ajouté au panier !</span>
-              </>
-            ) : (
-              <>
-                <ShoppingCart className="w-5 h-5 text-amber-400" />
-                <span>Ajouter au panier</span>
-              </>
-            )}
-          </button>
+        {/* Actions : Ajouter au panier + Commande directe OU Mode Administrateur */}
+        {isAdmin ? (
+          <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-center space-y-3">
+            <div className="flex items-center justify-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider">
+              <ShieldCheck className="w-4 h-4" />
+              <span>Profil Administrateur Scierie</span>
+            </div>
+            <p className="text-xs text-stone-300 leading-relaxed">
+              Vous êtes connecté avec le compte d'administration. Les commandes et ajouts au panier sont désactivés pour ce profil.
+            </p>
+            <Link
+              href="/admin"
+              className="inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-xs px-5 py-3 rounded-lg uppercase tracking-wider transition-all min-h-[46px] w-full shadow-md"
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>Modifier ce produit dans l'Espace Admin</span>
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={handleAddToCart}
+              className={`min-h-[52px] rounded-xl font-bold text-sm sm:text-base flex items-center justify-center gap-2 transition-all active:scale-98 border ${
+                added
+                  ? "bg-emerald-600 text-white border-emerald-500 shadow-md"
+                  : "bg-stone-800 hover:bg-stone-700 text-stone-100 border-stone-700"
+              }`}
+            >
+              {added ? (
+                <>
+                  <Check className="w-5 h-5 stroke-[2.5]" />
+                  <span>Ajouté au panier !</span>
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="w-5 h-5 text-amber-400" />
+                  <span>Ajouter au panier</span>
+                </>
+              )}
+            </button>
 
-          <button
-            type="button"
-            onClick={handleDirectCheckout}
-            className="min-h-[52px] rounded-xl font-black text-sm sm:text-base flex items-center justify-center gap-2 transition-all active:scale-98 bg-amber-500 hover:bg-amber-400 text-stone-950 shadow-md"
-          >
-            <ArrowRight className="w-5 h-5 stroke-[2.5]" />
-            <span>Commander direct</span>
-          </button>
-        </div>
+            <button
+              type="button"
+              onClick={handleDirectCheckout}
+              className="min-h-[52px] rounded-xl font-black text-sm sm:text-base flex items-center justify-center gap-2 transition-all active:scale-98 bg-amber-500 hover:bg-amber-400 text-stone-950 shadow-md"
+            >
+              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+              <span>Commander direct</span>
+            </button>
+          </div>
+        )}
 
         {/* Rassurance sous le bouton */}
         <div className="pt-2 flex flex-col gap-2 text-xs text-stone-400">

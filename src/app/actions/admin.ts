@@ -234,3 +234,300 @@ export async function toggleProductStatusAction(id: string, currentStatus: boole
     return { error: err?.message || "Erreur lors du changement de statut" }
   }
 }
+
+// ================= DONNÉES GLOBALES POUR LE TABLEAU DE BORD =================
+export interface AdminCustomer {
+  id: string
+  email: string
+  full_name: string | null
+  phone: string | null
+  created_at: string
+  last_sign_in_at: string | null
+  email_confirmed_at: string | null
+  shipping_address: any
+  order_count: number
+  total_spent_cents: number
+  is_admin: boolean
+}
+
+export interface AdminDashboardPayload {
+  products: Product[]
+  orders: any[]
+  customers: AdminCustomer[]
+  stats: {
+    totalCustomers: number
+    totalOrders: number
+    pendingTransferCount: number
+    totalRevenueCents: number
+    activeDeliveriesCount: number
+    totalProductsCount: number
+  }
+}
+
+export async function getAdminDashboardData(): Promise<{ data: AdminDashboardPayload | null; error: string | null }> {
+  const { isAdmin } = await verifyAdminSession()
+  if (!isAdmin) {
+    return { data: null, error: "Accès refusé. Veuillez vous connecter en tant qu'administrateur." }
+  }
+
+  try {
+    const adminSupabase = createAdminClient()
+
+    const [usersRes, profilesRes, ordersRes, productsRes] = await Promise.all([
+      adminSupabase.auth.admin.listUsers({ perPage: 1000 }),
+      adminSupabase.from("profiles").select("*"),
+      adminSupabase.from("orders").select("*").order("created_at", { ascending: false }),
+      adminSupabase.from("products").select("*").order("created_at", { ascending: false }),
+    ])
+
+    const authUsers = usersRes.data?.users || []
+    const profiles = profilesRes.data || []
+    const orders = ordersRes.data || []
+    const products = productsRes.data || []
+
+    // Fusion des informations clients
+    const customersMap = new Map<string, AdminCustomer>()
+
+    for (const u of authUsers) {
+      if (u.email === "admin@lena-directa.company") continue // On ne liste pas le compte admin suprême dans les clients
+
+      customersMap.set(u.id, {
+        id: u.id,
+        email: u.email || "",
+        full_name: u.user_metadata?.full_name || null,
+        phone: u.phone || u.user_metadata?.phone || null,
+        created_at: u.created_at,
+        last_sign_in_at: u.last_sign_in_at || null,
+        email_confirmed_at: u.email_confirmed_at || null,
+        shipping_address: null,
+        order_count: 0,
+        total_spent_cents: 0,
+        is_admin: false,
+      })
+    }
+
+    for (const p of profiles) {
+      if (p.email === "admin@lena-directa.company" || p.is_admin) continue
+
+      const existing = customersMap.get(p.id)
+      if (existing) {
+        existing.full_name = p.full_name || existing.full_name
+        existing.phone = p.phone || existing.phone
+        existing.shipping_address = p.shipping_address
+        existing.is_admin = Boolean(p.is_admin)
+      } else {
+        customersMap.set(p.id, {
+          id: p.id,
+          email: p.email,
+          full_name: p.full_name,
+          phone: p.phone,
+          created_at: p.created_at,
+          last_sign_in_at: null,
+          email_confirmed_at: null,
+          shipping_address: p.shipping_address,
+          order_count: 0,
+          total_spent_cents: 0,
+          is_admin: Boolean(p.is_admin),
+        })
+      }
+    }
+
+    // Calcul des statistiques de commandes par client
+    for (const ord of orders) {
+      const custId = ord.user_id
+      if (custId && customersMap.has(custId)) {
+        const cust = customersMap.get(custId)!
+        cust.order_count += 1
+        if (ord.payment_status === "paid" || ord.status === "paid" || ord.status === "delivered") {
+          cust.total_spent_cents += ord.total_cents
+        }
+      }
+    }
+
+    const customers = Array.from(customersMap.values()).sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )
+
+    // Calcul des métriques globales
+    let totalRevenueCents = 0
+    let pendingTransferCount = 0
+    let activeDeliveriesCount = 0
+
+    for (const ord of orders) {
+      if (ord.payment_status === "transfer_notified" || ord.status === "payment_notified") {
+        pendingTransferCount += 1
+      }
+      if (ord.payment_status === "paid" || ord.status === "paid" || ord.status === "delivered") {
+        totalRevenueCents += ord.total_cents
+      }
+      if (ord.status === "preparing" || ord.status === "out_for_delivery") {
+        activeDeliveriesCount += 1
+      }
+    }
+
+    return {
+      data: {
+        products,
+        orders,
+        customers,
+        stats: {
+          totalCustomers: customers.length,
+          totalOrders: orders.length,
+          pendingTransferCount,
+          totalRevenueCents,
+          activeDeliveriesCount,
+          totalProductsCount: products.length,
+        },
+      },
+      error: null,
+    }
+  } catch (err: any) {
+    console.error("getAdminDashboardData error:", err)
+    return { data: null, error: err?.message || "Erreur de chargement du tableau de bord" }
+  }
+}
+
+// ================= VALIDATION DU PAIEMENT D'UN VIREMENT =================
+export async function confirmOrderPaymentAction(orderId: string) {
+  const { isAdmin } = await verifyAdminSession()
+  if (!isAdmin) {
+    return { error: "Accès non autorisé." }
+  }
+
+  try {
+    const adminSupabase = createAdminClient()
+
+    const { data: ord, error: fetchErr } = await adminSupabase
+      .from("orders")
+      .select("admin_notes, status")
+      .eq("id", orderId)
+      .single()
+
+    if (fetchErr || !ord) {
+      return { error: "Commande introuvable" }
+    }
+
+    const newNote = ((ord.admin_notes || "") + `\n✓ Virement constaté & paiement validé par l'admin le ${new Date().toLocaleString("fr-FR")}`).trim()
+
+    const { error: updateErr } = await adminSupabase
+      .from("orders")
+      .update({
+        payment_status: "paid",
+        status: "paid",
+        admin_notes: newNote,
+      })
+      .eq("id", orderId)
+
+    if (updateErr) {
+      return { error: updateErr.message }
+    }
+
+    revalidatePath("/admin")
+    revalidatePath("/mon-compte")
+    revalidatePath(`/confirmation/${orderId}`)
+
+    return { success: true }
+  } catch (err: any) {
+    return { error: err?.message || "Erreur lors de la validation du paiement" }
+  }
+}
+
+// ================= MISE À JOUR DU STATUT D'UNE COMMANDE =================
+export async function updateOrderStatusAction(orderId: string, newStatus: string, note?: string) {
+  const { isAdmin } = await verifyAdminSession()
+  if (!isAdmin) {
+    return { error: "Accès non autorisé." }
+  }
+
+  try {
+    const adminSupabase = createAdminClient()
+
+    const { data: ord, error: fetchErr } = await adminSupabase
+      .from("orders")
+      .select("admin_notes")
+      .eq("id", orderId)
+      .single()
+
+    if (fetchErr || !ord) {
+      return { error: "Commande introuvable" }
+    }
+
+    let updatedNote = ord.admin_notes || ""
+    if (note && note.trim()) {
+      updatedNote = (updatedNote + `\n[${new Date().toLocaleDateString("fr-FR")}] Statut changé en ${newStatus} : ${note.trim()}`).trim()
+    }
+
+    const { error: updateErr } = await adminSupabase
+      .from("orders")
+      .update({
+        status: newStatus,
+        admin_notes: updatedNote,
+      })
+      .eq("id", orderId)
+
+    if (updateErr) {
+      return { error: updateErr.message }
+    }
+
+    revalidatePath("/admin")
+    revalidatePath("/mon-compte")
+    revalidatePath(`/confirmation/${orderId}`)
+
+    return { success: true }
+  } catch (err: any) {
+    return { error: err?.message || "Erreur de mise à jour du statut" }
+  }
+}
+
+// ================= SUPPRESSION D'UN CLIENT (AUTH & PROFIL) =================
+export async function deleteCustomerAction(customerId: string) {
+  const { isAdmin } = await verifyAdminSession()
+  if (!isAdmin) {
+    return { error: "Accès non autorisé." }
+  }
+
+  try {
+    const adminSupabase = createAdminClient()
+
+    // Vérifier que le compte à supprimer n'est pas l'admin
+    const { data: targetUser } = await adminSupabase.auth.admin.getUserById(customerId)
+    if (targetUser?.user?.email === "admin@lena-directa.company") {
+      return { error: "Impossible de supprimer le compte administrateur principal." }
+    }
+
+    // 1. Supprimer le profil
+    await adminSupabase.from("profiles").delete().eq("id", customerId)
+
+    // 2. Supprimer l'utilisateur de Supabase Auth
+    const { error: deleteAuthErr } = await adminSupabase.auth.admin.deleteUser(customerId)
+    if (deleteAuthErr) {
+      return { error: `Erreur Auth: ${deleteAuthErr.message}` }
+    }
+
+    revalidatePath("/admin")
+    return { success: true }
+  } catch (err: any) {
+    return { error: err?.message || "Erreur lors de la suppression du client" }
+  }
+}
+
+// ================= SUPPRESSION D'UNE COMMANDE =================
+export async function deleteOrderAction(orderId: string) {
+  const { isAdmin } = await verifyAdminSession()
+  if (!isAdmin) {
+    return { error: "Accès non autorisé." }
+  }
+
+  try {
+    const adminSupabase = createAdminClient()
+    const { error } = await adminSupabase.from("orders").delete().eq("id", orderId)
+    if (error) {
+      return { error: error.message }
+    }
+
+    revalidatePath("/admin")
+    return { success: true }
+  } catch (err: any) {
+    return { error: err?.message || "Erreur lors de la suppression de la commande" }
+  }
+}

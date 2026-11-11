@@ -2,20 +2,25 @@
 
 import { useState } from "react"
 import { Building2, Copy, Check, Printer, ShieldCheck, AlertCircle } from "lucide-react"
+import { NotifyPaymentButton } from "@/components/checkout/NotifyPaymentButton"
 
 interface RibPaymentCardProps {
+  orderId?: string
   orderNumber: string
   totalFormatted: string
   depositFormatted?: string
   paymentMethod?: string
+  paymentStatus?: string | null
   customerPhone: string
 }
 
 export function RibPaymentCard({
+  orderId,
   orderNumber,
   totalFormatted,
   depositFormatted,
   paymentMethod = "transfer",
+  paymentStatus,
   customerPhone,
 }: RibPaymentCardProps) {
   const [copiedField, setCopiedField] = useState<string | null>(null)
@@ -174,6 +179,15 @@ export function RibPaymentCard({
           </div>
         </div>
       </div>
+
+      {/* Bouton de signalement immédiat du virement effectué */}
+      {orderId && (
+        <NotifyPaymentButton
+          orderId={orderId}
+          orderNumber={orderNumber}
+          paymentStatus={paymentStatus}
+        />
+      )}
 
       {/* Garantie d'Expédition après Virement */}
       <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-stone-300 space-y-1.5">

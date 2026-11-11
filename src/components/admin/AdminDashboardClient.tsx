@@ -22,6 +22,19 @@ import {
   Sparkles,
   TrendingUp,
   Image as ImageIcon,
+  Users,
+  ShoppingBag,
+  CreditCard,
+  Truck,
+  Trash2,
+  Clock,
+  Phone,
+  Mail,
+  MapPin,
+  Calendar,
+  ShieldCheck,
+  Check,
+  AlertTriangle,
 } from "lucide-react"
 import type { Product } from "@/lib/supabase/database.types"
 import { formatPrice } from "@/lib/utils"
@@ -29,12 +42,28 @@ import {
   updateProductAction,
   createProductAction,
   toggleProductStatusAction,
+  confirmOrderPaymentAction,
+  updateOrderStatusAction,
+  deleteCustomerAction,
+  deleteOrderAction,
   type ProductUpdateInput,
+  type ProductCreateInput,
+  type AdminCustomer,
 } from "@/app/actions/admin"
 import { logoutAction } from "@/app/actions/auth"
 
 interface AdminDashboardClientProps {
   initialProducts: Product[]
+  initialOrders: any[]
+  initialCustomers: AdminCustomer[]
+  initialStats: {
+    totalCustomers: number
+    totalOrders: number
+    pendingTransferCount: number
+    totalRevenueCents: number
+    activeDeliveriesCount: number
+    totalProductsCount: number
+  }
   adminEmail: string
 }
 
@@ -76,898 +105,1571 @@ type ProductCategory =
   | "charbon_bois"
   | "poeles"
 
-export function AdminDashboardClient({ initialProducts, adminEmail }: AdminDashboardClientProps) {
+export function AdminDashboardClient({
+  initialProducts,
+  initialOrders,
+  initialCustomers,
+  initialStats,
+  adminEmail,
+}: AdminDashboardClientProps) {
+  // Navigation par Onglets
+  const [activeTab, setActiveTab] = useState<"products" | "orders" | "customers">("orders")
+
+  // États Produits
   const [products, setProducts] = useState<Product[]>(initialProducts)
-  const [search, setSearch] = useState("")
+  const [productSearch, setProductSearch] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all")
-
-  // États pour les modales
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
-  const [isCreating, setIsCreating] = useState(false)
-  const [saving, setSaving] = useState(false)
-  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null)
+  const [isCreatingProduct, setIsCreatingProduct] = useState(false)
+  const [productFormLoading, setProductFormLoading] = useState(false)
+  const [productFeedback, setProductFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null)
 
-  // Formulaire d'édition / création
-  const [formData, setFormData] = useState<{
-    name: string
-    slug: string
-    category: ProductCategory
-    short_description: string
-    description: string
-    unit_price_euros: string
-    stock_quantity: number
-    image_url: string
-    badge: string
-    humidity_rate: string
-    wood_length_cm: string
-    packaging: string
-    weight_kg: string
-    volume_stere: string
-    species: string
-    is_active: boolean
-  }>({
-    name: "",
-    slug: "",
-    category: "bois_buches",
-    short_description: "",
-    description: "",
-    unit_price_euros: "0",
-    stock_quantity: 10,
-    image_url: "/images/products/chene-charme-33cm.jpg",
-    badge: "",
-    humidity_rate: "18",
-    wood_length_cm: "33",
-    packaging: "palette",
-    weight_kg: "",
-    volume_stere: "",
-    species: "Chêne, Charme",
-    is_active: true,
-  })
+  // États Commandes
+  const [orders, setOrders] = useState<any[]>(initialOrders)
+  const [orderSearch, setOrderSearch] = useState("")
+  const [orderFilter, setOrderFilter] = useState<"all" | "pending_transfer" | "paid" | "preparing" | "delivery">("all")
+  const [orderActionLoading, setOrderActionLoading] = useState<string | null>(null)
+  const [orderFeedback, setOrderFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null)
 
-  // Produits filtrés
+  // États Clients
+  const [customers, setCustomers] = useState<AdminCustomer[]>(initialCustomers)
+  const [customerSearch, setCustomerSearch] = useState("")
+  const [customerToDelete, setCustomerToDelete] = useState<AdminCustomer | null>(null)
+  const [customerDeleteLoading, setCustomerDeleteLoading] = useState(false)
+
+  // Stats dynamiques
+  const [stats, setStats] = useState(initialStats)
+
+  // ================= FILTRES PRODUITS =================
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
-      const matchesSearch =
-        p.name.toLowerCase().includes(search.toLowerCase()) ||
-        p.slug.toLowerCase().includes(search.toLowerCase()) ||
-        (p.short_description && p.short_description.toLowerCase().includes(search.toLowerCase()))
-
-      const matchesCategory = selectedCategory === "all" || p.category === selectedCategory
-
-      const matchesStatus =
-        statusFilter === "all" ||
-        (statusFilter === "active" && p.is_active) ||
-        (statusFilter === "inactive" && !p.is_active)
-
-      return matchesSearch && matchesCategory && matchesStatus
+      const matchCat = selectedCategory === "all" || p.category === selectedCategory
+      const query = productSearch.toLowerCase().trim()
+      const matchSearch =
+        !query ||
+        p.name.toLowerCase().includes(query) ||
+        p.slug.toLowerCase().includes(query) ||
+        (p.short_description && p.short_description.toLowerCase().includes(query)) ||
+        (p.species && p.species.some((s) => s.toLowerCase().includes(query)))
+      return matchCat && matchSearch
     })
-  }, [products, search, selectedCategory, statusFilter])
+  }, [products, selectedCategory, productSearch])
 
-  // Ouvrir le formulaire d'édition
-  const handleOpenEdit = (p: Product) => {
-    setEditingProduct(p)
-    setIsCreating(false)
-    setFormData({
-      name: p.name,
-      slug: p.slug,
-      category: (p.category as ProductCategory) || "bois_buches",
-      short_description: p.short_description || "",
-      description: p.description || "",
-      unit_price_euros: (p.unit_price_cents / 100).toFixed(2),
-      stock_quantity: p.stock_quantity,
-      image_url: p.image_url,
-      badge: p.badge || "",
-      humidity_rate: p.humidity_rate !== null ? String(p.humidity_rate) : "",
-      wood_length_cm: p.wood_length_cm !== null ? String(p.wood_length_cm) : "",
-      packaging: p.packaging || "palette",
-      weight_kg: p.weight_kg !== null ? String(p.weight_kg) : "",
-      volume_stere: p.volume_stere !== null ? String(p.volume_stere) : "",
-      species: p.species ? p.species.join(", ") : "",
-      is_active: p.is_active,
+  // ================= FILTRES COMMANDES =================
+  const filteredOrders = useMemo(() => {
+    return orders.filter((o) => {
+      // Filtre statut
+      let matchFilter = true
+      if (orderFilter === "pending_transfer") {
+        matchFilter = o.payment_status === "transfer_notified" || o.status === "payment_notified"
+      } else if (orderFilter === "paid") {
+        matchFilter = o.status === "paid" || o.payment_status === "paid"
+      } else if (orderFilter === "preparing") {
+        matchFilter = o.status === "preparing"
+      } else if (orderFilter === "delivery") {
+        matchFilter = o.status === "out_for_delivery" || o.status === "delivered"
+      }
+
+      // Recherche
+      const query = orderSearch.toLowerCase().trim()
+      const matchSearch =
+        !query ||
+        o.order_number.toLowerCase().includes(query) ||
+        o.customer_name.toLowerCase().includes(query) ||
+        o.customer_email.toLowerCase().includes(query) ||
+        o.customer_phone.toLowerCase().includes(query)
+
+      return matchFilter && matchSearch
     })
-    setFeedback(null)
+  }, [orders, orderFilter, orderSearch])
+
+  // ================= FILTRES CLIENTS =================
+  const filteredCustomers = useMemo(() => {
+    const query = customerSearch.toLowerCase().trim()
+    if (!query) return customers
+    return customers.filter(
+      (c) =>
+        c.email.toLowerCase().includes(query) ||
+        (c.full_name && c.full_name.toLowerCase().includes(query)) ||
+        (c.phone && c.phone.toLowerCase().includes(query))
+    )
+  }, [customers, customerSearch])
+
+  // ================= ACTIONS PRODUITS =================
+  const handleToggleProductStatus = async (product: Product) => {
+    const res = await toggleProductStatusAction(product.id, product.is_active)
+    if (res.success && res.newStatus !== undefined) {
+      setProducts((prev) =>
+        prev.map((p) => (p.id === product.id ? { ...p, is_active: res.newStatus } : p))
+      )
+    }
   }
 
-  // Ouvrir le formulaire de création
-  const handleOpenCreate = () => {
-    setEditingProduct(null)
-    setIsCreating(true)
-    setFormData({
-      name: "",
-      slug: "",
-      category: "bois_buches",
-      short_description: "",
-      description: "",
-      unit_price_euros: "99.00",
-      stock_quantity: 15,
-      image_url: "/images/products/chene-charme-33cm.jpg",
-      badge: "Nouveauté",
-      humidity_rate: "18",
-      wood_length_cm: "33",
-      packaging: "palette",
-      weight_kg: "",
-      volume_stere: "2",
-      species: "Chêne, Hêtre",
-      is_active: true,
-    })
-    setFeedback(null)
-  }
-
-  // Enregistrement des modifications
-  const handleSave = async (e: React.FormEvent) => {
+  const handleSaveProduct = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setSaving(true)
-    setFeedback(null)
+    setProductFormLoading(true)
+    setProductFeedback(null)
 
-    const unit_price_cents = Math.round(parseFloat(formData.unit_price_euros.replace(",", ".")) * 100)
+    const form = new FormData(e.currentTarget)
+    const rawSpecies = (form.get("species") as string) || ""
+    const speciesArray = rawSpecies
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
 
-    const speciesArray = formData.species
-      ? formData.species
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean)
-      : null
-
-    if (isCreating) {
-      // Création
-      const generatedSlug =
-        formData.slug.trim() ||
-        formData.name
-          .toLowerCase()
-          .replace(/[^\w\s-]/g, "")
-          .replace(/[\s_-]+/g, "-")
-          .replace(/^-+|-+$/g, "")
-
-      const res = await createProductAction({
-        name: formData.name,
-        slug: generatedSlug,
-        category: formData.category,
-        short_description: formData.short_description || null,
-        description: formData.description || null,
-        unit_price_cents,
-        stock_quantity: Number(formData.stock_quantity) || 0,
-        image_url: formData.image_url,
-        badge: formData.badge || null,
-        humidity_rate: formData.humidity_rate ? parseFloat(formData.humidity_rate) : null,
-        wood_length_cm: formData.wood_length_cm ? parseInt(formData.wood_length_cm) : null,
-        packaging: formData.packaging,
-        weight_kg: formData.weight_kg ? parseFloat(formData.weight_kg) : null,
-        volume_stere: formData.volume_stere ? parseFloat(formData.volume_stere) : null,
-        species: speciesArray,
-        is_active: formData.is_active,
-      })
-
-      if (res?.error) {
-        setFeedback({ type: "error", message: res.error })
-      } else if (res?.product) {
-        setProducts([res.product, ...products])
-        setFeedback({ type: "success", message: "Nouveau produit créé avec succès !" })
-        setTimeout(() => {
-          setIsCreating(false)
-          setFeedback(null)
-        }, 1200)
-      }
-    } else if (editingProduct) {
-      // Mise à jour
-      const res = await updateProductAction({
-        id: editingProduct.id,
-        name: formData.name,
-        slug: formData.slug,
-        category: formData.category,
-        short_description: formData.short_description || null,
-        description: formData.description || null,
-        unit_price_cents,
-        stock_quantity: Number(formData.stock_quantity) || 0,
-        image_url: formData.image_url,
-        badge: formData.badge || null,
-        humidity_rate: formData.humidity_rate ? parseFloat(formData.humidity_rate) : null,
-        wood_length_cm: formData.wood_length_cm ? parseInt(formData.wood_length_cm) : null,
-        packaging: formData.packaging,
-        weight_kg: formData.weight_kg ? parseFloat(formData.weight_kg) : null,
-        volume_stere: formData.volume_stere ? parseFloat(formData.volume_stere) : null,
-        species: speciesArray,
-        is_active: formData.is_active,
-      })
-
-      if (res?.error) {
-        setFeedback({ type: "error", message: res.error })
-      } else if (res?.product) {
-        setProducts(products.map((p) => (p.id === editingProduct.id ? res.product : p)))
-        setFeedback({ type: "success", message: "Modifications enregistrées dans Supabase !" })
-        setTimeout(() => {
-          setEditingProduct(null)
-          setFeedback(null)
-        }, 1200)
-      }
+    const payload: ProductUpdateInput = {
+      id: editingProduct!.id,
+      name: (form.get("name") as string).trim(),
+      slug: (form.get("slug") as string).trim(),
+      short_description: ((form.get("short_description") as string) || "").trim() || null,
+      description: ((form.get("description") as string) || "").trim() || null,
+      category: form.get("category") as ProductCategory,
+      species: speciesArray.length > 0 ? speciesArray : null,
+      humidity_rate: form.get("humidity_rate") ? Number(form.get("humidity_rate")) : null,
+      wood_length_cm: form.get("wood_length_cm") ? Number(form.get("wood_length_cm")) : null,
+      packaging: ((form.get("packaging") as string) || "palette").trim(),
+      volume_stere: form.get("volume_stere") ? Number(form.get("volume_stere")) : null,
+      weight_kg: form.get("weight_kg") ? Number(form.get("weight_kg")) : null,
+      unit_price_cents: Math.round(Number(form.get("unit_price_euros")) * 100),
+      stock_quantity: Number(form.get("stock_quantity") || 0),
+      image_url: ((form.get("image_url") as string) || "").trim(),
+      badge: ((form.get("badge") as string) || "").trim() || null,
+      is_active: form.get("is_active") === "on",
     }
 
-    setSaving(false)
-  }
+    const res = await updateProductAction(payload)
+    setProductFormLoading(false)
 
-  // Changement rapide de statut (Actif / Inactif)
-  const handleToggleStatus = async (p: Product) => {
-    const res = await toggleProductStatusAction(p.id, p.is_active)
-    if (res?.success) {
-      setProducts(products.map((item) => (item.id === p.id ? { ...item, is_active: res.newStatus } : item)))
+    if (res.error) {
+      setProductFeedback({ type: "error", message: res.error })
+    } else if (res.product) {
+      setProducts((prev) => prev.map((p) => (p.id === res.product!.id ? res.product! : p)))
+      setProductFeedback({ type: "success", message: `Produit "${res.product.name}" mis à jour avec succès !` })
+      setTimeout(() => {
+        setEditingProduct(null)
+        setProductFeedback(null)
+      }, 1200)
     }
   }
 
-  // Statistiques calculées
-  const stats = useMemo(() => {
-    const total = products.length
-    const active = products.filter((p) => p.is_active).length
-    const totalStock = products.reduce((acc, p) => acc + (p.stock_quantity || 0), 0)
-    const totalCategories = new Set(products.map((p) => p.category)).size
-    return { total, active, totalStock, totalCategories }
-  }, [products])
+  const handleCreateProduct = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setProductFormLoading(true)
+    setProductFeedback(null)
+
+    const form = new FormData(e.currentTarget)
+    const rawSpecies = (form.get("species") as string) || ""
+    const speciesArray = rawSpecies
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+
+    const payload: ProductCreateInput = {
+      name: (form.get("name") as string).trim(),
+      slug: (form.get("slug") as string).trim(),
+      short_description: ((form.get("short_description") as string) || "").trim() || null,
+      description: ((form.get("description") as string) || "").trim() || null,
+      category: form.get("category") as ProductCategory,
+      species: speciesArray.length > 0 ? speciesArray : null,
+      humidity_rate: form.get("humidity_rate") ? Number(form.get("humidity_rate")) : null,
+      wood_length_cm: form.get("wood_length_cm") ? Number(form.get("wood_length_cm")) : null,
+      packaging: ((form.get("packaging") as string) || "palette").trim(),
+      volume_stere: form.get("volume_stere") ? Number(form.get("volume_stere")) : null,
+      weight_kg: form.get("weight_kg") ? Number(form.get("weight_kg")) : null,
+      unit_price_cents: Math.round(Number(form.get("unit_price_euros")) * 100),
+      stock_quantity: Number(form.get("stock_quantity") || 0),
+      image_url: ((form.get("image_url") as string) || "").trim(),
+      badge: ((form.get("badge") as string) || "").trim() || null,
+      is_active: form.get("is_active") === "on",
+    }
+
+    const res = await createProductAction(payload)
+    setProductFormLoading(false)
+
+    if (res.error) {
+      setProductFeedback({ type: "error", message: res.error })
+    } else if (res.product) {
+      setProducts((prev) => [res.product!, ...prev])
+      setProductFeedback({ type: "success", message: `Nouveau produit "${res.product.name}" créé avec succès !` })
+      setTimeout(() => {
+        setIsCreatingProduct(false)
+        setProductFeedback(null)
+      }, 1200)
+    }
+  }
+
+  // ================= ACTIONS COMMANDES =================
+  const handleConfirmTransfer = async (orderId: string) => {
+    setOrderActionLoading(orderId)
+    setOrderFeedback(null)
+    const res = await confirmOrderPaymentAction(orderId)
+    setOrderActionLoading(null)
+    if (res.error) {
+      setOrderFeedback({ type: "error", message: res.error })
+    } else {
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.id === orderId ? { ...o, status: "paid", payment_status: "paid" } : o
+        )
+      )
+      setStats((prev) => ({
+        ...prev,
+        pendingTransferCount: Math.max(0, prev.pendingTransferCount - 1),
+      }))
+      setOrderFeedback({ type: "success", message: "Virement validé avec succès ! Commande passée en statut payée." })
+      setTimeout(() => setOrderFeedback(null), 3000)
+    }
+  }
+
+  const handleUpdateOrderStatus = async (orderId: string, newStatus: string) => {
+    setOrderActionLoading(orderId)
+    const res = await updateOrderStatusAction(orderId, newStatus)
+    setOrderActionLoading(null)
+    if (res.error) {
+      setOrderFeedback({ type: "error", message: res.error })
+    } else {
+      setOrders((prev) =>
+        prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
+      )
+    }
+  }
+
+  const handleDeleteOrder = async (orderId: string) => {
+    if (!confirm("Voulez-vous vraiment supprimer définitivement cette commande ?")) return
+    setOrderActionLoading(orderId)
+    const res = await deleteOrderAction(orderId)
+    setOrderActionLoading(null)
+    if (res.error) {
+      setOrderFeedback({ type: "error", message: res.error })
+    } else {
+      setOrders((prev) => prev.filter((o) => o.id !== orderId))
+    }
+  }
+
+  // ================= ACTIONS CLIENTS =================
+  const handleDeleteCustomerConfirm = async () => {
+    if (!customerToDelete) return
+    setCustomerDeleteLoading(true)
+    const res = await deleteCustomerAction(customerToDelete.id)
+    setCustomerDeleteLoading(false)
+    if (res.error) {
+      alert(res.error)
+    } else {
+      setCustomers((prev) => prev.filter((c) => c.id !== customerToDelete.id))
+      setStats((prev) => ({ ...prev, totalCustomers: Math.max(0, prev.totalCustomers - 1) }))
+      setCustomerToDelete(null)
+    }
+  }
 
   return (
-    <div className="min-h-screen bg-[#121110] text-stone-100 flex flex-col font-sans">
-      {/* ================= BARRE DU HAUT ADMINISTRATEUR ================= */}
-      <header className="sticky top-0 z-40 bg-[#1c1917] border-b border-stone-800 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-18 flex items-center justify-between gap-4">
+    <div className="bg-[#121110] min-h-screen text-stone-100 flex flex-col font-sans">
+      {/* Barre Supérieure d'Administration */}
+      <header className="bg-[#1c1917] border-b border-stone-800 sticky top-0 z-40 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-lg bg-amber-500 text-stone-950 flex items-center justify-center font-black">
-                <Flame className="w-5 h-5 fill-stone-950" />
-              </div>
-              <div>
-                <span className="text-lg font-black tracking-tight">
-                  Leña<span className="text-amber-500">Directa</span>
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-500 flex items-center justify-center shrink-0">
+              <Flame className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-black text-stone-100 text-base sm:text-lg tracking-tight">
+                  LeñaDirecta
                 </span>
-                <span className="block text-[9px] text-amber-500 uppercase tracking-widest font-black">
-                  Tableau de Bord Scierie
+                <span className="text-[10px] bg-amber-500 text-stone-950 font-black px-2 py-0.5 rounded uppercase tracking-wider">
+                  Admin Scierie
                 </span>
               </div>
-            </Link>
+              <p className="text-[11px] text-stone-400">
+                Connecté en tant que <span className="text-amber-400 font-semibold">{adminEmail}</span>
+              </p>
+            </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-stone-900 border border-stone-800 text-xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span className="text-stone-400">Connecté :</span>
-              <span className="font-bold text-stone-200">{adminEmail}</span>
-            </div>
-
+          <div className="flex items-center gap-2.5">
             <Link
               href="/"
               target="_blank"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-stone-300 hover:text-amber-400 bg-stone-900 hover:bg-stone-800 border border-stone-800 transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-stone-300 hover:text-amber-400 bg-stone-900 border border-stone-800 hover:border-amber-500/40 px-3.5 py-2 rounded-xl transition-all min-h-[40px]"
             >
+              <ExternalLink className="w-4 h-4" />
               <span>Voir la boutique</span>
-              <ExternalLink className="w-3.5 h-3.5" />
             </Link>
 
-            <button
-              type="button"
-              onClick={() => logoutAction()}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-rose-400 hover:text-rose-300 bg-rose-950/40 hover:bg-rose-900/40 border border-rose-900/60 transition-colors"
-              title="Se déconnecter"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Déconnexion</span>
-            </button>
+            <form action={logoutAction}>
+              <button
+                type="submit"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-rose-400 hover:text-rose-300 bg-stone-900 border border-stone-800 hover:border-rose-500/30 px-3.5 py-2 rounded-xl transition-all min-h-[40px]"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Déconnexion</span>
+              </button>
+            </form>
           </div>
         </div>
       </header>
 
-      {/* ================= CONTENU PRINCIPAL ================= */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        {/* Titre & Bouton d'ajout */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-black text-stone-100 tracking-tight">
-              Gestion du Catalogue Produits
-            </h1>
-            <p className="text-xs sm:text-sm text-stone-400 mt-1">
-              Modifiez en temps réel les photos, prix, descriptions et caractéristiques techniques synchronisés avec Supabase.
-            </p>
+      <main className="flex-1 py-6 sm:py-10 max-w-7xl w-full mx-auto px-4 sm:px-6 space-y-6">
+        {/* Alerte Virement Prioritaire */}
+        {stats.pendingTransferCount > 0 && (
+          <div className="bg-amber-950/40 border-2 border-amber-500/70 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500 text-stone-950 flex items-center justify-center shrink-0 mt-0.5 font-black animate-pulse">
+                <AlertTriangle className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-black text-amber-300 text-sm sm:text-base">
+                  {stats.pendingTransferCount} virement{stats.pendingTransferCount > 1 ? "s" : ""} bancaire{stats.pendingTransferCount > 1 ? "s" : ""} signalé{stats.pendingTransferCount > 1 ? "s" : ""} en attente de vérification !
+                </h3>
+                <p className="text-xs text-stone-300 mt-0.5 leading-relaxed">
+                  Des clients ont cliqué sur le bouton de signalement de virement. Vérifiez la réception sur votre compte bancaire et validez les commandes pour lancer la préparation.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab("orders")
+                setOrderFilter("pending_transfer")
+              }}
+              className="inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-xs px-4 py-2.5 rounded-xl uppercase tracking-wider shrink-0 transition-all shadow-md active:scale-95 min-h-[40px]"
+            >
+              <span>Vérifier les virements ({stats.pendingTransferCount})</span>
+              <Check className="w-4 h-4 stroke-[3]" />
+            </button>
           </div>
+        )}
+
+        {/* 4 Cartes d'Activité Clés */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          {/* 1. Clients Inscrits */}
+          <button
+            type="button"
+            onClick={() => setActiveTab("customers")}
+            className="text-left bg-[#1c1917] border border-stone-800 hover:border-amber-500/40 rounded-2xl p-4 sm:p-5 space-y-1 transition-all group"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">
+                Clients Inscrits
+              </span>
+              <Users className="w-4 h-4 text-stone-500 group-hover:text-amber-400 transition-colors" />
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-stone-100">
+              {stats.totalCustomers}
+            </div>
+            <span className="text-[10px] text-stone-500 block">Comptes acheteurs actifs</span>
+          </button>
+
+          {/* 2. Total Commandes */}
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab("orders")
+              setOrderFilter("all")
+            }}
+            className="text-left bg-[#1c1917] border border-stone-800 hover:border-amber-500/40 rounded-2xl p-4 sm:p-5 space-y-1 transition-all group"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">
+                Commandes
+              </span>
+              <ShoppingBag className="w-4 h-4 text-stone-500 group-hover:text-amber-400 transition-colors" />
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-stone-100">
+              {stats.totalOrders}
+            </div>
+            <span className="text-[10px] text-stone-500 block">Passées sur le site</span>
+          </button>
+
+          {/* 3. Virements à valider */}
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab("orders")
+              setOrderFilter("pending_transfer")
+            }}
+            className={`text-left border rounded-2xl p-4 sm:p-5 space-y-1 transition-all group ${
+              stats.pendingTransferCount > 0
+                ? "bg-amber-950/40 border-amber-500/50 hover:border-amber-400"
+                : "bg-[#1c1917] border-stone-800 hover:border-amber-500/40"
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">
+                Virements à valider
+              </span>
+              <CreditCard className="w-4 h-4 text-amber-400" />
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-amber-400">
+              {stats.pendingTransferCount}
+            </div>
+            <span className="text-[10px] text-amber-300/80 block">Signalés par les clients</span>
+          </button>
+
+          {/* 4. Chiffre d'Affaires Encaissé */}
+          <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-4 sm:p-5 space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">
+                Paiements Validés
+              </span>
+              <TrendingUp className="w-4 h-4 text-emerald-400" />
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-emerald-400">
+              {formatPrice(stats.totalRevenueCents)}
+            </div>
+            <span className="text-[10px] text-stone-500 block">Encaissé sur les commandes payées</span>
+          </div>
+        </div>
+
+        {/* Barre de navigation entre Onglets */}
+        <div className="flex border-b border-stone-800 space-x-2 sm:space-x-4 overflow-x-auto">
+          <button
+            type="button"
+            onClick={() => setActiveTab("orders")}
+            className={`flex items-center gap-2 pb-3.5 px-3 text-xs sm:text-sm font-black border-b-2 transition-all whitespace-nowrap min-h-[44px] ${
+              activeTab === "orders"
+                ? "border-amber-500 text-amber-400"
+                : "border-transparent text-stone-400 hover:text-stone-200"
+            }`}
+          >
+            <ShoppingBag className="w-4 h-4" />
+            <span>Commandes &amp; Livraisons ({orders.length})</span>
+            {stats.pendingTransferCount > 0 && (
+              <span className="text-[10px] bg-amber-500 text-stone-950 px-1.5 py-0.2 rounded-full font-black">
+                {stats.pendingTransferCount}
+              </span>
+            )}
+          </button>
 
           <button
             type="button"
-            onClick={handleOpenCreate}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-95 text-stone-950 font-black text-sm transition-all shadow-md shrink-0"
+            onClick={() => setActiveTab("customers")}
+            className={`flex items-center gap-2 pb-3.5 px-3 text-xs sm:text-sm font-black border-b-2 transition-all whitespace-nowrap min-h-[44px] ${
+              activeTab === "customers"
+                ? "border-amber-500 text-amber-400"
+                : "border-transparent text-stone-400 hover:text-stone-200"
+            }`}
           >
-            <Plus className="w-4 h-4 stroke-[3]" />
-            <span>Nouveau Produit</span>
+            <Users className="w-4 h-4" />
+            <span>Clients Inscrits ({customers.length})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("products")}
+            className={`flex items-center gap-2 pb-3.5 px-3 text-xs sm:text-sm font-black border-b-2 transition-all whitespace-nowrap min-h-[44px] ${
+              activeTab === "products"
+                ? "border-amber-500 text-amber-400"
+                : "border-transparent text-stone-400 hover:text-stone-200"
+            }`}
+          >
+            <Package className="w-4 h-4" />
+            <span>Gestion des Produits ({products.length})</span>
           </button>
         </div>
 
-        {/* Cartes Statistiques */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
-          <div className="bg-[#1c1917] border border-stone-800 rounded-xl p-4 flex items-center justify-between">
-            <div>
-              <div className="text-[11px] text-stone-400 font-bold uppercase tracking-wider">Total Références</div>
-              <div className="text-2xl font-black text-stone-100 mt-1">{stats.total}</div>
-            </div>
-            <div className="w-10 h-10 rounded-lg bg-stone-900 border border-stone-800 flex items-center justify-center text-amber-500">
-              <Package className="w-5 h-5" />
-            </div>
-          </div>
+        {/* ================= ONGLET COMMANDES & PAIEMENTS ================= */}
+        {activeTab === "orders" && (
+          <div className="space-y-6">
+            {orderFeedback && (
+              <div
+                className={`p-4 rounded-xl text-xs font-bold border flex items-center gap-2 ${
+                  orderFeedback.type === "success"
+                    ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
+                    : "bg-rose-500/10 border-rose-500/30 text-rose-300"
+                }`}
+              >
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <span>{orderFeedback.message}</span>
+              </div>
+            )}
 
-          <div className="bg-[#1c1917] border border-stone-800 rounded-xl p-4 flex items-center justify-between">
-            <div>
-              <div className="text-[11px] text-stone-400 font-bold uppercase tracking-wider">Actifs en Boutique</div>
-              <div className="text-2xl font-black text-emerald-400 mt-1">{stats.active}</div>
-            </div>
-            <div className="w-10 h-10 rounded-lg bg-stone-900 border border-stone-800 flex items-center justify-center text-emerald-500">
-              <Eye className="w-5 h-5" />
-            </div>
-          </div>
-
-          <div className="bg-[#1c1917] border border-stone-800 rounded-xl p-4 flex items-center justify-between">
-            <div>
-              <div className="text-[11px] text-stone-400 font-bold uppercase tracking-wider">Stock Total Disponible</div>
-              <div className="text-2xl font-black text-amber-500 mt-1">{stats.totalStock}</div>
-            </div>
-            <div className="w-10 h-10 rounded-lg bg-stone-900 border border-stone-800 flex items-center justify-center text-amber-500">
-              <TrendingUp className="w-5 h-5" />
-            </div>
-          </div>
-
-          <div className="bg-[#1c1917] border border-stone-800 rounded-xl p-4 flex items-center justify-between">
-            <div>
-              <div className="text-[11px] text-stone-400 font-bold uppercase tracking-wider">Catégories Gérées</div>
-              <div className="text-2xl font-black text-stone-100 mt-1">{stats.totalCategories}</div>
-            </div>
-            <div className="w-10 h-10 rounded-lg bg-stone-900 border border-stone-800 flex items-center justify-center text-stone-400">
-              <Layers className="w-5 h-5" />
-            </div>
-          </div>
-        </div>
-
-        {/* Barre de Recherche & Filtres */}
-        <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-4 mb-6 space-y-3">
-          <div className="flex flex-col sm:flex-row items-center gap-3">
-            {/* Champ de recherche */}
-            <div className="relative w-full sm:flex-1">
-              <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Rechercher par titre, slug, essence..."
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-stone-900 border border-stone-800 focus:border-amber-500 text-stone-100 text-xs sm:text-sm placeholder:text-stone-500 outline-none"
-              />
-              {search && (
+            {/* Filtres de Commandes */}
+            <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+              <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
-                  onClick={() => setSearch("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200"
+                  onClick={() => setOrderFilter("all")}
+                  className={`text-xs font-bold px-3 py-2 rounded-xl transition-all min-h-[38px] ${
+                    orderFilter === "all"
+                      ? "bg-amber-500 text-stone-950 font-black"
+                      : "bg-stone-900 border border-stone-800 text-stone-300 hover:border-stone-700"
+                  }`}
                 >
-                  <X className="w-4 h-4" />
+                  Toutes ({orders.length})
                 </button>
-              )}
+                <button
+                  type="button"
+                  onClick={() => setOrderFilter("pending_transfer")}
+                  className={`text-xs font-bold px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 min-h-[38px] ${
+                    orderFilter === "pending_transfer"
+                      ? "bg-amber-500 text-stone-950 font-black"
+                      : "bg-stone-900 border border-amber-500/40 text-amber-400 hover:bg-stone-800"
+                  }`}
+                >
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                  <span>Virements signalés ({stats.pendingTransferCount})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOrderFilter("paid")}
+                  className={`text-xs font-bold px-3 py-2 rounded-xl transition-all min-h-[38px] ${
+                    orderFilter === "paid"
+                      ? "bg-amber-500 text-stone-950 font-black"
+                      : "bg-stone-900 border border-stone-800 text-stone-300 hover:border-stone-700"
+                  }`}
+                >
+                  Payées
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOrderFilter("preparing")}
+                  className={`text-xs font-bold px-3 py-2 rounded-xl transition-all min-h-[38px] ${
+                    orderFilter === "preparing"
+                      ? "bg-amber-500 text-stone-950 font-black"
+                      : "bg-stone-900 border border-stone-800 text-stone-300 hover:border-stone-700"
+                  }`}
+                >
+                  En préparation
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOrderFilter("delivery")}
+                  className={`text-xs font-bold px-3 py-2 rounded-xl transition-all min-h-[38px] ${
+                    orderFilter === "delivery"
+                      ? "bg-amber-500 text-stone-950 font-black"
+                      : "bg-stone-900 border border-stone-800 text-stone-300 hover:border-stone-700"
+                  }`}
+                >
+                  Livraisons
+                </button>
+              </div>
+
+              {/* Recherche Commande */}
+              <div className="relative w-full sm:w-72">
+                <Search className="w-4 h-4 text-stone-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="N° commande, client, tél, email..."
+                  value={orderSearch}
+                  onChange={(e) => setOrderSearch(e.target.value)}
+                  className="w-full bg-[#1c1917] border border-stone-800 focus:border-amber-500 rounded-xl pl-9 pr-4 py-2 text-xs text-stone-200 placeholder:text-stone-600 outline-none min-h-[40px]"
+                />
+              </div>
             </div>
 
-            {/* Filtre Statut */}
-            <div className="flex items-center gap-1.5 w-full sm:w-auto">
-              <button
-                type="button"
-                onClick={() => setStatusFilter("all")}
-                className={`px-3 py-2 rounded-lg text-xs font-bold transition-colors ${
-                  statusFilter === "all"
-                    ? "bg-stone-800 text-stone-100 border border-stone-700"
-                    : "text-stone-400 hover:text-stone-200"
-                }`}
-              >
-                Tous ({products.length})
-              </button>
-              <button
-                type="button"
-                onClick={() => setStatusFilter("active")}
-                className={`px-3 py-2 rounded-lg text-xs font-bold transition-colors ${
-                  statusFilter === "active"
-                    ? "bg-emerald-950/70 text-emerald-400 border border-emerald-800"
-                    : "text-stone-400 hover:text-emerald-400"
-                }`}
-              >
-                Actifs ({stats.active})
-              </button>
-              <button
-                type="button"
-                onClick={() => setStatusFilter("inactive")}
-                className={`px-3 py-2 rounded-lg text-xs font-bold transition-colors ${
-                  statusFilter === "inactive"
-                    ? "bg-stone-800 text-stone-400 border border-stone-700"
-                    : "text-stone-500 hover:text-stone-300"
-                }`}
-              >
-                Inactifs ({stats.total - stats.active})
-              </button>
-            </div>
-          </div>
+            {/* Liste des Commandes */}
+            {filteredOrders.length === 0 ? (
+              <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-10 text-center space-y-2">
+                <ShoppingBag className="w-8 h-8 text-stone-600 mx-auto" />
+                <div className="text-sm font-bold text-stone-300">Aucune commande trouvée</div>
+                <p className="text-xs text-stone-500">Modifiez vos critères de recherche ou de filtre.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredOrders.map((ord) => {
+                  const isPendingTransfer =
+                    ord.payment_status === "transfer_notified" || ord.status === "payment_notified"
+                  const isPaid = ord.payment_status === "paid" || ord.status === "paid"
+                  const shipping = ord.shipping_address || {}
+                  const items = ord.items || []
 
-          {/* Onglets Catégories */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-xs">
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3 py-1.5 rounded-lg whitespace-nowrap font-bold transition-colors shrink-0 ${
-                  selectedCategory === cat.id
-                    ? "bg-amber-500 text-stone-950 font-black shadow-sm"
-                    : "bg-stone-900 text-stone-400 hover:text-stone-200 border border-stone-800"
-                }`}
-              >
-                {cat.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Grille des Produits */}
-        {filteredProducts.length === 0 ? (
-          <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-12 text-center">
-            <Package className="w-12 h-12 text-stone-600 mx-auto mb-3" />
-            <h3 className="text-lg font-bold text-stone-200">Aucun produit trouvé</h3>
-            <p className="text-xs text-stone-400 mt-1">
-              Essayez de modifier votre recherche ou le filtre de catégorie.
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredProducts.map((product) => (
-              <div
-                key={product.id}
-                className={`bg-[#1c1917] border rounded-2xl p-4 flex flex-col justify-between transition-all group ${
-                  product.is_active ? "border-stone-800 hover:border-stone-700" : "border-stone-900 opacity-60"
-                }`}
-              >
-                <div>
-                  {/* Photo & Badges */}
-                  <div className="relative aspect-[16/10] w-full rounded-xl overflow-hidden bg-stone-950 mb-3 border border-stone-800">
-                    <Image
-                      src={product.image_url}
-                      alt={product.name}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-cover group-hover:scale-102 transition-transform duration-300"
-                    />
-
-                    {/* Badge commercial */}
-                    {product.badge && (
-                      <div className="absolute top-2 left-2 bg-stone-950/90 border border-stone-700 text-amber-400 text-[10px] font-bold px-2.5 py-0.5 rounded uppercase tracking-wider backdrop-blur-sm">
-                        {product.badge}
-                      </div>
-                    )}
-
-                    {/* Statut En ligne */}
-                    <button
-                      type="button"
-                      onClick={() => handleToggleStatus(product)}
-                      title={product.is_active ? "Désactiver ce produit" : "Activer ce produit"}
-                      className={`absolute top-2 right-2 px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1 backdrop-blur-sm border shadow ${
-                        product.is_active
-                          ? "bg-emerald-950/90 text-emerald-300 border-emerald-700"
-                          : "bg-stone-950/90 text-stone-400 border-stone-700"
+                  return (
+                    <div
+                      key={ord.id}
+                      className={`bg-[#1c1917] border-2 rounded-2xl p-5 sm:p-6 space-y-4 transition-all ${
+                        isPendingTransfer
+                          ? "border-amber-500/70 shadow-lg shadow-amber-500/5 bg-[#1f1a14]"
+                          : "border-stone-800"
                       }`}
                     >
-                      {product.is_active ? (
-                        <>
-                          <Eye className="w-3 h-3 text-emerald-400" />
-                          <span>En ligne</span>
-                        </>
-                      ) : (
-                        <>
-                          <EyeOff className="w-3 h-3 text-stone-400" />
-                          <span>Hors ligne</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
+                      {/* En-tête Commande */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-800/80">
+                        <div className="flex flex-wrap items-center gap-2.5">
+                          <span className="font-mono font-black text-amber-400 text-base sm:text-lg">
+                            {ord.order_number}
+                          </span>
+                          <span className="text-xs text-stone-500">
+                            Passée le {new Date(ord.created_at).toLocaleString("fr-FR")}
+                          </span>
 
-                  {/* Catégorie & Titre */}
-                  <div className="text-[10px] font-bold text-amber-500 uppercase tracking-wider mb-1">
-                    {CATEGORIES.find((c) => c.id === product.category)?.label || product.category}
-                  </div>
-                  <h3 className="font-bold text-stone-100 text-sm leading-snug line-clamp-2 mb-1.5">
-                    {product.name}
-                  </h3>
-                  <p className="text-xs text-stone-400 line-clamp-2 mb-3">
-                    {product.short_description || product.description || "Aucune description renseignée."}
-                  </p>
+                          {/* Badge de statut */}
+                          <span
+                            className={`px-2.5 py-0.5 rounded text-[10px] font-bold uppercase border ${
+                              isPaid
+                                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+                                : isPendingTransfer
+                                ? "bg-amber-500 text-stone-950 border-amber-400 font-black animate-pulse"
+                                : ord.status === "preparing"
+                                ? "bg-sky-500/10 border-sky-500/30 text-sky-400"
+                                : ord.status === "out_for_delivery"
+                                ? "bg-purple-500/10 border-purple-500/30 text-purple-400"
+                                : ord.status === "delivered"
+                                ? "bg-emerald-600/20 border-emerald-500/40 text-emerald-300"
+                                : "bg-stone-800 border-stone-700 text-stone-300"
+                            }`}
+                          >
+                            {isPendingTransfer
+                              ? "⚠️ VIREMENT SIGNALÉ PAR LE CLIENT"
+                              : isPaid
+                              ? "Paiement Validé"
+                              : ord.status === "preparing"
+                              ? "En préparation hangar"
+                              : ord.status === "out_for_delivery"
+                              ? "En cours de livraison"
+                              : ord.status === "delivered"
+                              ? "Livrée"
+                              : "En attente de virement"}
+                          </span>
+                        </div>
+
+                        <div className="text-right">
+                          <span className="text-xl sm:text-2xl font-black text-stone-100 font-mono">
+                            {formatPrice(ord.total_cents)}
+                          </span>
+                          <span className="text-[10px] text-stone-500 block uppercase">TTC Livré</span>
+                        </div>
+                      </div>
+
+                      {/* Coordonnées Client & Lieu de Dépose */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                        {/* Client */}
+                        <div className="bg-stone-900/60 border border-stone-800/80 rounded-xl p-3.5 space-y-1.5">
+                          <span className="text-[10px] uppercase font-bold text-stone-500 block">
+                            Client &amp; Contact
+                          </span>
+                          <div className="font-bold text-stone-200">{ord.customer_name}</div>
+                          <div className="flex items-center gap-1 text-stone-400">
+                            <Mail className="w-3.5 h-3.5 text-stone-500" />
+                            <a href={`mailto:${ord.customer_email}`} className="hover:text-amber-400">
+                              {ord.customer_email}
+                            </a>
+                          </div>
+                          <div className="flex items-center gap-1 text-stone-400">
+                            <Phone className="w-3.5 h-3.5 text-stone-500" />
+                            <a href={`tel:${ord.customer_phone}`} className="hover:text-amber-400 font-semibold text-stone-200">
+                              {ord.customer_phone}
+                            </a>
+                          </div>
+                        </div>
+
+                        {/* Adresse & Accès */}
+                        <div className="bg-stone-900/60 border border-stone-800/80 rounded-xl p-3.5 space-y-1.5">
+                          <span className="text-[10px] uppercase font-bold text-stone-500 block">
+                            Adresse de Livraison
+                          </span>
+                          <div className="text-stone-300 font-medium">
+                            {shipping.street || "Non spécifié"}
+                            <br />
+                            {shipping.postal_code} {shipping.city}
+                          </div>
+                          {shipping.delivery_notes && (
+                            <div className="text-[11px] text-amber-400/90 pt-1 border-t border-stone-800">
+                              <span className="font-bold">Accès : </span>
+                              {shipping.delivery_notes}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Créneau & Articles */}
+                        <div className="bg-stone-900/60 border border-stone-800/80 rounded-xl p-3.5 space-y-1.5">
+                          <span className="text-[10px] uppercase font-bold text-stone-500 block">
+                            Articles Commandés ({items.length})
+                          </span>
+                          <div className="space-y-1">
+                            {items.map((it: any, idx: number) => (
+                              <div key={idx} className="flex justify-between text-[11px]">
+                                <span className="text-stone-300 truncate max-w-[170px]">{it.name}</span>
+                                <span className="text-stone-400 font-bold shrink-0">x{it.quantity}</span>
+                              </div>
+                            ))}
+                          </div>
+                          {shipping.preferred_week && (
+                            <div className="text-[11px] text-stone-400 pt-1 border-t border-stone-800">
+                              Période : {shipping.preferred_week}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Notes Administrateur */}
+                      {ord.admin_notes && (
+                        <div className="bg-stone-950/80 border border-stone-800/80 rounded-xl p-3 text-xs text-stone-400 font-mono whitespace-pre-line">
+                          <span className="text-[10px] font-sans font-bold text-stone-500 uppercase block mb-1">
+                            Historique des Notes &amp; Notifications :
+                          </span>
+                          {ord.admin_notes}
+                        </div>
+                      )}
+
+                      {/* Barre d'Action Admin sur la commande */}
+                      <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-stone-800">
+                        {/* Validation Virement Prioritaire */}
+                        {isPendingTransfer && (
+                          <button
+                            type="button"
+                            onClick={() => handleConfirmTransfer(ord.id)}
+                            disabled={orderActionLoading === ord.id}
+                            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs px-4 py-2.5 rounded-xl uppercase tracking-wider transition-all shadow-md active:scale-95 disabled:opacity-50 min-h-[40px]"
+                          >
+                            {orderActionLoading === ord.id ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
+                            )}
+                            <span>Valider la réception du virement</span>
+                          </button>
+                        )}
+
+                        {/* Progression du statut */}
+                        <div className="flex flex-wrap items-center gap-2 text-xs">
+                          <span className="text-stone-500 font-medium">Changer statut :</span>
+                          {ord.status !== "preparing" && (
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateOrderStatus(ord.id, "preparing")}
+                              className="px-2.5 py-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-300 font-semibold border border-stone-800 transition-colors min-h-[36px]"
+                            >
+                              En préparation
+                            </button>
+                          )}
+                          {ord.status !== "out_for_delivery" && (
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateOrderStatus(ord.id, "out_for_delivery")}
+                              className="px-2.5 py-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-purple-300 font-semibold border border-stone-800 transition-colors min-h-[36px]"
+                            >
+                              En livraison
+                            </button>
+                          )}
+                          {ord.status !== "delivered" && (
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateOrderStatus(ord.id, "delivered")}
+                              className="px-2.5 py-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-emerald-400 font-semibold border border-stone-800 transition-colors min-h-[36px]"
+                            >
+                              Marquer livrée
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Supprimer la commande */}
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteOrder(ord.id)}
+                          className="inline-flex items-center gap-1.5 text-xs text-rose-400 hover:text-rose-300 p-1.5 min-h-[36px]"
+                          title="Supprimer la commande"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          <span>Supprimer</span>
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ================= ONGLET CLIENTS INSCRITS ================= */}
+        {activeTab === "customers" && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+              <div>
+                <h2 className="text-base font-bold text-stone-100">
+                  Comptes Clients Enregistrés ({customers.length})
+                </h2>
+                <p className="text-xs text-stone-400">
+                  Visualisez les coordonnées, dates de création, dernières connexions et commandes passées.
+                </p>
+              </div>
+
+              {/* Recherche Client */}
+              <div className="relative w-full sm:w-72">
+                <Search className="w-4 h-4 text-stone-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Rechercher par nom, email, tél..."
+                  value={customerSearch}
+                  onChange={(e) => setCustomerSearch(e.target.value)}
+                  className="w-full bg-[#1c1917] border border-stone-800 focus:border-amber-500 rounded-xl pl-9 pr-4 py-2 text-xs text-stone-200 placeholder:text-stone-600 outline-none min-h-[40px]"
+                />
+              </div>
+            </div>
+
+            {filteredCustomers.length === 0 ? (
+              <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-10 text-center space-y-2">
+                <Users className="w-8 h-8 text-stone-600 mx-auto" />
+                <div className="text-sm font-bold text-stone-300">Aucun client trouvé</div>
+                <p className="text-xs text-stone-500">Aucun utilisateur ne correspond à votre recherche.</p>
+              </div>
+            ) : (
+              <div className="bg-[#1c1917] border border-stone-800 rounded-2xl overflow-hidden shadow-xl">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-stone-900/80 border-b border-stone-800 text-stone-400 uppercase tracking-wider text-[10px] font-bold">
+                      <tr>
+                        <th className="py-3 px-4">Client</th>
+                        <th className="py-3 px-4">Coordonnées</th>
+                        <th className="py-3 px-4">Inscription</th>
+                        <th className="py-3 px-4">Dernière Connexion</th>
+                        <th className="py-3 px-4">Commandes</th>
+                        <th className="py-3 px-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-stone-800">
+                      {filteredCustomers.map((cust) => (
+                        <tr key={cust.id} className="hover:bg-stone-900/40 transition-colors">
+                          <td className="py-3.5 px-4">
+                            <div className="font-bold text-stone-200">
+                              {cust.full_name || "Nom non renseigné"}
+                            </div>
+                            <span className="text-[11px] text-stone-500 font-mono">
+                              ID: {cust.id.slice(0, 8)}...
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-4 space-y-0.5">
+                            <div className="text-stone-300 font-medium">{cust.email}</div>
+                            {cust.phone && (
+                              <div className="text-stone-400 text-[11px]">{cust.phone}</div>
+                            )}
+                          </td>
+                          <td className="py-3.5 px-4 text-stone-400">
+                            {new Date(cust.created_at).toLocaleDateString("fr-FR")}
+                          </td>
+                          <td className="py-3.5 px-4">
+                            {cust.last_sign_in_at ? (
+                              <span className="text-stone-300">
+                                {new Date(cust.last_sign_in_at).toLocaleString("fr-FR")}
+                              </span>
+                            ) : (
+                              <span className="text-stone-600 italic">Jamais connecté</span>
+                            )}
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <div className="font-bold text-amber-400">
+                              {cust.order_count} commande{cust.order_count > 1 ? "s" : ""}
+                            </div>
+                            {cust.total_spent_cents > 0 && (
+                              <span className="text-[11px] text-emerald-400 block">
+                                {formatPrice(cust.total_spent_cents)}
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-3.5 px-4 text-right">
+                            <button
+                              type="button"
+                              onClick={() => setCustomerToDelete(cust)}
+                              className="inline-flex items-center gap-1.5 text-xs text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 px-3 py-1.5 rounded-lg transition-colors min-h-[34px]"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              <span>Supprimer</span>
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ================= ONGLET PRODUITS (GESTION COMPLÈTE) ================= */}
+        {activeTab === "products" && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+              <div>
+                <h2 className="text-base font-bold text-stone-100">
+                  Catalogue Produits &amp; Stocks ({filteredProducts.length})
+                </h2>
+                <p className="text-xs text-stone-400">
+                  Modifiez les photos, les descriptions, les prix et les spécifications techniques.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2.5">
+                <div className="relative w-full sm:w-64">
+                  <Search className="w-4 h-4 text-stone-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    placeholder="Filtrer un produit..."
+                    value={productSearch}
+                    onChange={(e) => setProductSearch(e.target.value)}
+                    className="w-full bg-[#1c1917] border border-stone-800 focus:border-amber-500 rounded-xl pl-9 pr-3 py-2 text-xs text-stone-200 outline-none min-h-[40px]"
+                  />
                 </div>
 
-                {/* Bas de la carte : Prix, Stock & Bouton Modifier */}
-                <div className="pt-3 border-t border-stone-800">
-                  <div className="flex items-baseline justify-between mb-3">
-                    <div>
-                      <div className="text-xl font-black text-amber-500">
-                        {formatPrice(product.unit_price_cents)}
+                <button
+                  type="button"
+                  onClick={() => setIsCreatingProduct(true)}
+                  className="inline-flex items-center gap-1.5 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-xs px-4 py-2.5 rounded-xl uppercase tracking-wider transition-all shadow-md shrink-0 active:scale-95 min-h-[40px]"
+                >
+                  <Plus className="w-4 h-4 stroke-[3]" />
+                  <span>Nouveau Produit</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Filtre par catégorie de produit */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1">
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`text-xs font-bold px-3.5 py-1.5 rounded-xl transition-all whitespace-nowrap min-h-[36px] ${
+                    selectedCategory === cat.id
+                      ? "bg-amber-500 text-stone-950 font-black"
+                      : "bg-[#1c1917] border border-stone-800 text-stone-400 hover:text-stone-200 hover:border-stone-700"
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Grille des Produits */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {filteredProducts.map((p) => (
+                <div
+                  key={p.id}
+                  className={`bg-[#1c1917] border rounded-2xl overflow-hidden flex flex-col justify-between transition-all ${
+                    p.is_active ? "border-stone-800 hover:border-amber-500/40" : "border-stone-800/60 opacity-60"
+                  }`}
+                >
+                  <div>
+                    {/* Image Produit */}
+                    <div className="relative aspect-[16/10] w-full bg-stone-950 border-b border-stone-800">
+                      <Image
+                        src={p.image_url}
+                        alt={p.name}
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="object-cover"
+                      />
+                      <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+                        <span className="text-[10px] bg-stone-950/90 text-stone-300 font-bold px-2 py-0.5 rounded border border-stone-800 backdrop-blur-sm uppercase">
+                          {p.category.replace("_", " ")}
+                        </span>
+                        {p.badge && (
+                          <span className="text-[10px] bg-amber-500 text-stone-950 font-black px-2 py-0.5 rounded uppercase">
+                            {p.badge}
+                          </span>
+                        )}
                       </div>
-                      <div className="text-[10px] text-stone-400">
-                        Stock : <strong className="text-stone-200">{product.stock_quantity} dispo</strong>
+
+                      <div className="absolute top-2.5 right-2.5">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleProductStatus(p)}
+                          className={`p-1.5 rounded-lg text-xs font-bold transition-colors backdrop-blur-md flex items-center gap-1 border ${
+                            p.is_active
+                              ? "bg-emerald-950/80 text-emerald-400 border-emerald-800/60 hover:bg-rose-950/80 hover:text-rose-400 hover:border-rose-800"
+                              : "bg-stone-900/90 text-stone-500 border-stone-800 hover:bg-emerald-950/80 hover:text-emerald-400"
+                          }`}
+                          title={p.is_active ? "Désactiver ce produit" : "Activer ce produit"}
+                        >
+                          {p.is_active ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                          <span className="text-[10px] font-bold">{p.is_active ? "En ligne" : "Masqué"}</span>
+                        </button>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-1.5">
-                      <Link
-                        href={`/produit/${product.slug}`}
-                        target="_blank"
-                        className="p-2 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-400 hover:text-stone-200 border border-stone-800 transition-colors"
-                        title="Ouvrir la fiche publique"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                      </Link>
+                    <div className="p-4 space-y-2">
+                      <h3 className="font-bold text-stone-100 text-sm leading-snug line-clamp-2">
+                        {p.name}
+                      </h3>
+                      <p className="text-[11px] text-stone-400 line-clamp-2 leading-relaxed">
+                        {p.short_description || p.description}
+                      </p>
+
+                      <div className="flex flex-wrap gap-1.5 pt-1 text-[10px]">
+                        {p.wood_length_cm && (
+                          <span className="bg-stone-900 text-stone-300 border border-stone-800 px-2 py-0.5 rounded font-mono">
+                            {p.wood_length_cm} cm
+                          </span>
+                        )}
+                        {p.volume_stere && (
+                          <span className="bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded font-bold">
+                            {p.volume_stere} Stères
+                          </span>
+                        )}
+                        {p.weight_kg && (
+                          <span className="bg-stone-900 text-stone-400 border border-stone-800 px-2 py-0.5 rounded">
+                            {p.weight_kg} kg
+                          </span>
+                        )}
+                        {p.humidity_rate && (
+                          <span className="bg-stone-900 text-sky-400 border border-stone-800 px-2 py-0.5 rounded">
+                            &lt; {p.humidity_rate}% hum.
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Prix & Bouton Édition */}
+                  <div className="p-4 pt-0">
+                    <div className="pt-3 border-t border-stone-800 flex items-center justify-between">
+                      <div>
+                        <span className="text-[10px] uppercase font-bold text-stone-500 block">Prix Livré</span>
+                        <div className="text-lg font-black text-amber-500 font-mono">
+                          {formatPrice(p.unit_price_cents)}
+                        </div>
+                      </div>
 
                       <button
                         type="button"
-                        onClick={() => handleOpenEdit(product)}
-                        className="px-3 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs flex items-center gap-1.5 transition-colors shadow-sm"
+                        onClick={() => {
+                          setEditingProduct(p)
+                          setProductFeedback(null)
+                        }}
+                        className="inline-flex items-center gap-1.5 bg-stone-900 hover:bg-stone-800 text-stone-200 hover:text-amber-400 border border-stone-800 hover:border-amber-500/40 text-xs font-bold px-3 py-2 rounded-xl transition-all min-h-[38px]"
                       >
-                        <Edit3 className="w-3.5 h-3.5" />
+                        <Edit3 className="w-3.5 h-3.5 text-amber-500" />
                         <span>Modifier</span>
                       </button>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
       </main>
 
-      {/* ================= MODALE ÉDITION / CRÉATION PRODUIT ================= */}
-      {(editingProduct || isCreating) && (
-        <div className="fixed inset-0 z-50 bg-stone-950/80 backdrop-blur-sm flex justify-end">
-          <div className="w-full max-w-2xl bg-[#1c1917] border-l border-stone-800 h-full overflow-y-auto flex flex-col p-6 sm:p-8 shadow-2xl">
-            {/* En-tête de la modale */}
-            <div className="flex items-center justify-between pb-4 border-b border-stone-800 mb-6">
-              <div>
-                <h2 className="text-xl font-black text-stone-100">
-                  {isCreating ? "Créer un Nouveau Produit" : `Modifier : ${editingProduct?.name}`}
-                </h2>
-                <p className="text-xs text-stone-400 mt-0.5">
-                  Toutes les modifications sont synchronisées directement dans Supabase.
-                </p>
-              </div>
+      {/* ================= MODALE SUPPRESSION CLIENT ================= */}
+      {customerToDelete && (
+        <div className="fixed inset-0 z-50 bg-stone-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl animate-in fade-in zoom-in-95">
+            <div className="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 flex items-center justify-center mx-auto">
+              <Trash2 className="w-6 h-6" />
+            </div>
+
+            <div className="text-center space-y-1">
+              <h3 className="font-bold text-stone-100 text-base">
+                Confirmer la suppression du client
+              </h3>
+              <p className="text-xs text-stone-400 leading-relaxed">
+                Êtes-vous sûr de vouloir supprimer définitivement le compte client{" "}
+                <strong className="text-stone-200">{customerToDelete.email}</strong> ?
+                Cette action supprimera ses accès de connexion et son profil.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setCustomerToDelete(null)}
+                className="w-full bg-stone-900 hover:bg-stone-800 text-stone-300 font-bold text-xs py-2.5 rounded-xl border border-stone-800 transition-colors min-h-[40px]"
+              >
+                Annuler
+              </button>
 
               <button
                 type="button"
-                onClick={() => {
-                  setEditingProduct(null)
-                  setIsCreating(false)
-                }}
-                className="w-9 h-9 rounded-lg bg-stone-900 border border-stone-800 flex items-center justify-center text-stone-400 hover:text-stone-100"
+                onClick={handleDeleteCustomerConfirm}
+                disabled={customerDeleteLoading}
+                className="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1.5 min-h-[40px] disabled:opacity-50"
+              >
+                {customerDeleteLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Trash2 className="w-4 h-4" />
+                )}
+                <span>Supprimer</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= TIROIR MODIFICATION PRODUIT ================= */}
+      {editingProduct && (
+        <div className="fixed inset-0 z-50 bg-stone-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div className="bg-[#1c1917] border border-stone-800 rounded-t-3xl sm:rounded-2xl max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl animate-in slide-in-from-bottom-5">
+            {/* Entête du tiroir */}
+            <div className="p-5 border-b border-stone-800 flex items-center justify-between">
+              <div>
+                <h3 className="font-black text-stone-100 text-base">Modifier le Produit</h3>
+                <p className="text-xs text-stone-400 font-mono">{editingProduct.name}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingProduct(null)}
+                className="text-stone-400 hover:text-white p-2 rounded-lg hover:bg-stone-900"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Notification de feedback */}
-            {feedback && (
-              <div
-                className={`mb-5 p-3.5 rounded-xl border text-xs flex items-center gap-2.5 ${
-                  feedback.type === "success"
-                    ? "bg-emerald-950/80 border-emerald-700 text-emerald-300"
-                    : "bg-rose-950/80 border-rose-800 text-rose-300"
-                }`}
-              >
-                {feedback.type === "success" ? (
-                  <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
-                ) : (
-                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
-                )}
-                <span>{feedback.message}</span>
-              </div>
-            )}
+            {/* Formulaire scrollable */}
+            <form onSubmit={handleSaveProduct} className="p-5 overflow-y-auto space-y-4 text-xs flex-1">
+              {productFeedback && (
+                <div
+                  className={`p-3 rounded-xl border font-bold text-xs flex items-center gap-2 ${
+                    productFeedback.type === "success"
+                      ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
+                      : "bg-rose-500/10 border-rose-500/30 text-rose-300"
+                  }`}
+                >
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>{productFeedback.message}</span>
+                </div>
+              )}
 
-            {/* Formulaire */}
-            <form onSubmit={handleSave} className="space-y-5 flex-1">
-              {/* Nom & Slug */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-stone-300 uppercase tracking-wider mb-1.5">
-                    Titre du Produit *
+              {/* Titre & Slug */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="font-bold text-stone-300 uppercase tracking-wider text-[10px]">
+                    Nom du Produit *
                   </label>
                   <input
                     type="text"
+                    name="name"
+                    defaultValue={editingProduct.name}
                     required
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Ex: Chêne & Charme Sec - 33 cm"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-stone-900 border border-stone-800 focus:border-amber-500 text-stone-100 text-sm outline-none"
+                    className="w-full bg-stone-950 border border-stone-800 focus:border-amber-500 rounded-xl px-3 py-2 text-stone-100 outline-none"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-stone-300 uppercase tracking-wider mb-1.5">
-                    Identifiant d&apos;URL (Slug) *
+                <div className="space-y-1">
+                  <label className="font-bold text-stone-300 uppercase tracking-wider text-[10px]">
+                    Slug URL *
                   </label>
                   <input
                     type="text"
+                    name="slug"
+                    defaultValue={editingProduct.slug}
                     required
-                    value={formData.slug}
-                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                    placeholder="chene-charme-33cm-palette"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-stone-900 border border-stone-800 focus:border-amber-500 text-stone-100 text-sm font-mono outline-none"
+                    className="w-full bg-stone-950 border border-stone-800 focus:border-amber-500 rounded-xl px-3 py-2 text-stone-100 outline-none font-mono"
                   />
                 </div>
               </div>
 
-              {/* Catégorie & Badge */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-stone-300 uppercase tracking-wider mb-1.5">
-                    Catégorie Principale *
-                  </label>
-                  <select
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-stone-900 border border-stone-800 focus:border-amber-500 text-stone-100 text-sm outline-none"
-                  >
-                    <option value="bois_buches">Bois de Chauffage (Bûches)</option>
-                    <option value="granules_pellets">Granulés de Bois &amp; Pellets</option>
-                    <option value="buches_compressees">Bûches Compressées &amp; Pavés</option>
-                    <option value="charbon_bois">Charbon de Bois (Resto &amp; Artisanal)</option>
-                    <option value="poeles">Poêles à Bois &amp; Cuisinières</option>
-                    <option value="allumage">Bois d&apos;Allumage &amp; Filets</option>
-                  </select>
-                </div>
+              {/* Photo & Prévisualisation */}
+              <div className="space-y-2">
+                <label className="font-bold text-stone-300 uppercase tracking-wider text-[10px] flex items-center justify-between">
+                  <span>Photo du Produit (URL ou chemin local) *</span>
+                </label>
+                <input
+                  type="text"
+                  name="image_url"
+                  id="edit_image_url"
+                  defaultValue={editingProduct.image_url}
+                  required
+                  className="w-full bg-stone-950 border border-stone-800 focus:border-amber-500 rounded-xl px-3 py-2 text-stone-100 outline-none font-mono"
+                />
 
-                <div>
-                  <label className="block text-xs font-bold text-stone-300 uppercase tracking-wider mb-1.5">
-                    Badge Commercial (optionnel)
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.badge}
-                    onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
-                    placeholder="Ex: Four Cuisson & Chauffage, Din+"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-stone-900 border border-stone-800 focus:border-amber-500 text-stone-100 text-sm outline-none"
-                  />
-                </div>
-              </div>
-
-              {/* SECTION IMAGE AVEC APERÇU EN DIRECT */}
-              <div className="bg-stone-900 border border-stone-800 rounded-xl p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-stone-300 uppercase tracking-wider flex items-center gap-1.5">
-                    <ImageIcon className="w-3.5 h-3.5 text-amber-500" />
-                    <span>Image du Produit * (Aperçu en direct)</span>
-                  </label>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-4 items-center">
-                  {/* Aperçu visuel instantané */}
-                  <div className="relative w-32 h-24 rounded-lg overflow-hidden bg-stone-950 border border-stone-700 shrink-0">
-                    {formData.image_url ? (
-                      <Image
-                        src={formData.image_url}
-                        alt="Aperçu"
-                        fill
-                        className="object-cover"
-                        onError={() => {}}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-xs text-stone-500">
-                        Aucune image
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Saisie de l'URL */}
-                  <div className="flex-1 w-full space-y-2">
-                    <input
-                      type="text"
-                      required
-                      value={formData.image_url}
-                      onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                      placeholder="/images/products/votre-photo.jpg ou URL https://"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-stone-950 border border-stone-800 focus:border-amber-500 text-stone-100 text-xs sm:text-sm font-mono outline-none"
-                    />
-                    <div className="text-[11px] text-stone-400">
-                      Vous pouvez coller un chemin local ou choisir ci-dessous parmi les photos certifiées de la scierie.
-                    </div>
-                  </div>
-                </div>
-
-                {/* Galerie de sélection en 1 clic */}
-                <div className="pt-2 border-t border-stone-800">
-                  <div className="text-[11px] font-bold text-stone-400 mb-2">
-                    Choisir rapidement une photo de la scierie :
-                  </div>
-                  <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-                    {AVAILABLE_GALLERY_PHOTOS.map((photo) => (
+                {/* Galerie rapide de photos scierie */}
+                <div className="space-y-1 pt-1">
+                  <span className="text-[10px] text-stone-400 font-semibold block">
+                    Ou choisissez une photo réelle de la scierie :
+                  </span>
+                  <div className="flex gap-2 overflow-x-auto pb-1">
+                    {AVAILABLE_GALLERY_PHOTOS.map((pic, idx) => (
                       <button
-                        key={photo.url}
+                        key={idx}
                         type="button"
-                        onClick={() => setFormData({ ...formData, image_url: photo.url })}
-                        className={`relative w-16 h-12 rounded-md overflow-hidden shrink-0 border-2 transition-all ${
-                          formData.image_url === photo.url
-                            ? "border-amber-500 scale-105"
-                            : "border-stone-800 hover:border-stone-600 opacity-60 hover:opacity-100"
-                        }`}
-                        title={photo.name}
+                        onClick={() => {
+                          const el = document.getElementById("edit_image_url") as HTMLInputElement
+                          if (el) el.value = pic.url
+                        }}
+                        className="px-2.5 py-1 rounded bg-stone-900 border border-stone-800 hover:border-amber-500 text-[10px] text-stone-300 whitespace-nowrap min-h-[30px]"
                       >
-                        <Image src={photo.url} alt={photo.name} fill className="object-cover" />
+                        {pic.name}
                       </button>
                     ))}
                   </div>
                 </div>
               </div>
 
-              {/* Prix & Stock */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-stone-300 uppercase tracking-wider mb-1.5">
-                    Prix Unitaire TTC (€) *
+              {/* Catégorie & Badge */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="font-bold text-stone-300 uppercase tracking-wider text-[10px]">
+                    Catégorie *
                   </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      required
-                      value={formData.unit_price_euros}
-                      onChange={(e) => setFormData({ ...formData, unit_price_euros: e.target.value })}
-                      placeholder="Ex: 399.00"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-stone-900 border border-stone-800 focus:border-amber-500 text-amber-400 font-black text-lg outline-none"
-                    />
-                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 font-bold">€</span>
-                  </div>
+                  <select
+                    name="category"
+                    defaultValue={editingProduct.category}
+                    className="w-full bg-stone-950 border border-stone-800 focus:border-amber-500 rounded-xl px-3 py-2 text-stone-100 outline-none"
+                  >
+                    {CATEGORIES.filter((c) => c.id !== "all").map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-stone-300 uppercase tracking-wider mb-1.5">
+                <div className="space-y-1">
+                  <label className="font-bold text-stone-300 uppercase tracking-wider text-[10px]">
+                    Badge Spécial (Promo / Exclusif)
+                  </label>
+                  <input
+                    type="text"
+                    name="badge"
+                    defaultValue={editingProduct.badge || ""}
+                    placeholder="Ex: NOUVEAUTÉ, MEILLEURE VENTE..."
+                    className="w-full bg-stone-950 border border-stone-800 focus:border-amber-500 rounded-xl px-3 py-2 text-stone-100 outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Prix (€) & Stock */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="font-bold text-amber-400 uppercase tracking-wider text-[10px]">
+                    Prix TTC livré (€) *
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    name="unit_price_euros"
+                    defaultValue={(editingProduct.unit_price_cents / 100).toFixed(2)}
+                    required
+                    className="w-full bg-stone-950 border border-amber-500/50 focus:border-amber-400 rounded-xl px-3 py-2 text-amber-400 font-black text-sm outline-none"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-bold text-stone-300 uppercase tracking-wider text-[10px]">
                     Quantité en Stock *
                   </label>
                   <input
                     type="number"
+                    name="stock_quantity"
+                    defaultValue={editingProduct.stock_quantity}
                     required
-                    min={0}
-                    value={formData.stock_quantity}
-                    onChange={(e) => setFormData({ ...formData, stock_quantity: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-stone-900 border border-stone-800 focus:border-amber-500 text-stone-100 text-sm font-bold outline-none"
+                    className="w-full bg-stone-950 border border-stone-800 focus:border-amber-500 rounded-xl px-3 py-2 text-stone-100 outline-none font-bold"
                   />
                 </div>
               </div>
 
-              {/* Caractéristiques Techniques */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div>
-                  <label className="block text-[11px] font-bold text-stone-400 uppercase tracking-wider mb-1">
-                    Humidité (%)
+              {/* Description courte & longue */}
+              <div className="space-y-1">
+                <label className="font-bold text-stone-300 uppercase tracking-wider text-[10px]">
+                  Description Courte
+                </label>
+                <textarea
+                  name="short_description"
+                  rows={2}
+                  defaultValue={editingProduct.short_description || ""}
+                  className="w-full bg-stone-950 border border-stone-800 focus:border-amber-500 rounded-xl px-3 py-2 text-stone-100 outline-none"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-bold text-stone-300 uppercase tracking-wider text-[10px]">
+                  Description Complète
+                </label>
+                <textarea
+                  name="description"
+                  rows={3}
+                  defaultValue={editingProduct.description || ""}
+                  className="w-full bg-stone-950 border border-stone-800 focus:border-amber-500 rounded-xl px-3 py-2 text-stone-100 outline-none"
+                />
+              </div>
+
+              {/* Spécifications techniques */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                <div className="space-y-1">
+                  <label className="font-bold text-stone-400 text-[10px] uppercase block">
+                    Bûches (cm)
+                  </label>
+                  <input
+                    type="number"
+                    name="wood_length_cm"
+                    defaultValue={editingProduct.wood_length_cm || ""}
+                    className="w-full bg-stone-950 border border-stone-800 rounded-xl px-2.5 py-1.5 text-stone-200 outline-none"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="font-bold text-stone-400 text-[10px] uppercase block">
+                    Stères
                   </label>
                   <input
                     type="number"
                     step="0.1"
-                    value={formData.humidity_rate}
-                    onChange={(e) => setFormData({ ...formData, humidity_rate: e.target.value })}
-                    placeholder="18"
-                    className="w-full px-3 py-2 rounded-lg bg-stone-900 border border-stone-800 text-stone-100 text-xs outline-none"
+                    name="volume_stere"
+                    defaultValue={editingProduct.volume_stere || ""}
+                    className="w-full bg-stone-950 border border-stone-800 rounded-xl px-2.5 py-1.5 text-stone-200 outline-none"
                   />
                 </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-stone-400 uppercase tracking-wider mb-1">
-                    Longueur (cm)
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.wood_length_cm}
-                    onChange={(e) => setFormData({ ...formData, wood_length_cm: e.target.value })}
-                    placeholder="33"
-                    className="w-full px-3 py-2 rounded-lg bg-stone-900 border border-stone-800 text-stone-100 text-xs outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-stone-400 uppercase tracking-wider mb-1">
-                    Volume (stères)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={formData.volume_stere}
-                    onChange={(e) => setFormData({ ...formData, volume_stere: e.target.value })}
-                    placeholder="3"
-                    className="w-full px-3 py-2 rounded-lg bg-stone-900 border border-stone-800 text-stone-100 text-xs outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-stone-400 uppercase tracking-wider mb-1">
+                <div className="space-y-1">
+                  <label className="font-bold text-stone-400 text-[10px] uppercase block">
                     Poids (kg)
                   </label>
                   <input
                     type="number"
-                    step="0.1"
-                    value={formData.weight_kg}
-                    onChange={(e) => setFormData({ ...formData, weight_kg: e.target.value })}
-                    placeholder="1200"
-                    className="w-full px-3 py-2 rounded-lg bg-stone-900 border border-stone-800 text-stone-100 text-xs outline-none"
+                    name="weight_kg"
+                    defaultValue={editingProduct.weight_kg || ""}
+                    className="w-full bg-stone-950 border border-stone-800 rounded-xl px-2.5 py-1.5 text-stone-200 outline-none"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="font-bold text-stone-400 text-[10px] uppercase block">
+                    Humidité (%)
+                  </label>
+                  <input
+                    type="number"
+                    name="humidity_rate"
+                    defaultValue={editingProduct.humidity_rate || ""}
+                    className="w-full bg-stone-950 border border-stone-800 rounded-xl px-2.5 py-1.5 text-stone-200 outline-none"
                   />
                 </div>
               </div>
 
-              {/* Essences ou Matériaux */}
-              <div>
-                <label className="block text-xs font-bold text-stone-300 uppercase tracking-wider mb-1.5">
-                  Essences de bois ou Matériaux (séparés par des virgules)
+              {/* Essences */}
+              <div className="space-y-1">
+                <label className="font-bold text-stone-300 uppercase tracking-wider text-[10px]">
+                  Essences / Matériaux (séparés par des virgules)
                 </label>
                 <input
                   type="text"
-                  value={formData.species}
-                  onChange={(e) => setFormData({ ...formData, species: e.target.value })}
-                  placeholder="Chêne, Charme, Hêtre (ou Fonte, Acier)"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-stone-900 border border-stone-800 focus:border-amber-500 text-stone-100 text-sm outline-none"
+                  name="species"
+                  defaultValue={editingProduct.species ? editingProduct.species.join(", ") : ""}
+                  placeholder="Ex: Chêne, Charme, Hêtre"
+                  className="w-full bg-stone-950 border border-stone-800 focus:border-amber-500 rounded-xl px-3 py-2 text-stone-100 outline-none"
                 />
               </div>
 
-              {/* Description Courte */}
-              <div>
-                <label className="block text-xs font-bold text-stone-300 uppercase tracking-wider mb-1.5">
-                  Description Courte (résumé accrocheur)
-                </label>
-                <input
-                  type="text"
-                  value={formData.short_description}
-                  onChange={(e) => setFormData({ ...formData, short_description: e.target.value })}
-                  placeholder="Ex: Bûches fendues séchées sous abri ventilé • Prêt à l'emploi"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-stone-900 border border-stone-800 focus:border-amber-500 text-stone-100 text-sm outline-none"
-                />
-              </div>
-
-              {/* Description Complète */}
-              <div>
-                <label className="block text-xs font-bold text-stone-300 uppercase tracking-wider mb-1.5">
-                  Description Complète
-                </label>
-                <textarea
-                  rows={4}
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Détail complet des caractéristiques, allumage, rendement et livraison..."
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-stone-900 border border-stone-800 focus:border-amber-500 text-stone-100 text-sm outline-none resize-y"
-                />
-              </div>
-
-              {/* Toggle Statut Visible */}
-              <div className="flex items-center gap-3 pt-2">
+              {/* Interrupteur Actif */}
+              <div className="flex items-center gap-2 pt-2">
                 <input
                   type="checkbox"
-                  id="is_active_toggle"
-                  checked={formData.is_active}
-                  onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                  className="w-5 h-5 rounded bg-stone-900 border-stone-800 text-amber-500 focus:ring-amber-500 focus:ring-offset-stone-950"
+                  name="is_active"
+                  id="edit_is_active"
+                  defaultChecked={editingProduct.is_active}
+                  className="w-4 h-4 rounded border-stone-700 text-amber-500 focus:ring-0"
                 />
-                <label htmlFor="is_active_toggle" className="text-sm font-bold text-stone-200 cursor-pointer">
-                  Produit actif et visible immédiatement en boutique
+                <label htmlFor="edit_is_active" className="font-bold text-stone-200 text-xs cursor-pointer">
+                  Produit Actif et visible immédiatement sur la boutique
                 </label>
               </div>
 
-              {/* Boutons d'Action */}
-              <div className="pt-4 border-t border-stone-800 flex items-center justify-end gap-3">
+              {/* Bouton Enregistrer */}
+              <div className="pt-4 border-t border-stone-800 flex justify-end gap-2">
                 <button
                   type="button"
-                  onClick={() => {
-                    setEditingProduct(null)
-                    setIsCreating(false)
-                  }}
-                  className="px-5 py-2.5 rounded-xl border border-stone-800 text-stone-400 hover:text-stone-200 text-sm font-bold transition-colors"
+                  onClick={() => setEditingProduct(null)}
+                  className="px-4 py-2.5 rounded-xl bg-stone-900 border border-stone-800 text-stone-300 font-bold hover:bg-stone-800 min-h-[40px]"
                 >
                   Annuler
                 </button>
-
                 <button
                   type="submit"
-                  disabled={saving}
-                  className="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-sm flex items-center gap-2 transition-all shadow-lg disabled:opacity-50"
+                  disabled={productFormLoading}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-black uppercase tracking-wider shadow-md active:scale-95 disabled:opacity-50 min-h-[40px]"
                 >
-                  {saving ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Synchronisation Supabase...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Save className="w-4 h-4" />
-                      <span>{isCreating ? "Créer le produit" : "Enregistrer dans la base"}</span>
-                    </>
-                  )}
+                  {productFormLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  <span>Enregistrer les modifications</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ================= TIROIR CRÉATION NOUVEAU PRODUIT ================= */}
+      {isCreatingProduct && (
+        <div className="fixed inset-0 z-50 bg-stone-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div className="bg-[#1c1917] border border-stone-800 rounded-t-3xl sm:rounded-2xl max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl animate-in slide-in-from-bottom-5">
+            <div className="p-5 border-b border-stone-800 flex items-center justify-between">
+              <div>
+                <h3 className="font-black text-stone-100 text-base">Ajouter un Nouveau Produit</h3>
+                <p className="text-xs text-stone-400">Création et synchronisation immédiate en base de données</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsCreatingProduct(false)}
+                className="text-stone-400 hover:text-white p-2 rounded-lg hover:bg-stone-900"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateProduct} className="p-5 overflow-y-auto space-y-4 text-xs flex-1">
+              {productFeedback && (
+                <div
+                  className={`p-3 rounded-xl border font-bold text-xs flex items-center gap-2 ${
+                    productFeedback.type === "success"
+                      ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
+                      : "bg-rose-500/10 border-rose-500/30 text-rose-300"
+                  }`}
+                >
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>{productFeedback.message}</span>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="font-bold text-stone-300 uppercase tracking-wider text-[10px]">
+                    Nom du Produit *
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    required
+                    placeholder="Ex: Chêne Séché sous Hangar 33cm"
+                    className="w-full bg-stone-950 border border-stone-800 focus:border-amber-500 rounded-xl px-3 py-2 text-stone-100 outline-none"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-bold text-stone-300 uppercase tracking-wider text-[10px]">
+                    Slug URL *
+                  </label>
+                  <input
+                    type="text"
+                    name="slug"
+                    required
+                    placeholder="chene-seche-hangar-33cm"
+                    className="w-full bg-stone-950 border border-stone-800 focus:border-amber-500 rounded-xl px-3 py-2 text-stone-100 outline-none font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="font-bold text-stone-300 uppercase tracking-wider text-[10px]">
+                  Photo du Produit (URL ou chemin local) *
+                </label>
+                <input
+                  type="text"
+                  name="image_url"
+                  id="create_image_url"
+                  required
+                  defaultValue="/images/products/chene-charme-33cm.jpg"
+                  className="w-full bg-stone-950 border border-stone-800 focus:border-amber-500 rounded-xl px-3 py-2 text-stone-100 outline-none font-mono"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="font-bold text-stone-300 uppercase tracking-wider text-[10px]">
+                    Catégorie *
+                  </label>
+                  <select
+                    name="category"
+                    className="w-full bg-stone-950 border border-stone-800 focus:border-amber-500 rounded-xl px-3 py-2 text-stone-100 outline-none"
+                  >
+                    {CATEGORIES.filter((c) => c.id !== "all").map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-bold text-amber-400 uppercase tracking-wider text-[10px]">
+                    Prix TTC livré (€) *
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    name="unit_price_euros"
+                    required
+                    placeholder="289.00"
+                    className="w-full bg-stone-950 border border-amber-500/50 focus:border-amber-400 rounded-xl px-3 py-2 text-amber-400 font-black text-sm outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                <div className="space-y-1">
+                  <label className="font-bold text-stone-400 text-[10px] uppercase block">
+                    Stock Initial *
+                  </label>
+                  <input
+                    type="number"
+                    name="stock_quantity"
+                    defaultValue="25"
+                    required
+                    className="w-full bg-stone-950 border border-stone-800 rounded-xl px-2.5 py-1.5 text-stone-200 outline-none font-bold"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="font-bold text-stone-400 text-[10px] uppercase block">
+                    Bûches (cm)
+                  </label>
+                  <input
+                    type="number"
+                    name="wood_length_cm"
+                    defaultValue="33"
+                    className="w-full bg-stone-950 border border-stone-800 rounded-xl px-2.5 py-1.5 text-stone-200 outline-none"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="font-bold text-stone-400 text-[10px] uppercase block">
+                    Stères
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    name="volume_stere"
+                    defaultValue="2"
+                    className="w-full bg-stone-950 border border-stone-800 rounded-xl px-2.5 py-1.5 text-stone-200 outline-none"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="font-bold text-stone-400 text-[10px] uppercase block">
+                    Humidité (%)
+                  </label>
+                  <input
+                    type="number"
+                    name="humidity_rate"
+                    defaultValue="18"
+                    className="w-full bg-stone-950 border border-stone-800 rounded-xl px-2.5 py-1.5 text-stone-200 outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-bold text-stone-300 uppercase tracking-wider text-[10px]">
+                  Description Courte
+                </label>
+                <textarea
+                  name="short_description"
+                  rows={2}
+                  placeholder="Bref résumé accrocheur..."
+                  className="w-full bg-stone-950 border border-stone-800 focus:border-amber-500 rounded-xl px-3 py-2 text-stone-100 outline-none"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 pt-2">
+                <input
+                  type="checkbox"
+                  name="is_active"
+                  id="create_is_active"
+                  defaultChecked={true}
+                  className="w-4 h-4 rounded border-stone-700 text-amber-500"
+                />
+                <label htmlFor="create_is_active" className="font-bold text-stone-200 text-xs cursor-pointer">
+                  Publier immédiatement le produit sur le site
+                </label>
+              </div>
+
+              <div className="pt-4 border-t border-stone-800 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsCreatingProduct(false)}
+                  className="px-4 py-2.5 rounded-xl bg-stone-900 border border-stone-800 text-stone-300 font-bold hover:bg-stone-800 min-h-[40px]"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  disabled={productFormLoading}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-black uppercase tracking-wider shadow-md active:scale-95 disabled:opacity-50 min-h-[40px]"
+                >
+                  {productFormLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4 stroke-[3]" />}
+                  <span>Créer le produit</span>
                 </button>
               </div>
             </form>

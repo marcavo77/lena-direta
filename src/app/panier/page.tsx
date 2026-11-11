@@ -23,8 +23,10 @@ import {
 import { useCartStore } from "@/lib/store/cart"
 import { formatPrice } from "@/lib/utils"
 import { checkPostalCodeEligibility } from "@/app/actions/delivery"
+import { useIsAdmin } from "@/lib/hooks/useIsAdmin"
 
 export default function CartPage() {
+  const { isAdmin } = useIsAdmin()
   const {
     items,
     removeItem,
@@ -128,6 +130,34 @@ export default function CartPage() {
     setPromoInput("")
     setPromoSuccess(null)
     setPromoError(null)
+  }
+
+  if (isAdmin) {
+    return (
+      <div className="bg-[#121110] min-h-screen text-stone-100 py-12 sm:py-20 flex items-center justify-center">
+        <div className="max-w-xl mx-auto px-4 text-center space-y-5">
+          <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-500 flex items-center justify-center mx-auto">
+            <ShieldCheck className="w-8 h-8" />
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-stone-100">
+            Espace Administrateur Scierie
+          </h1>
+          <p className="text-sm text-stone-400 leading-relaxed">
+            Le panier d'achat et le passage de commandes sont strictement réservés aux comptes clients.
+            En tant qu'administrateur, vos prérogatives se situent dans la gestion des produits, la supervision des clients et le traitement des commandes.
+          </p>
+          <div className="pt-3">
+            <Link
+              href="/admin"
+              className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-xs px-6 py-3.5 rounded-xl uppercase tracking-wider transition-all shadow-md min-h-[44px]"
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>Accéder au Tableau de Bord Administrateur</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (

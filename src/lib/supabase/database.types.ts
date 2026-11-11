@@ -42,6 +42,7 @@ export interface Database {
       orders: {
         Row: {
           access_constraints: Json | null
+          admin_notes: string | null
           created_at: string
           customer_email: string
           customer_name: string
@@ -52,6 +53,9 @@ export interface Database {
           id: string
           items: Json
           order_number: string
+          payment_method: string | null
+          payment_notified_at: string | null
+          payment_status: string | null
           shipping_address: Json
           status: string
           stripe_payment_intent_id: string | null
@@ -61,6 +65,7 @@ export interface Database {
         }
         Insert: {
           access_constraints?: Json | null
+          admin_notes?: string | null
           created_at?: string
           customer_email: string
           customer_name: string
@@ -71,6 +76,9 @@ export interface Database {
           id?: string
           items: Json
           order_number: string
+          payment_method?: string | null
+          payment_notified_at?: string | null
+          payment_status?: string | null
           shipping_address: Json
           status?: string
           stripe_payment_intent_id?: string | null
@@ -80,6 +88,7 @@ export interface Database {
         }
         Update: {
           access_constraints?: Json | null
+          admin_notes?: string | null
           created_at?: string
           customer_email?: string
           customer_name?: string
@@ -90,6 +99,9 @@ export interface Database {
           id?: string
           items?: Json
           order_number?: string
+          payment_method?: string | null
+          payment_notified_at?: string | null
+          payment_status?: string | null
           shipping_address?: Json
           status?: string
           stripe_payment_intent_id?: string | null

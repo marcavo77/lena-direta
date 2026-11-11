@@ -4,10 +4,11 @@ import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Droplet, ShoppingCart, Check, Trees, Truck, ArrowRight } from "lucide-react"
+import { Droplet, ShoppingCart, Check, Trees, Truck, ArrowRight, ShieldCheck } from "lucide-react"
 import type { Product } from "@/lib/supabase/database.types"
 import { formatPrice } from "@/lib/utils"
 import { useCartStore } from "@/lib/store/cart"
+import { useIsAdmin } from "@/lib/hooks/useIsAdmin"
 
 interface ProductCardProps {
   product: Product
@@ -15,6 +16,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const router = useRouter()
+  const { isAdmin } = useIsAdmin()
   const [added, setAdded] = useState(false)
   const addItem = useCartStore((s) => s.addItem)
 
@@ -134,36 +136,49 @@ export function ProductCard({ product }: ProductCardProps) {
           </Link>
 
           <div className="flex items-center gap-2 shrink-0">
-            {/* Bouton Panier : Ajout au panier sans quitter la page */}
-            <button
-              type="button"
-              onClick={handleAddToCart}
-              aria-label="Ajouter au panier"
-              title={added ? "Produit ajouté au panier !" : "Ajouter au panier"}
-              className={`min-h-[44px] min-w-[44px] sm:min-h-[46px] sm:min-w-[46px] p-2.5 rounded-lg font-bold flex items-center justify-center transition-all active:scale-95 border ${
-                added
-                  ? "bg-emerald-600 text-white border-emerald-500 shadow-sm"
-                  : "bg-stone-800 hover:bg-stone-700 text-amber-400 hover:text-amber-300 border-stone-700 hover:border-amber-500/40 shadow-sm"
-              }`}
-            >
-              {added ? (
-                <Check className="w-5 h-5 stroke-[2.5]" />
-              ) : (
-                <ShoppingCart className="w-5 h-5" />
-              )}
-            </button>
+            {isAdmin ? (
+              <Link
+                href="/admin"
+                className="min-h-[44px] sm:min-h-[46px] px-3.5 sm:px-4 py-2.5 rounded-lg font-black text-xs flex items-center justify-center gap-1.5 transition-all bg-amber-500 hover:bg-amber-400 text-stone-950 uppercase tracking-wider shadow-sm active:scale-95"
+                title="Gérer ce produit dans le tableau de bord administrateur"
+              >
+                <ShieldCheck className="w-4 h-4 stroke-[2.5] shrink-0" />
+                <span>Gérer (Admin)</span>
+              </Link>
+            ) : (
+              <>
+                {/* Bouton Panier : Ajout au panier sans quitter la page */}
+                <button
+                  type="button"
+                  onClick={handleAddToCart}
+                  aria-label="Ajouter au panier"
+                  title={added ? "Produit ajouté au panier !" : "Ajouter au panier"}
+                  className={`min-h-[44px] min-w-[44px] sm:min-h-[46px] sm:min-w-[46px] p-2.5 rounded-lg font-bold flex items-center justify-center transition-all active:scale-95 border ${
+                    added
+                      ? "bg-emerald-600 text-white border-emerald-500 shadow-sm"
+                      : "bg-stone-800 hover:bg-stone-700 text-amber-400 hover:text-amber-300 border-stone-700 hover:border-amber-500/40 shadow-sm"
+                  }`}
+                >
+                  {added ? (
+                    <Check className="w-5 h-5 stroke-[2.5]" />
+                  ) : (
+                    <ShoppingCart className="w-5 h-5" />
+                  )}
+                </button>
 
-            {/* Bouton Commander : Redirige directement vers le tunnel de commande */}
-            <button
-              type="button"
-              onClick={handleDirectCheckout}
-              aria-label="Commander directement"
-              title="Passer commande directement"
-              className="min-h-[44px] sm:min-h-[46px] px-3.5 sm:px-4 py-2.5 rounded-lg font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all active:scale-95 bg-amber-500 hover:bg-amber-400 text-stone-950 shadow-sm"
-            >
-              <ArrowRight className="w-4 h-4 stroke-[2.5] shrink-0" />
-              <span>Commander</span>
-            </button>
+                {/* Bouton Commander : Redirige directement vers le tunnel de commande */}
+                <button
+                  type="button"
+                  onClick={handleDirectCheckout}
+                  aria-label="Commander directement"
+                  title="Passer commande directement"
+                  className="min-h-[44px] sm:min-h-[46px] px-3.5 sm:px-4 py-2.5 rounded-lg font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all active:scale-95 bg-amber-500 hover:bg-amber-400 text-stone-950 shadow-sm"
+                >
+                  <ArrowRight className="w-4 h-4 stroke-[2.5] shrink-0" />
+                  <span>Commander</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
