@@ -432,10 +432,10 @@ export function AdminDashboardClient({
                 setActiveTab("orders")
                 setOrderFilter("pending_transfer")
               }}
-              className="inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-xs px-4 py-2.5 rounded-xl uppercase tracking-wider shrink-0 transition-all shadow-md active:scale-95 min-h-[40px]"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-xs px-4 py-2.5 rounded-xl uppercase tracking-wider shrink-0 transition-all shadow-md active:scale-95 min-h-[44px]"
             >
               <span>Vérifier les virements ({stats.pendingTransferCount})</span>
-              <Check className="w-4 h-4 stroke-[3]" />
+              <Check className="w-4 h-4 stroke-[3] shrink-0" />
             </button>
           </div>
         )}
@@ -803,66 +803,69 @@ export function AdminDashboardClient({
                       )}
 
                       {/* Barre d'Action Admin sur la commande */}
-                      <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-stone-800">
+                      <div className="pt-3 flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-t border-stone-800">
                         {/* Validation Virement Prioritaire */}
                         {isPendingTransfer && (
                           <button
                             type="button"
                             onClick={() => handleConfirmTransfer(ord.id)}
                             disabled={orderActionLoading === ord.id}
-                            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs px-4 py-2.5 rounded-xl uppercase tracking-wider transition-all shadow-md active:scale-95 disabled:opacity-50 min-h-[40px]"
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs px-4 py-3 sm:py-2.5 rounded-xl uppercase tracking-wider transition-all shadow-md active:scale-95 disabled:opacity-50 min-h-[44px] shrink-0 text-center"
                           >
                             {orderActionLoading === ord.id ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <Loader2 className="w-4 h-4 animate-spin shrink-0" />
                             ) : (
-                              <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
+                              <CheckCircle2 className="w-4 h-4 stroke-[2.5] shrink-0" />
                             )}
-                            <span>Valider la réception du virement</span>
+                            <span className="sm:hidden leading-tight">Valider le virement reçu</span>
+                            <span className="hidden sm:inline leading-tight">Valider la réception du virement</span>
                           </button>
                         )}
 
-                        {/* Progression du statut */}
-                        <div className="flex flex-wrap items-center gap-2 text-xs">
-                          <span className="text-stone-500 font-medium">Changer statut :</span>
-                          {ord.status !== "preparing" && (
-                            <button
-                              type="button"
-                              onClick={() => handleUpdateOrderStatus(ord.id, "preparing")}
-                              className="px-2.5 py-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-300 font-semibold border border-stone-800 transition-colors min-h-[36px]"
-                            >
-                              En préparation
-                            </button>
-                          )}
-                          {ord.status !== "out_for_delivery" && (
-                            <button
-                              type="button"
-                              onClick={() => handleUpdateOrderStatus(ord.id, "out_for_delivery")}
-                              className="px-2.5 py-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-purple-300 font-semibold border border-stone-800 transition-colors min-h-[36px]"
-                            >
-                              En livraison
-                            </button>
-                          )}
-                          {ord.status !== "delivered" && (
-                            <button
-                              type="button"
-                              onClick={() => handleUpdateOrderStatus(ord.id, "delivered")}
-                              className="px-2.5 py-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-emerald-400 font-semibold border border-stone-800 transition-colors min-h-[36px]"
-                            >
-                              Marquer livrée
-                            </button>
-                          )}
-                        </div>
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full lg:w-auto flex-1">
+                          {/* Progression du statut */}
+                          <div className="flex flex-wrap items-center gap-2 text-xs">
+                            <span className="text-stone-500 font-medium w-full sm:w-auto">Changer statut :</span>
+                            {ord.status !== "preparing" && (
+                              <button
+                                type="button"
+                                onClick={() => handleUpdateOrderStatus(ord.id, "preparing")}
+                                className="px-3 py-2 sm:py-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-300 font-semibold border border-stone-800 transition-colors min-h-[40px] sm:min-h-[36px]"
+                              >
+                                En préparation
+                              </button>
+                            )}
+                            {ord.status !== "out_for_delivery" && (
+                              <button
+                                type="button"
+                                onClick={() => handleUpdateOrderStatus(ord.id, "out_for_delivery")}
+                                className="px-3 py-2 sm:py-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-purple-300 font-semibold border border-stone-800 transition-colors min-h-[40px] sm:min-h-[36px]"
+                              >
+                                En livraison
+                              </button>
+                            )}
+                            {ord.status !== "delivered" && (
+                              <button
+                                type="button"
+                                onClick={() => handleUpdateOrderStatus(ord.id, "delivered")}
+                                className="px-3 py-2 sm:py-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-emerald-400 font-semibold border border-stone-800 transition-colors min-h-[40px] sm:min-h-[36px]"
+                              >
+                                Marquer livrée
+                              </button>
+                            )}
+                          </div>
 
-                        {/* Supprimer la commande */}
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteOrder(ord.id)}
-                          className="inline-flex items-center gap-1.5 text-xs text-rose-400 hover:text-rose-300 p-1.5 min-h-[36px]"
-                          title="Supprimer la commande"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                          <span>Supprimer</span>
-                        </button>
+                          {/* Supprimer la commande */}
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteOrder(ord.id)}
+                            className="inline-flex items-center justify-center sm:justify-start gap-1.5 text-xs text-rose-400 hover:text-rose-300 bg-rose-500/10 sm:bg-transparent border border-rose-500/20 sm:border-0 px-3 py-2 sm:p-1.5 rounded-lg min-h-[40px] sm:min-h-[36px] self-start sm:self-auto"
+                            title="Supprimer la commande"
+                          >
+                            <Trash2 className="w-4 h-4 shrink-0" />
+                            <span>Supprimer</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   )
