@@ -42,8 +42,10 @@ import {
   Monitor,
   KeyRound,
   Copy,
+  MessageSquare,
+  Send,
 } from "lucide-react"
-import type { Product } from "@/lib/supabase/database.types"
+import type { ContactMessage, Product } from "@/lib/supabase/database.types"
 import { formatPrice } from "@/lib/utils"
 import {
   getAdminDashboardData,
@@ -54,6 +56,9 @@ import {
   updateOrderStatusAction,
   deleteCustomerAction,
   deleteOrderAction,
+  replyToContactMessageAction,
+  markContactMessageReadAction,
+  deleteContactMessageAction,
   type ProductUpdateInput,
   type ProductCreateInput,
   type AdminCustomer,
@@ -64,6 +69,8 @@ interface AdminDashboardClientProps {
   initialProducts: Product[]
   initialOrders: any[]
   initialCustomers: AdminCustomer[]
+  initialContactMessages: ContactMessage[]
+  smtpConfigured: boolean
   initialStats: {
     totalCustomers: number
     totalOrders: number
@@ -72,7 +79,7 @@ interface AdminDashboardClientProps {
     activeDeliveriesCount: number
     totalProductsCount: number
   }
-  initialTab?: "products" | "orders" | "customers"
+  initialTab?: "products" | "orders" | "customers" | "messages"
   adminEmail: string
 }
 
@@ -139,12 +146,14 @@ export function AdminDashboardClient({
   initialProducts,
   initialOrders,
   initialCustomers,
+  initialContactMessages,
+  smtpConfigured,
   initialStats,
   initialTab = "orders",
   adminEmail,
 }: AdminDashboardClientProps) {
   // Navigation par Onglets
-  const [activeTab, setActiveTab] = useState<"products" | "orders" | "customers">(initialTab)
+  const [activeTab, setActiveTab] = useState<"products" | "orders" | "customers" | "messages">(initialTab)
 
   // États Produits
   const [products, setProducts] = useState<Product[]>(initialProducts)
@@ -169,6 +178,17 @@ export function AdminDashboardClient({
   const [copiedId, setCopiedId] = useState(false)
   const [customerToDelete, setCustomerToDelete] = useState<AdminCustomer | null>(null)
   const [customerDeleteLoading, setCustomerDeleteLoading] = useState(false)
+
+  // États Messagerie Contact
+  const [contactMessages, setContactMessages] = useState<ContactMessage[]>(initialContactMessages)
+  const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({})
+  const [replyLoadingId, setReplyLoadingId] = useState<string | null>(null)
+  const [messageFeedback, setMessageFeedback] = useState<{ type: "success" | "error"; text: string } | null>(null)
+
+  const unreadMessagesCount = useMemo(
+    () => contactMessages.filter((m) => m.status === "new").length,
+    [contactMessages]
+  )
 
   const router = useRouter()
 
@@ -207,6 +227,7 @@ export function AdminDashboardClient({
       setOrders(res.data.orders)
       setCustomers(res.data.customers)
       setProducts(res.data.products)
+      setContactMessages(res.data.contactMessages)
     }
   }, [])
 
@@ -274,6 +295,28 @@ export function AdminDashboardClient({
         { event: "*", schema: "public", table: "profiles" },
         () => {
           scheduleFullSync()
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "contact_messages" },
+        (payload) => {
+          if (payload.eventType === "INSERT") {
+            const newMsg = payload.new as ContactMessage
+            setContactMessages((prev) =>
+              prev.some((m) => m.id === newMsg.id) ? prev : [newMsg, ...prev]
+            )
+          } else if (payload.eventType === "UPDATE") {
+            const updated = payload.new as ContactMessage
+            setContactMessages((prev) =>
+              prev.map((m) => (m.id === updated.id ? updated : m))
+            )
+          } else if (payload.eventType === "DELETE") {
+            const oldId = (payload.old as any)?.id
+            if (oldId) {
+              setContactMessages((prev) => prev.filter((m) => m.id !== oldId))
+            }
+          }
         }
       )
       .subscribe()
@@ -526,6 +569,46 @@ export function AdminDashboardClient({
     }
   }
 
+  // ================= ACTIONS MESSAGERIE CONTACT =================
+  const handleMarkMessageRead = async (messageId: string) => {
+    const res = await markContactMessageReadAction(messageId)
+    if (res.success && res.message) {
+      setContactMessages((prev) => prev.map((m) => (m.id === messageId ? res.message! : m)))
+    }
+  }
+
+  const handleReplyMessage = async (messageId: string) => {
+    const reply = (replyDrafts[messageId] || "").trim()
+    if (!reply) return
+    setReplyLoadingId(messageId)
+    setMessageFeedback(null)
+
+    const res = await replyToContactMessageAction(messageId, reply)
+    setReplyLoadingId(null)
+
+    if (res.error) {
+      setMessageFeedback({ type: "error", text: res.error })
+    } else if (res.message) {
+      setContactMessages((prev) => prev.map((m) => (m.id === messageId ? res.message! : m)))
+      setReplyDrafts((prev) => ({ ...prev, [messageId]: "" }))
+      setMessageFeedback({
+        type: "success",
+        text: res.emailWarning
+          ? res.emailWarning
+          : "Réponse envoyée par email depuis contact@lena-directa.company !",
+      })
+      setTimeout(() => setMessageFeedback(null), 5000)
+    }
+  }
+
+  const handleDeleteMessage = async (messageId: string) => {
+    if (!confirm("Supprimer ce message client ?")) return
+    const res = await deleteContactMessageAction(messageId)
+    if (res.success) {
+      setContactMessages((prev) => prev.filter((m) => m.id !== messageId))
+    }
+  }
+
   return (
     <div className="bg-[#121110] min-h-screen text-stone-100 flex flex-col font-sans">
       {/* Barre Supérieure d'Administration */}
@@ -737,6 +820,24 @@ export function AdminDashboardClient({
           >
             <Package className="w-4 h-4" />
             <span>Gestion des Produits ({products.length})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("messages")}
+            className={`flex items-center gap-2 pb-3.5 px-3 text-xs sm:text-sm font-black border-b-2 transition-all whitespace-nowrap min-h-[44px] ${
+              activeTab === "messages"
+                ? "border-amber-500 text-amber-400"
+                : "border-transparent text-stone-400 hover:text-stone-200"
+            }`}
+          >
+            <MessageSquare className="w-4 h-4" />
+            <span>Messages Contact ({contactMessages.length})</span>
+            {unreadMessagesCount > 0 && (
+              <span className="text-[10px] bg-amber-500 text-stone-950 px-1.5 py-0.2 rounded-full font-black">
+                {unreadMessagesCount}
+              </span>
+            )}
           </button>
         </div>
 
@@ -1326,6 +1427,167 @@ export function AdminDashboardClient({
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* ================= ONGLET MESSAGES CONTACT & ZOHO MAIL ================= */}
+        {activeTab === "messages" && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h2 className="text-base font-bold text-stone-100">
+                  Boîte de Réception Formulaire Contact ({contactMessages.length})
+                </h2>
+                <p className="text-xs text-stone-400">
+                  Consultez les demandes envoyées depuis /contact et répondez directement via contact@lena-directa.company.
+                </p>
+              </div>
+
+              {smtpConfigured ? (
+                <span className="inline-flex items-center gap-2 text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3.5 py-2 rounded-xl self-start sm:self-auto">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>Zoho Mail SMTP Actif (contact@lena-directa.company)</span>
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-2 text-xs font-bold text-amber-300 bg-amber-500/10 border border-amber-500/30 px-3.5 py-2 rounded-xl self-start sm:self-auto">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>En attente du mot de passe Zoho SMTP pour l&apos;envoi email direct</span>
+                </span>
+              )}
+            </div>
+
+            {messageFeedback && (
+              <div
+                className={`p-4 rounded-xl text-xs font-bold border flex items-center gap-2 ${
+                  messageFeedback.type === "success"
+                    ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
+                    : "bg-rose-500/10 border-rose-500/30 text-rose-300"
+                }`}
+              >
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <span>{messageFeedback.text}</span>
+              </div>
+            )}
+
+            {contactMessages.length === 0 ? (
+              <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-10 text-center space-y-2">
+                <MessageSquare className="w-8 h-8 text-stone-600 mx-auto" />
+                <div className="text-sm font-bold text-stone-300">Aucun message reçu pour le moment</div>
+                <p className="text-xs text-stone-500">
+                  Les messages envoyés par vos visiteurs sur /contact apparaîtront ici en temps réel.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {contactMessages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={`bg-[#1c1917] border-2 rounded-2xl p-5 space-y-4 ${
+                      msg.status === "new" ? "border-amber-500/60" : "border-stone-800"
+                    }`}
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-stone-800">
+                      <div className="space-y-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="font-bold text-stone-100 text-sm">{msg.full_name}</span>
+                          <span
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${
+                              msg.status === "new"
+                                ? "bg-amber-500 text-stone-950 border-amber-400"
+                                : msg.status === "replied"
+                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                                : "bg-stone-800 text-stone-300 border-stone-700"
+                            }`}
+                          >
+                            {msg.status === "new" ? "Nouveau" : msg.status === "replied" ? "Répondu" : "Lu"}
+                          </span>
+                          {msg.email_dispatched && (
+                            <span className="text-[10px] text-emerald-400 font-semibold">
+                              • Transmis Zoho Mail
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-xs text-stone-400 flex flex-wrap gap-3">
+                          <a href={`mailto:${msg.email}`} className="text-amber-400 hover:underline font-medium">
+                            {msg.email}
+                          </a>
+                          <a href={`tel:${msg.phone}`} className="text-stone-300 hover:text-amber-400">
+                            {msg.phone}
+                          </a>
+                          <span>{new Date(msg.created_at).toLocaleString("fr-FR")}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {msg.status === "new" && (
+                          <button
+                            type="button"
+                            onClick={() => handleMarkMessageRead(msg.id)}
+                            className="text-xs font-bold px-3 py-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-700 min-h-[36px]"
+                          >
+                            Marquer lu
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteMessage(msg.id)}
+                          className="text-xs text-rose-400 hover:text-rose-300 p-2 rounded-lg hover:bg-rose-500/10"
+                          title="Supprimer"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <div className="text-[11px] font-bold uppercase tracking-wider text-amber-500">
+                        Objet : {msg.subject}
+                      </div>
+                      <p className="text-xs sm:text-sm text-stone-200 bg-stone-950/70 border border-stone-800 rounded-xl p-3.5 whitespace-pre-line leading-relaxed">
+                        {msg.message}
+                      </p>
+                    </div>
+
+                    {msg.admin_reply && (
+                      <div className="bg-emerald-950/20 border border-emerald-500/30 rounded-xl p-3.5 text-xs space-y-1">
+                        <div className="font-bold text-emerald-400">
+                          Votre réponse ({msg.replied_at ? new Date(msg.replied_at).toLocaleString("fr-FR") : ""}) :
+                        </div>
+                        <p className="text-stone-300 whitespace-pre-line">{msg.admin_reply}</p>
+                      </div>
+                    )}
+
+                    {/* Zone de réponse directe */}
+                    <div className="pt-2 space-y-2">
+                      <textarea
+                        rows={2}
+                        placeholder={`Répondre à ${msg.full_name} (${msg.email}) depuis contact@lena-directa.company...`}
+                        value={replyDrafts[msg.id] || ""}
+                        onChange={(e) =>
+                          setReplyDrafts((prev) => ({ ...prev, [msg.id]: e.target.value }))
+                        }
+                        className="w-full bg-stone-950 border border-stone-800 focus:border-amber-500 rounded-xl p-3 text-xs text-stone-100 placeholder:text-stone-600 outline-none"
+                      />
+                      <div className="flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() => handleReplyMessage(msg.id)}
+                          disabled={replyLoadingId === msg.id || !(replyDrafts[msg.id] || "").trim()}
+                          className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-xs px-4 py-2.5 rounded-xl uppercase tracking-wider transition-all min-h-[40px] disabled:opacity-50"
+                        >
+                          {replyLoadingId === msg.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Send className="w-4 h-4" />
+                          )}
+                          <span>Envoyer la réponse par email</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </main>

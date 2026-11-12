@@ -4,7 +4,12 @@ import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
-import type { Product } from "@/lib/supabase/database.types"
+import {
+  isSmtpConfigured,
+  sendAdminContactReplyEmail,
+  sendOrderStatusUpdateEmail,
+} from "@/lib/email/mailer"
+import type { ContactMessage, Product } from "@/lib/supabase/database.types"
 
 // ================= SCHÉMAS DE VALIDATION ZOD STRICTS =================
 const productUpdateSchema = z.object({
@@ -270,6 +275,8 @@ export interface AdminDashboardPayload {
   products: Product[]
   orders: any[]
   customers: AdminCustomer[]
+  contactMessages: ContactMessage[]
+  smtpConfigured: boolean
   stats: {
     totalCustomers: number
     totalOrders: number
@@ -289,7 +296,7 @@ export async function getAdminDashboardData(): Promise<{ data: AdminDashboardPay
   try {
     const adminSupabase = createAdminClient()
 
-    const [usersRes, profilesRes, ordersRes, productsRes, sessionsRes] = await Promise.all([
+    const [usersRes, profilesRes, ordersRes, productsRes, sessionsRes, messagesRes] = await Promise.all([
       adminSupabase.auth.admin.listUsers({ perPage: 1000 }),
       adminSupabase.from("profiles").select("*"),
       adminSupabase.from("orders").select("*").order("created_at", { ascending: false }),
@@ -298,12 +305,14 @@ export async function getAdminDashboardData(): Promise<{ data: AdminDashboardPay
         (res: any) => res,
         () => ({ data: [] })
       ),
+      adminSupabase.from("contact_messages").select("*").order("created_at", { ascending: false }),
     ])
 
     const authUsers = usersRes.data?.users || []
     const profiles = profilesRes.data || []
     const orders = ordersRes.data || []
     const products = productsRes.data || []
+    const contactMessages = messagesRes.data || []
     const allSessions: Array<{
       user_id: string
       ip: string | null
@@ -433,6 +442,8 @@ export async function getAdminDashboardData(): Promise<{ data: AdminDashboardPay
         products,
         orders,
         customers,
+        contactMessages,
+        smtpConfigured: isSmtpConfigured(),
         stats: {
           totalCustomers: customers.length,
           totalOrders: orders.length,
@@ -487,6 +498,21 @@ export async function confirmOrderPaymentAction(orderId: string) {
       return { error: updateErr.message }
     }
 
+    // Notification email au client que son virement est validé
+    if (updatedOrder) {
+      try {
+        await sendOrderStatusUpdateEmail({
+          orderId: updatedOrder.id,
+          orderNumber: updatedOrder.order_number,
+          customerName: updatedOrder.customer_name,
+          customerEmail: updatedOrder.customer_email,
+          newStatus: "paid",
+        })
+      } catch (mailErr) {
+        console.warn("Payment confirmed email error (non-blocking):", mailErr)
+      }
+    }
+
     revalidatePath("/admin")
     revalidatePath("/mon-compte")
     revalidatePath(`/confirmation/${orderId}`)
@@ -534,6 +560,21 @@ export async function updateOrderStatusAction(orderId: string, newStatus: string
 
     if (updateErr) {
       return { error: updateErr.message }
+    }
+
+    // Notification email au client selon l'avancement logistique
+    if (updatedOrder && ["preparing", "out_for_delivery", "delivered"].includes(newStatus)) {
+      try {
+        await sendOrderStatusUpdateEmail({
+          orderId: updatedOrder.id,
+          orderNumber: updatedOrder.order_number,
+          customerName: updatedOrder.customer_name,
+          customerEmail: updatedOrder.customer_email,
+          newStatus,
+        })
+      } catch (mailErr) {
+        console.warn("Order status email error (non-blocking):", mailErr)
+      }
     }
 
     revalidatePath("/admin")
@@ -596,5 +637,104 @@ export async function deleteOrderAction(orderId: string) {
     return { success: true }
   } catch (err: any) {
     return { error: err?.message || "Erreur lors de la suppression de la commande" }
+  }
+}
+
+// ================= MESSAGERIE CONTACT CLIENT =================
+export async function markContactMessageReadAction(messageId: string) {
+  const { isAdmin } = await verifyAdminSession()
+  if (!isAdmin) {
+    return { error: "Accès non autorisé." }
+  }
+
+  try {
+    const adminSupabase = createAdminClient()
+    const { data: updated, error } = await adminSupabase
+      .from("contact_messages")
+      .update({ status: "read" })
+      .eq("id", messageId)
+      .select()
+      .single()
+
+    if (error) return { error: error.message }
+    revalidatePath("/admin")
+    return { success: true, message: updated }
+  } catch (err: any) {
+    return { error: err?.message || "Erreur lors de la mise à jour" }
+  }
+}
+
+export async function replyToContactMessageAction(messageId: string, replyText: string) {
+  const { isAdmin } = await verifyAdminSession()
+  if (!isAdmin) {
+    return { error: "Accès non autorisé." }
+  }
+
+  if (!replyText || replyText.trim().length < 2) {
+    return { error: "Veuillez saisir une réponse." }
+  }
+
+  try {
+    const adminSupabase = createAdminClient()
+    const { data: msg, error: fetchErr } = await adminSupabase
+      .from("contact_messages")
+      .select("*")
+      .eq("id", messageId)
+      .single()
+
+    if (fetchErr || !msg) {
+      return { error: "Message introuvable." }
+    }
+
+    const emailRes = await sendAdminContactReplyEmail({
+      to: msg.email,
+      clientName: msg.full_name,
+      subjectLabel: msg.subject,
+      originalMessage: msg.message,
+      replyText: replyText.trim(),
+    })
+
+    const { data: updated, error: updateErr } = await adminSupabase
+      .from("contact_messages")
+      .update({
+        status: "replied",
+        admin_reply: replyText.trim(),
+        replied_at: new Date().toISOString(),
+        email_dispatched: emailRes.sent || msg.email_dispatched,
+      })
+      .eq("id", messageId)
+      .select()
+      .single()
+
+    if (updateErr) {
+      return { error: updateErr.message }
+    }
+
+    revalidatePath("/admin")
+    return {
+      success: true,
+      message: updated,
+      emailSent: emailRes.sent,
+      emailWarning: emailRes.sent ? null : "Réponse enregistrée, mais SMTP Zoho non configuré pour l'envoi automatique.",
+    }
+  } catch (err: any) {
+    return { error: err?.message || "Erreur lors de l'envoi de la réponse" }
+  }
+}
+
+export async function deleteContactMessageAction(messageId: string) {
+  const { isAdmin } = await verifyAdminSession()
+  if (!isAdmin) {
+    return { error: "Accès non autorisé." }
+  }
+
+  try {
+    const adminSupabase = createAdminClient()
+    const { error } = await adminSupabase.from("contact_messages").delete().eq("id", messageId)
+    if (error) return { error: error.message }
+    revalidatePath("/admin")
+    return { success: true }
+  } catch (err: any) {
+    return { error: err?.message || "Erreur lors de la suppression" }
   }
 }

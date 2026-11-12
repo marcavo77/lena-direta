@@ -9,6 +9,48 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      contact_messages: {
+        Row: {
+          admin_reply: string | null
+          created_at: string
+          email: string
+          email_dispatched: boolean
+          full_name: string
+          id: string
+          message: string
+          phone: string
+          replied_at: string | null
+          status: string
+          subject: string
+        }
+        Insert: {
+          admin_reply?: string | null
+          created_at?: string
+          email: string
+          email_dispatched?: boolean
+          full_name: string
+          id?: string
+          message: string
+          phone: string
+          replied_at?: string | null
+          status?: string
+          subject: string
+        }
+        Update: {
+          admin_reply?: string | null
+          created_at?: string
+          email?: string
+          email_dispatched?: boolean
+          full_name?: string
+          id?: string
+          message?: string
+          phone?: string
+          replied_at?: string | null
+          status?: string
+          subject?: string
+        }
+        Relationships: []
+      }
       delivery_zones: {
         Row: {
           base_delivery_fee_cents: number
@@ -232,3 +274,4 @@ export type Product = Database["public"]["Tables"]["products"]["Row"]
 export type DeliveryZone = Database["public"]["Tables"]["delivery_zones"]["Row"]
 export type Order = Database["public"]["Tables"]["orders"]["Row"]
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"]
+export type ContactMessage = Database["public"]["Tables"]["contact_messages"]["Row"]

@@ -24,7 +24,9 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   const resolvedParams = await searchParams
   const rawTab = resolvedParams?.tab
   const initialTab =
-    rawTab === "customers" || rawTab === "products" || rawTab === "orders" ? rawTab : "orders"
+    rawTab === "customers" || rawTab === "products" || rawTab === "orders" || rawTab === "messages"
+      ? rawTab
+      : "orders"
 
   const { data, error } = await getAdminDashboardData()
 
@@ -44,6 +46,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
       initialProducts={data.products}
       initialOrders={data.orders}
       initialCustomers={data.customers}
+      initialContactMessages={data.contactMessages}
+      smtpConfigured={data.smtpConfigured}
       initialStats={data.stats}
       initialTab={initialTab}
       adminEmail={user?.email || "admin@lena-directa.company"}

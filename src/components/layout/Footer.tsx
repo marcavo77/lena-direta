@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Flame, ShieldCheck, Truck, Clock, Award } from "lucide-react"
+import { Flame, ShieldCheck, Truck, Clock, Award, Mail } from "lucide-react"
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon"
 
 export function Footer() {
@@ -64,15 +64,24 @@ export function Footer() {
           <p className="text-xs text-stone-400 max-w-sm leading-relaxed">
             Exploitant forestier et négoce en bois de chauffage dur (Chêne, Charme, Hêtre), granulés de bois certifiés Din+ et bûches densifiées. Livraison directe au garage par camion tout-terrain.
           </p>
-          <a
-            href="https://wa.me/34672868332"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-4 inline-flex items-center gap-2 text-xs text-stone-300 hover:text-emerald-400 transition-colors"
-          >
-            <WhatsAppIcon className="w-4 h-4 text-emerald-500 shrink-0" />
-            <span>Discussion WhatsApp &amp; commandes : <strong>+34 672 86 83 32</strong></span>
-          </a>
+          <div className="mt-4 flex flex-col gap-2">
+            <a
+              href="https://wa.me/34672868332"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-xs text-stone-300 hover:text-emerald-400 transition-colors"
+            >
+              <WhatsAppIcon className="w-4 h-4 text-emerald-500 shrink-0" />
+              <span>Discussion WhatsApp &amp; commandes : <strong>+34 672 86 83 32</strong></span>
+            </a>
+            <a
+              href="mailto:contact@lena-directa.company"
+              className="inline-flex items-center gap-2 text-xs text-stone-300 hover:text-amber-400 transition-colors"
+            >
+              <Mail className="w-4 h-4 text-amber-500 shrink-0" />
+              <span>Email pro : <strong>contact@lena-directa.company</strong></span>
+            </a>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-8 text-xs">

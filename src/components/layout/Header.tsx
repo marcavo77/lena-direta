@@ -235,6 +235,16 @@ export function Header() {
                               <span>Clients Inscrits</span>
                               <span className="text-amber-400 text-[11px]">→</span>
                             </Link>
+
+                            <Link
+                              href="/admin?tab=messages"
+                              prefetch={false}
+                              onClick={() => setUserMenuOpen(false)}
+                              className="flex items-center justify-between px-3 py-2 text-stone-200 hover:bg-stone-800 rounded-lg font-medium hover:text-amber-400 transition-colors"
+                            >
+                              <span>Messages Contact</span>
+                              <span className="text-amber-400 text-[11px]">→</span>
+                            </Link>
                           </>
                         ) : (
                           <>

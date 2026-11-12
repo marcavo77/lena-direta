@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { LOCAL_PRODUCTS } from "@/lib/products"
+import { formatPrice } from "@/lib/utils"
+import { sendOrderCreatedEmails, sendMail } from "@/lib/email/mailer"
 import type { Product } from "@/lib/supabase/database.types"
 
 // Schéma de validation Zod strict pour la création de commande
@@ -253,6 +255,25 @@ export async function createOrder(input: CreateOrderInput) {
       }
     }
 
+    // Envoi email confirmation commande + alerte admin via contact@lena-directa.company
+    try {
+      await sendOrderCreatedEmails({
+        orderId: createdOrder.id,
+        orderNumber: createdOrder.order_number,
+        customerName,
+        customerEmail,
+        customerPhone,
+        totalFormatted: formatPrice(totalCents),
+        items: snapshotItems.map((it) => ({
+          name: it.name,
+          quantity: it.quantity,
+          totalFormatted: formatPrice(it.total_cents),
+        })),
+      })
+    } catch (mailErr) {
+      console.warn("Order email send error (non-blocking):", mailErr)
+    }
+
     revalidatePath("/admin")
     revalidatePath("/mon-compte")
 
@@ -312,6 +333,19 @@ export async function notifyTransferSent(orderId: string, reference?: string) {
     if (updateErr) {
       console.error("Error updating transfer notified status:", updateErr)
       return { success: false, error: "Erreur lors de la mise à jour du statut." }
+    }
+
+    // Alerte email immédiate à l'admin sur contact@lena-directa.company
+    try {
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.lena-directa.company"
+      await sendMail({
+        to: process.env.CONTACT_RECEIVER_EMAIL || "contact@lena-directa.company",
+        subject: `[Virement Signalé] Commande ${existing.order_number}`,
+        text: `Un client vient de signaler que le virement pour la commande ${existing.order_number} a été effectué.\n${reference ? `Référence fournie : ${reference}\n` : ""}Vérifiez et validez sur : ${siteUrl}/admin`,
+        html: `<p>Un client vient de signaler que le virement pour la commande <strong>${existing.order_number}</strong> a été effectué.</p>${reference ? `<p>Référence fournie : <strong>${reference}</strong></p>` : ""}<p><a href="${siteUrl}/admin">Ouvrir le Tableau de Bord Admin pour valider →</a></p>`,
+      })
+    } catch (mailErr) {
+      console.warn("Transfer notification email error (non-blocking):", mailErr)
     }
 
     revalidatePath("/admin")

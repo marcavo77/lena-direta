@@ -19,22 +19,35 @@ import {
   Flame,
 } from "lucide-react"
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon"
+import { submitContactMessageAction } from "@/app/actions/contact"
 
 export default function ContactPage() {
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setSubmitting(true)
     setError(null)
 
-    // Simulation de transmission sécurisée au service client
-    setTimeout(() => {
-      setSubmitting(false)
-      setSuccess(true)
-    }, 800)
+    const form = new FormData(e.currentTarget)
+    const res = await submitContactMessageAction({
+      fullName: (form.get("fullName") as string) || "",
+      phone: (form.get("phone") as string) || "",
+      email: (form.get("email") as string) || "",
+      subject: (form.get("subject") as string) || "",
+      message: (form.get("message") as string) || "",
+    })
+
+    setSubmitting(false)
+
+    if (!res.success) {
+      setError(res.error || "Une erreur est survenue lors de la transmission.")
+      return
+    }
+
+    setSuccess(true)
   }
 
   return (
@@ -90,14 +103,21 @@ export default function ContactPage() {
               </div>
 
               {success ? (
-                <div className="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs sm:text-sm space-y-2 text-center">
+                <div className="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs sm:text-sm space-y-3 text-center">
                   <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto" />
                   <div className="font-bold text-base text-stone-100">
                     Message transmis avec succès !
                   </div>
                   <p className="text-stone-300 leading-relaxed max-w-md mx-auto">
-                    Merci pour votre prise de contact. Notre responsable logistique ou commercial traitera votre demande dans les plus brefs délais.
+                    Merci pour votre prise de contact. Notre équipe à <strong className="text-amber-400">contact@lena-directa.company</strong> a bien reçu votre demande et vous répondra sous 24h ouvrées.
                   </p>
+                  <button
+                    type="button"
+                    onClick={() => setSuccess(false)}
+                    className="mt-2 inline-flex items-center justify-center px-4 py-2 rounded-xl bg-stone-900 hover:bg-stone-800 border border-stone-700 text-stone-200 font-bold text-xs transition-colors min-h-[40px]"
+                  >
+                    Envoyer un autre message
+                  </button>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4 text-xs">
@@ -247,6 +267,33 @@ export default function ContactPage() {
                 </div>
               </div>
 
+              {/* Email Professionnel Direct */}
+              <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-6 space-y-3 text-xs">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-500 flex items-center justify-center shrink-0">
+                    <Mail className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-500">
+                      Messagerie Officielle Scierie
+                    </span>
+                    <h3 className="font-bold text-base text-stone-100">
+                      contact@lena-directa.company
+                    </h3>
+                  </div>
+                </div>
+                <p className="text-stone-400 leading-relaxed">
+                  Pour vos demandes de devis personnalisés, factures ou justificatifs de virement.
+                </p>
+                <a
+                  href="mailto:contact@lena-directa.company"
+                  className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-stone-900 hover:bg-stone-800 border border-stone-700 hover:border-amber-500/40 text-amber-400 font-bold text-xs transition-colors min-h-[44px]"
+                >
+                  <Mail className="w-4 h-4" />
+                  <span>Écrire à contact@lena-directa.company</span>
+                </a>
+              </div>
+
               {/* RIB & Comptabilité */}
               <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-6 space-y-3 text-xs">
                 <div className="flex items-center gap-3">
@@ -264,7 +311,10 @@ export default function ContactPage() {
                 </div>
 
                 <p className="text-stone-400 leading-relaxed text-[11px]">
-                  Pour tout justificatif de virement, transmettez l&apos;avis bancaire avec votre numéro de commande à <strong className="text-stone-200">contact@lenadirecta.fr</strong>.
+                  Pour tout justificatif de virement, transmettez l&apos;avis bancaire avec votre numéro de commande à{" "}
+                  <a href="mailto:contact@lena-directa.company" className="text-amber-400 font-bold hover:underline">
+                    contact@lena-directa.company
+                  </a>.
                 </p>
               </div>
             </div>
