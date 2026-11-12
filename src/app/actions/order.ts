@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { LOCAL_PRODUCTS } from "@/lib/products"
 import { formatPrice } from "@/lib/utils"
-import { sendOrderCreatedEmails, sendMail } from "@/lib/email/mailer"
+import { sendOrderCreatedEmails, sendTransferNotifiedAdminEmail } from "@/lib/email/mailer"
 import type { Product } from "@/lib/supabase/database.types"
 
 // Schéma de validation Zod strict pour la création de commande
@@ -305,7 +305,7 @@ export async function notifyTransferSent(orderId: string, reference?: string) {
 
     const { data: existing, error: fetchErr } = await adminSupabase
       .from("orders")
-      .select("id, status, payment_status, order_number, admin_notes")
+      .select("id, status, payment_status, order_number, admin_notes, customer_name, customer_email, total_cents")
       .eq("id", orderId)
       .single()
 
@@ -337,12 +337,12 @@ export async function notifyTransferSent(orderId: string, reference?: string) {
 
     // Alerte email immédiate à l'admin sur contact@lena-directa.company
     try {
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.lena-directa.company"
-      await sendMail({
-        to: process.env.CONTACT_RECEIVER_EMAIL || "contact@lena-directa.company",
-        subject: `[Virement Signalé] Commande ${existing.order_number}`,
-        text: `Un client vient de signaler que le virement pour la commande ${existing.order_number} a été effectué.\n${reference ? `Référence fournie : ${reference}\n` : ""}Vérifiez et validez sur : ${siteUrl}/admin`,
-        html: `<p>Un client vient de signaler que le virement pour la commande <strong>${existing.order_number}</strong> a été effectué.</p>${reference ? `<p>Référence fournie : <strong>${reference}</strong></p>` : ""}<p><a href="${siteUrl}/admin">Ouvrir le Tableau de Bord Admin pour valider →</a></p>`,
+      await sendTransferNotifiedAdminEmail({
+        orderNumber: existing.order_number,
+        customerName: existing.customer_name,
+        customerEmail: existing.customer_email,
+        totalFormatted: formatPrice(existing.total_cents),
+        reference,
       })
     } catch (mailErr) {
       console.warn("Transfer notification email error (non-blocking):", mailErr)

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
+import { sendSignupEmails } from "@/lib/email/mailer"
 
 export async function loginAction(formData: FormData) {
   const email = (formData.get("email") as string)?.trim().toLowerCase()
@@ -76,9 +77,21 @@ export async function signupAction(formData: FormData) {
       email,
       password,
     })
+
+    // Envoi automatique des emails personnalisés (Bienvenue Client + Notification Admin)
+    try {
+      await sendSignupEmails({
+        fullName,
+        email,
+        phone: phone || undefined,
+      })
+    } catch (mailErr) {
+      console.warn("Signup email send error (non-blocking):", mailErr)
+    }
   }
 
   revalidatePath("/", "layout")
+  revalidatePath("/admin")
   return { success: true }
 }
 
