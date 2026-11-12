@@ -1,7 +1,9 @@
 "use server"
 
 import { z } from "zod"
+import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { LOCAL_PRODUCTS } from "@/lib/products"
 import type { Product } from "@/lib/supabase/database.types"
 
@@ -251,6 +253,9 @@ export async function createOrder(input: CreateOrderInput) {
       }
     }
 
+    revalidatePath("/admin")
+    revalidatePath("/mon-compte")
+
     return {
       success: true,
       orderId: createdOrder.id,
@@ -270,9 +275,14 @@ export async function createOrder(input: CreateOrderInput) {
  */
 export async function notifyTransferSent(orderId: string, reference?: string) {
   try {
-    const supabase = await createClient()
+    const idCheck = z.string().uuid().safeParse(orderId)
+    if (!idCheck.success) {
+      return { success: false, error: "Identifiant de commande invalide." }
+    }
 
-    const { data: existing, error: fetchErr } = await supabase
+    const adminSupabase = createAdminClient()
+
+    const { data: existing, error: fetchErr } = await adminSupabase
       .from("orders")
       .select("id, status, payment_status, order_number, admin_notes")
       .eq("id", orderId)
@@ -287,13 +297,14 @@ export async function notifyTransferSent(orderId: string, reference?: string) {
       : `\nVirement bancaire signalé par le client le ${new Date().toLocaleString("fr-FR")}`
 
     const updatedNotes = ((existing.admin_notes || "") + noteAppend).trim()
+    const notifiedAt = new Date().toISOString()
 
-    const { error: updateErr } = await supabase
+    const { error: updateErr } = await adminSupabase
       .from("orders")
       .update({
         payment_status: "transfer_notified",
         status: "payment_notified",
-        payment_notified_at: new Date().toISOString(),
+        payment_notified_at: notifiedAt,
         admin_notes: updatedNotes,
       })
       .eq("id", orderId)
@@ -303,14 +314,68 @@ export async function notifyTransferSent(orderId: string, reference?: string) {
       return { success: false, error: "Erreur lors de la mise à jour du statut." }
     }
 
-    const { revalidatePath } = await import("next/cache")
     revalidatePath("/admin")
     revalidatePath("/mon-compte")
     revalidatePath(`/confirmation/${orderId}`)
 
-    return { success: true }
+    return {
+      success: true,
+      status: "payment_notified",
+      payment_status: "transfer_notified",
+      payment_notified_at: notifiedAt,
+    }
   } catch (err) {
     console.error("notifyTransferSent error:", err)
     return { success: false, error: "Erreur serveur lors de la notification." }
+  }
+}
+
+/**
+ * Récupère en direct le statut d'une commande spécifique (utilisé pour mise à jour sans rechargement)
+ */
+export async function getOrderLiveStatusAction(orderId: string) {
+  try {
+    const idCheck = z.string().uuid().safeParse(orderId)
+    if (!idCheck.success) return null
+
+    const supabase = await createClient()
+    const { data, error } = await supabase.rpc("get_order_by_id", {
+      p_order_id: orderId,
+    })
+
+    if (error || !data || data.length === 0) return null
+    const ord = data[0]
+    return {
+      id: ord.id,
+      status: ord.status,
+      payment_status: ord.payment_status,
+      payment_notified_at: ord.payment_notified_at,
+    }
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Récupère en direct les commandes du client connecté
+ */
+export async function getMyOrdersLiveAction() {
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) return null
+
+    const { data: orders } = await supabase
+      .from("orders")
+      .select("*")
+      .or(`user_id.eq.${user.id},customer_email.eq.${user.email}`)
+      .order("created_at", { ascending: false })
+
+    return orders || []
+  } catch {
+    return null
   }
 }

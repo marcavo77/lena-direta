@@ -25,8 +25,8 @@ import {
   Sparkles,
 } from "lucide-react"
 
-// Mise en cache CDN Vercel & régénération en arrière-plan toutes les 60 secondes pour une navigation instantanée
-export const revalidate = 60
+// Rendu dynamique temps réel pour refléter immédiatement toute mise à jour catalogue
+export const dynamic = "force-dynamic"
 
 export default async function HomePage() {
   // Récupération de tous les combustibles actifs (y compris la gamme Charbon de Bois)

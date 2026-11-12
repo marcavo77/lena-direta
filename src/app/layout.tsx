@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import NextTopLoader from "nextjs-toploader"
+import { RealtimeProductsSync } from "@/components/realtime/RealtimeProductsSync"
 import "./globals.css"
 
 const geistSans = Geist({
@@ -88,6 +89,7 @@ export default function RootLayout({
           speed={200}
           shadow="0 0 10px #f59e0b,0 0 5px #f59e0b"
         />
+        <RealtimeProductsSync />
         {children}
       </body>
     </html>

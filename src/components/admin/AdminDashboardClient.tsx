@@ -1,8 +1,10 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect, useCallback } from "react"
+import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
+import { createClient } from "@/lib/supabase/client"
 import {
   Flame,
   Search,
@@ -44,6 +46,7 @@ import {
 import type { Product } from "@/lib/supabase/database.types"
 import { formatPrice } from "@/lib/utils"
 import {
+  getAdminDashboardData,
   updateProductAction,
   createProductAction,
   toggleProductStatusAction,
@@ -167,8 +170,136 @@ export function AdminDashboardClient({
   const [customerToDelete, setCustomerToDelete] = useState<AdminCustomer | null>(null)
   const [customerDeleteLoading, setCustomerDeleteLoading] = useState(false)
 
-  // Stats dynamiques
-  const [stats, setStats] = useState(initialStats)
+  const router = useRouter()
+
+  // Calcul réactif des statistiques à partir des listes en direct (toujours synchronisé)
+  const stats = useMemo(() => {
+    let pendingTransferCount = 0
+    let totalRevenueCents = 0
+    let activeDeliveriesCount = 0
+
+    for (const ord of orders) {
+      if (ord.payment_status === "transfer_notified" || ord.status === "payment_notified") {
+        pendingTransferCount += 1
+      }
+      if (ord.payment_status === "paid" || ord.status === "paid" || ord.status === "delivered") {
+        totalRevenueCents += ord.total_cents || 0
+      }
+      if (ord.status === "preparing" || ord.status === "out_for_delivery") {
+        activeDeliveriesCount += 1
+      }
+    }
+
+    return {
+      totalCustomers: customers.length,
+      totalOrders: orders.length,
+      pendingTransferCount,
+      totalRevenueCents,
+      activeDeliveriesCount,
+      totalProductsCount: products.length,
+    }
+  }, [orders, customers, products])
+
+  // Synchronisation complète avec la base (pour métadonnées auth, compteurs clients, etc.)
+  const syncDashboardFromServer = useCallback(async () => {
+    const res = await getAdminDashboardData()
+    if (res.data) {
+      setOrders(res.data.orders)
+      setCustomers(res.data.customers)
+      setProducts(res.data.products)
+    }
+  }, [])
+
+  // Écoute Supabase Realtime (Commandes, Produits, Profils Clients) sans rafraîchissement manuel
+  useEffect(() => {
+    const supabase = createClient()
+    let syncTimer: ReturnType<typeof setTimeout> | null = null
+
+    const scheduleFullSync = () => {
+      if (syncTimer) clearTimeout(syncTimer)
+      syncTimer = setTimeout(() => {
+        syncDashboardFromServer()
+      }, 350)
+    }
+
+    const channel = supabase
+      .channel("admin-realtime-dashboard")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "orders" },
+        (payload) => {
+          if (payload.eventType === "INSERT") {
+            const newOrd = payload.new as any
+            setOrders((prev) => (prev.some((o) => o.id === newOrd.id) ? prev : [newOrd, ...prev]))
+          } else if (payload.eventType === "UPDATE") {
+            const updated = payload.new as any
+            setOrders((prev) =>
+              prev.some((o) => o.id === updated.id)
+                ? prev.map((o) => (o.id === updated.id ? updated : o))
+                : [updated, ...prev]
+            )
+          } else if (payload.eventType === "DELETE") {
+            const oldId = (payload.old as any)?.id
+            if (oldId) {
+              setOrders((prev) => prev.filter((o) => o.id !== oldId))
+            }
+          }
+          scheduleFullSync()
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "products" },
+        (payload) => {
+          if (payload.eventType === "INSERT") {
+            const newProd = payload.new as Product
+            setProducts((prev) => (prev.some((p) => p.id === newProd.id) ? prev : [newProd, ...prev]))
+          } else if (payload.eventType === "UPDATE") {
+            const updated = payload.new as Product
+            setProducts((prev) =>
+              prev.some((p) => p.id === updated.id)
+                ? prev.map((p) => (p.id === updated.id ? updated : p))
+                : [updated, ...prev]
+            )
+          } else if (payload.eventType === "DELETE") {
+            const oldId = (payload.old as any)?.id
+            if (oldId) {
+              setProducts((prev) => prev.filter((p) => p.id !== oldId))
+            }
+          }
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "profiles" },
+        () => {
+          scheduleFullSync()
+        }
+      )
+      .subscribe()
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        syncDashboardFromServer()
+      }
+    }
+
+    // Secours périodique doux si l'onglet reste ouvert
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        syncDashboardFromServer()
+      }
+    }, 20000)
+
+    document.addEventListener("visibilitychange", handleVisibility)
+
+    return () => {
+      if (syncTimer) clearTimeout(syncTimer)
+      clearInterval(interval)
+      document.removeEventListener("visibilitychange", handleVisibility)
+      supabase.removeChannel(channel)
+    }
+  }, [syncDashboardFromServer])
 
   // ================= FILTRES PRODUITS =================
   const filteredProducts = useMemo(() => {
@@ -232,6 +363,7 @@ export function AdminDashboardClient({
       setProducts((prev) =>
         prev.map((p) => (p.id === product.id ? { ...p, is_active: res.newStatus } : p))
       )
+      router.refresh()
     }
   }
 
@@ -275,6 +407,7 @@ export function AdminDashboardClient({
     } else if (res.product) {
       setProducts((prev) => prev.map((p) => (p.id === res.product!.id ? res.product! : p)))
       setProductFeedback({ type: "success", message: `Produit "${res.product.name}" mis à jour avec succès !` })
+      router.refresh()
       setTimeout(() => {
         setEditingProduct(null)
         setProductFeedback(null)
@@ -321,6 +454,7 @@ export function AdminDashboardClient({
     } else if (res.product) {
       setProducts((prev) => [res.product!, ...prev])
       setProductFeedback({ type: "success", message: `Nouveau produit "${res.product.name}" créé avec succès !` })
+      router.refresh()
       setTimeout(() => {
         setIsCreatingProduct(false)
         setProductFeedback(null)
@@ -339,14 +473,13 @@ export function AdminDashboardClient({
     } else {
       setOrders((prev) =>
         prev.map((o) =>
-          o.id === orderId ? { ...o, status: "paid", payment_status: "paid" } : o
+          o.id === orderId
+            ? res.order || { ...o, status: "paid", payment_status: "paid" }
+            : o
         )
       )
-      setStats((prev) => ({
-        ...prev,
-        pendingTransferCount: Math.max(0, prev.pendingTransferCount - 1),
-      }))
       setOrderFeedback({ type: "success", message: "Virement validé avec succès ! Commande passée en statut payée." })
+      router.refresh()
       setTimeout(() => setOrderFeedback(null), 3000)
     }
   }
@@ -359,8 +492,9 @@ export function AdminDashboardClient({
       setOrderFeedback({ type: "error", message: res.error })
     } else {
       setOrders((prev) =>
-        prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
+        prev.map((o) => (o.id === orderId ? res.order || { ...o, status: newStatus } : o))
       )
+      router.refresh()
     }
   }
 
@@ -373,6 +507,7 @@ export function AdminDashboardClient({
       setOrderFeedback({ type: "error", message: res.error })
     } else {
       setOrders((prev) => prev.filter((o) => o.id !== orderId))
+      router.refresh()
     }
   }
 
@@ -386,8 +521,8 @@ export function AdminDashboardClient({
       alert(res.error)
     } else {
       setCustomers((prev) => prev.filter((c) => c.id !== customerToDelete.id))
-      setStats((prev) => ({ ...prev, totalCustomers: Math.max(0, prev.totalCustomers - 1) }))
       setCustomerToDelete(null)
+      router.refresh()
     }
   }
 
@@ -401,12 +536,19 @@ export function AdminDashboardClient({
               <Flame className="w-6 h-6" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="font-black text-stone-100 text-base sm:text-lg tracking-tight">
                   LeñaDirecta
                 </span>
                 <span className="text-[10px] bg-amber-500 text-stone-950 font-black px-2 py-0.5 rounded uppercase tracking-wider">
                   Admin Scierie
+                </span>
+                <span
+                  className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full"
+                  title="Synchronisation automatique en temps réel avec Supabase"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Temps réel</span>
                 </span>
               </div>
               <p className="text-[11px] text-stone-400">

@@ -137,20 +137,27 @@ export async function updateProductAction(rawInput: ProductUpdateInput) {
       return { error: `Erreur Supabase: ${error.message}` }
     }
 
-    // Invalidation intelligente de tout le cache produit
-    revalidatePath("/", "layout")
-    revalidatePath("/catalogue")
-    revalidatePath(`/produit/${data.slug}`)
-    revalidatePath("/bois-de-chauffage")
-    revalidatePath("/bois-compresse")
-    revalidatePath("/granules-de-bois")
-    revalidatePath("/charbon-de-bois")
-    revalidatePath("/poeles-a-bois")
-    revalidatePath("/admin")
+    // Invalidation complète du cache boutique & admin
+    revalidateStorefrontPaths(data.slug)
 
     return { success: true, product: updatedProduct }
   } catch (err: any) {
     return { error: err?.message || "Erreur interne lors de la mise à jour" }
+  }
+}
+
+function revalidateStorefrontPaths(slug?: string | null) {
+  revalidatePath("/", "layout")
+  revalidatePath("/")
+  revalidatePath("/catalogue")
+  revalidatePath("/bois-de-chauffage")
+  revalidatePath("/bois-compresse")
+  revalidatePath("/granules-de-bois")
+  revalidatePath("/charbon-de-bois")
+  revalidatePath("/poeles-a-bois")
+  revalidatePath("/admin")
+  if (slug) {
+    revalidatePath(`/produit/${slug}`)
   }
 }
 
@@ -197,9 +204,7 @@ export async function createProductAction(rawInput: ProductCreateInput) {
       return { error: error.message }
     }
 
-    revalidatePath("/", "layout")
-    revalidatePath("/catalogue")
-    revalidatePath("/admin")
+    revalidateStorefrontPaths(newProduct?.slug)
 
     return { success: true, product: newProduct }
   } catch (err: any) {
@@ -216,20 +221,20 @@ export async function toggleProductStatusAction(id: string, currentStatus: boole
 
   try {
     const adminSupabase = createAdminClient()
-    const { error } = await adminSupabase
+    const { data: updated, error } = await adminSupabase
       .from("products")
       .update({ is_active: !currentStatus })
       .eq("id", id)
+      .select("slug, is_active")
+      .single()
 
     if (error) {
       return { error: error.message }
     }
 
-    revalidatePath("/", "layout")
-    revalidatePath("/catalogue")
-    revalidatePath("/admin")
+    revalidateStorefrontPaths(updated?.slug)
 
-    return { success: true, newStatus: !currentStatus }
+    return { success: true, newStatus: updated?.is_active ?? !currentStatus }
   } catch (err: any) {
     return { error: err?.message || "Erreur lors du changement de statut" }
   }
@@ -467,7 +472,7 @@ export async function confirmOrderPaymentAction(orderId: string) {
 
     const newNote = ((ord.admin_notes || "") + `\n✓ Virement constaté & paiement validé par l'admin le ${new Date().toLocaleString("fr-FR")}`).trim()
 
-    const { error: updateErr } = await adminSupabase
+    const { data: updatedOrder, error: updateErr } = await adminSupabase
       .from("orders")
       .update({
         payment_status: "paid",
@@ -475,6 +480,8 @@ export async function confirmOrderPaymentAction(orderId: string) {
         admin_notes: newNote,
       })
       .eq("id", orderId)
+      .select()
+      .single()
 
     if (updateErr) {
       return { error: updateErr.message }
@@ -484,7 +491,7 @@ export async function confirmOrderPaymentAction(orderId: string) {
     revalidatePath("/mon-compte")
     revalidatePath(`/confirmation/${orderId}`)
 
-    return { success: true }
+    return { success: true, order: updatedOrder }
   } catch (err: any) {
     return { error: err?.message || "Erreur lors de la validation du paiement" }
   }
@@ -515,13 +522,15 @@ export async function updateOrderStatusAction(orderId: string, newStatus: string
       updatedNote = (updatedNote + `\n[${new Date().toLocaleDateString("fr-FR")}] Statut changé en ${newStatus} : ${note.trim()}`).trim()
     }
 
-    const { error: updateErr } = await adminSupabase
+    const { data: updatedOrder, error: updateErr } = await adminSupabase
       .from("orders")
       .update({
         status: newStatus,
         admin_notes: updatedNote,
       })
       .eq("id", orderId)
+      .select()
+      .single()
 
     if (updateErr) {
       return { error: updateErr.message }
@@ -531,7 +540,7 @@ export async function updateOrderStatusAction(orderId: string, newStatus: string
     revalidatePath("/mon-compte")
     revalidatePath(`/confirmation/${orderId}`)
 
-    return { success: true }
+    return { success: true, order: updatedOrder }
   } catch (err: any) {
     return { error: err?.message || "Erreur de mise à jour du statut" }
   }

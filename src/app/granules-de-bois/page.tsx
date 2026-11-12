@@ -23,8 +23,8 @@ export const metadata = {
     "Pellets de bois 100% résineux certifiés Din+ et EnPlus A1. Palettes de 66 sacs de 15 kg ou vrac camion souffleur avec pesée certifiée.",
 }
 
-// Cache CDN Vercel instantané & régénération en arrière-plan
-export const revalidate = 60
+// Rendu dynamique temps réel pour refléter immédiatement toute mise à jour catalogue
+export const dynamic = "force-dynamic"
 
 export default async function GranulesDeBoisPage() {
   const supabase = getPublicSupabase()

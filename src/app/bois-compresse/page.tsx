@@ -25,8 +25,8 @@ export const metadata = {
     "Achetez vos bûches densifiées de jour, packs nuit longue durée (8h) et pavés 100% chêne. Livraison sur palette avec chariot tout-terrain.",
 }
 
-// Cache CDN Vercel instantané & régénération en arrière-plan
-export const revalidate = 60
+// Rendu dynamique temps réel pour refléter immédiatement toute mise à jour catalogue
+export const dynamic = "force-dynamic"
 
 export default async function BoisCompressePage() {
   const supabase = getPublicSupabase()

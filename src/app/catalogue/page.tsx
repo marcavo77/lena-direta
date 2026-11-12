@@ -6,8 +6,8 @@ import { Footer } from "@/components/layout/Footer"
 import { Trees, ShieldCheck, Truck, ChevronRight } from "lucide-react"
 import Link from "next/link"
 
-// Cache CDN Vercel instantané & régénération en arrière-plan
-export const revalidate = 60
+// Rendu dynamique temps réel pour refléter immédiatement toute mise à jour catalogue
+export const dynamic = "force-dynamic"
 
 export const metadata = {
   title: "Catalogue Combustibles Bois, Granulés & Charbon | LeñaDirecta",

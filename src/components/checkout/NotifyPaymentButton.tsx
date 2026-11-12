@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { CheckCircle2, Loader2, Send } from "lucide-react"
 import { notifyTransferSent } from "@/app/actions/order"
 
@@ -9,6 +10,7 @@ interface NotifyPaymentButtonProps {
   orderNumber: string
   paymentStatus?: string | null
   compact?: boolean
+  onNotified?: () => void
 }
 
 export function NotifyPaymentButton({
@@ -16,12 +18,17 @@ export function NotifyPaymentButton({
   orderNumber,
   paymentStatus: initialStatus,
   compact = false,
+  onNotified,
 }: NotifyPaymentButtonProps) {
+  const router = useRouter()
   const [status, setStatus] = useState<string | null>(initialStatus || "pending")
   const [loading, setLoading] = useState(false)
   const [reference, setReference] = useState("")
-  const [showInput, setShowInput] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    setStatus(initialStatus || "pending")
+  }, [initialStatus])
 
   const isNotified = status === "transfer_notified"
   const isPaid = status === "paid"
@@ -51,6 +58,8 @@ export function NotifyPaymentButton({
       const res = await notifyTransferSent(orderId, reference)
       if (res.success) {
         setStatus("transfer_notified")
+        onNotified?.()
+        router.refresh()
       } else {
         setError(res.error || "Une erreur est survenue")
       }

@@ -25,8 +25,8 @@ import {
   Sparkles,
 } from "lucide-react"
 
-// Cache CDN Vercel instantané & régénération en arrière-plan
-export const revalidate = 60
+// Rendu dynamique temps réel pour refléter immédiatement toute mise à jour produit
+export const dynamic = "force-dynamic"
 
 export async function generateStaticParams() {
   return await getAllProductSlugs()

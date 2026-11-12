@@ -23,8 +23,8 @@ export const metadata = {
     "Briquettes de charbon de bois hexagonal extrudé avec trou central (effet cheminée) et charbon artisanal français. Plus de 5h de braises vives, zéro fumée, résidu cendre < 4%. Sacs 10kg et palettes pro.",
 }
 
-// Cache CDN Vercel instantané & régénération en arrière-plan
-export const revalidate = 60
+// Rendu dynamique temps réel pour refléter immédiatement toute mise à jour catalogue
+export const dynamic = "force-dynamic"
 
 export default async function CharbonDeBoisPage() {
   const allProducts = await getAllProducts()

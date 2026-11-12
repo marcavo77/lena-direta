@@ -24,8 +24,8 @@ export const metadata = {
     "Découvrez nos poêles à bois avec four intégré, poêles scandinaves en fonte et poêles à granulés étanches WiFi. Haute efficacité Flamme Verte 7 étoiles et EcoDesign 2022. Livraison sur palette sécurisée.",
 }
 
-// Cache CDN Vercel instantané & régénération en arrière-plan
-export const revalidate = 60
+// Rendu dynamique temps réel pour refléter immédiatement toute mise à jour catalogue
+export const dynamic = "force-dynamic"
 
 export default async function PoelesABoisPage() {
   const allProducts = await getAllProducts()

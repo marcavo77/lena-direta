@@ -16,8 +16,10 @@ import {
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { formatPrice } from "@/lib/utils"
-import { RibPaymentCard } from "@/components/checkout/RibPaymentCard"
+import { OrderConfirmationRealtime } from "@/components/checkout/OrderConfirmationRealtime"
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon"
+
+export const dynamic = "force-dynamic"
 
 interface ConfirmationPageProps {
   params: Promise<{ orderId: string }>
@@ -86,18 +88,17 @@ export default async function OrderConfirmationPage({ params }: ConfirmationPage
           </div>
         </div>
 
-        {/* Coordonnées Bancaires (RIB) & Instructions de Virement */}
-        <div className="mb-8">
-          <RibPaymentCard
-            orderId={order.id}
-            orderNumber={order.order_number}
-            totalFormatted={formatPrice(order.total_cents)}
-            depositFormatted={formatPrice(Math.round(order.total_cents * 0.3))}
-            paymentMethod={shipping.payment_method || "transfer"}
-            paymentStatus={order.payment_status}
-            customerPhone={order.customer_phone}
-          />
-        </div>
+        {/* Statut Live + Coordonnées Bancaires (RIB) & Signalement Virement */}
+        <OrderConfirmationRealtime
+          orderId={order.id}
+          orderNumber={order.order_number}
+          initialStatus={order.status}
+          initialPaymentStatus={order.payment_status}
+          totalFormatted={formatPrice(order.total_cents)}
+          depositFormatted={formatPrice(Math.round(order.total_cents * 0.3))}
+          paymentMethod={shipping.payment_method || "transfer"}
+          customerPhone={order.customer_phone}
+        />
 
         {/* Protocole des Prochaines Étapes Logistiques (Inspiré de Brazeco & Simplyfeu) */}
         <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-6 sm:p-8 mb-8 space-y-6">

@@ -441,55 +441,49 @@ export const LOCAL_PRODUCTS: Product[] = [
 ]
 
 /**
- * Récupère tous les produits actifs, en combinant les données Supabase (si connectées)
- * et le catalogue local exhaustif afin de garantir que les nouveaux produits
- * sont immédiatement accessibles sans dépendance fragile.
+ * Récupère tous les produits actifs directement depuis Supabase.
+ * Respecte strictement le statut `is_active` géré depuis le tableau de bord admin,
+ * avec repli sur le catalogue local uniquement si la base est inaccessible/vide.
  */
 export async function getAllProducts(): Promise<Product[]> {
   try {
     const supabase = getPublicSupabase()
-    const { data: dbProducts } = await supabase
-      .from("products")
-      .select("*")
-      .eq("is_active", true)
+    const { data: dbProducts, error } = await supabase.from("products").select("*")
 
-    if (dbProducts && dbProducts.length > 0) {
-      // Fusionner pour s'assurer que les produits locaux non présents dans Supabase (ex: charbon) sont inclus
-      const merged = [...dbProducts]
-      for (const localProd of LOCAL_PRODUCTS) {
-        if (!merged.some((p) => p.slug === localProd.slug || p.id === localProd.id)) {
-          merged.push(localProd)
-        }
-      }
-      return merged.sort((a, b) => b.unit_price_cents - a.unit_price_cents)
+    if (!error && dbProducts && dbProducts.length > 0) {
+      return dbProducts
+        .filter((p) => p.is_active)
+        .sort((a, b) => b.unit_price_cents - a.unit_price_cents)
     }
   } catch (error) {
     console.warn("Could not fetch products from Supabase, using local catalog fallback:", error)
   }
 
-  return [...LOCAL_PRODUCTS].sort((a, b) => b.unit_price_cents - a.unit_price_cents)
+  return [...LOCAL_PRODUCTS]
+    .filter((p) => p.is_active)
+    .sort((a, b) => b.unit_price_cents - a.unit_price_cents)
 }
 
 /**
- * Récupère un produit par son slug
+ * Récupère un produit actif par son slug
  */
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   try {
     const supabase = getPublicSupabase()
-    const { data: dbProduct } = await supabase
+    const { data: dbProduct, error } = await supabase
       .from("products")
       .select("*")
       .eq("slug", slug)
       .single()
 
-    if (dbProduct) {
-      return dbProduct
+    if (!error && dbProduct) {
+      return dbProduct.is_active ? dbProduct : null
     }
   } catch (error) {
     console.warn(`Product slug ${slug} not in Supabase, checking local catalog:`, error)
   }
 
-  return LOCAL_PRODUCTS.find((p) => p.slug === slug) || null
+  return LOCAL_PRODUCTS.find((p) => p.slug === slug && p.is_active) || null
 }
 
 /**

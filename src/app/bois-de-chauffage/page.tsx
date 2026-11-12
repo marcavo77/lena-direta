@@ -23,8 +23,8 @@ export const metadata = {
     "Bûches de chêne, charme et hêtre fendues et séchées sous abri (< 20% humidité). Coupes 25cm, 33cm et 50cm rangées sur palettes de 2 à 4 stères.",
 }
 
-// Cache CDN Vercel instantané & régénération en arrière-plan
-export const revalidate = 60
+// Rendu dynamique temps réel pour refléter immédiatement toute mise à jour catalogue
+export const dynamic = "force-dynamic"
 
 export default async function BoisDeChauffagePage() {
   const supabase = getPublicSupabase()
