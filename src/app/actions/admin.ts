@@ -236,6 +236,13 @@ export async function toggleProductStatusAction(id: string, currentStatus: boole
 }
 
 // ================= DONNÉES GLOBALES POUR LE TABLEAU DE BORD =================
+export interface AdminCustomerSession {
+  ip: string | null
+  user_agent: string | null
+  created_at: string
+  updated_at: string
+}
+
 export interface AdminCustomer {
   id: string
   email: string
@@ -248,6 +255,10 @@ export interface AdminCustomer {
   order_count: number
   total_spent_cents: number
   is_admin: boolean
+  auth_providers: string[]
+  last_ip: string | null
+  last_user_agent: string | null
+  sessions: AdminCustomerSession[]
 }
 
 export interface AdminDashboardPayload {
@@ -273,23 +284,56 @@ export async function getAdminDashboardData(): Promise<{ data: AdminDashboardPay
   try {
     const adminSupabase = createAdminClient()
 
-    const [usersRes, profilesRes, ordersRes, productsRes] = await Promise.all([
+    const [usersRes, profilesRes, ordersRes, productsRes, sessionsRes] = await Promise.all([
       adminSupabase.auth.admin.listUsers({ perPage: 1000 }),
       adminSupabase.from("profiles").select("*"),
       adminSupabase.from("orders").select("*").order("created_at", { ascending: false }),
       adminSupabase.from("products").select("*").order("created_at", { ascending: false }),
+      (adminSupabase as any).rpc("admin_get_user_sessions").then(
+        (res: any) => res,
+        () => ({ data: [] })
+      ),
     ])
 
     const authUsers = usersRes.data?.users || []
     const profiles = profilesRes.data || []
     const orders = ordersRes.data || []
     const products = productsRes.data || []
+    const allSessions: Array<{
+      user_id: string
+      ip: string | null
+      user_agent: string | null
+      created_at: string
+      updated_at: string
+    }> = sessionsRes?.data || []
+
+    // Regroupement des sessions par user_id
+    const sessionsByUser = new Map<string, AdminCustomerSession[]>()
+    for (const s of allSessions) {
+      if (!s.user_id) continue
+      const list = sessionsByUser.get(s.user_id) || []
+      list.push({
+        ip: s.ip,
+        user_agent: s.user_agent,
+        created_at: s.created_at,
+        updated_at: s.updated_at,
+      })
+      sessionsByUser.set(s.user_id, list)
+    }
 
     // Fusion des informations clients
     const customersMap = new Map<string, AdminCustomer>()
 
     for (const u of authUsers) {
       if (u.email === "admin@lena-directa.company") continue // On ne liste pas le compte admin suprême dans les clients
+
+      const userSessions = sessionsByUser.get(u.id) || []
+      const browserSession = userSessions.find((s) => s.user_agent && s.user_agent !== "node") || userSessions[0]
+      const providers = Array.isArray(u.app_metadata?.providers)
+        ? u.app_metadata.providers
+        : u.app_metadata?.provider
+        ? [u.app_metadata.provider]
+        : ["email"]
 
       customersMap.set(u.id, {
         id: u.id,
@@ -303,6 +347,10 @@ export async function getAdminDashboardData(): Promise<{ data: AdminDashboardPay
         order_count: 0,
         total_spent_cents: 0,
         is_admin: false,
+        auth_providers: providers,
+        last_ip: browserSession?.ip || null,
+        last_user_agent: browserSession?.user_agent || null,
+        sessions: userSessions,
       })
     }
 
@@ -316,6 +364,8 @@ export async function getAdminDashboardData(): Promise<{ data: AdminDashboardPay
         existing.shipping_address = p.shipping_address
         existing.is_admin = Boolean(p.is_admin)
       } else {
+        const userSessions = sessionsByUser.get(p.id) || []
+        const browserSession = userSessions.find((s) => s.user_agent && s.user_agent !== "node") || userSessions[0]
         customersMap.set(p.id, {
           id: p.id,
           email: p.email,
@@ -328,15 +378,23 @@ export async function getAdminDashboardData(): Promise<{ data: AdminDashboardPay
           order_count: 0,
           total_spent_cents: 0,
           is_admin: Boolean(p.is_admin),
+          auth_providers: ["email"],
+          last_ip: browserSession?.ip || null,
+          last_user_agent: browserSession?.user_agent || null,
+          sessions: userSessions,
         })
       }
     }
 
     // Calcul des statistiques de commandes par client
     for (const ord of orders) {
-      const custId = ord.user_id
-      if (custId && customersMap.has(custId)) {
-        const cust = customersMap.get(custId)!
+      let cust = ord.user_id ? customersMap.get(ord.user_id) : undefined
+      if (!cust && ord.customer_email) {
+        cust = Array.from(customersMap.values()).find(
+          (c) => c.email.toLowerCase() === ord.customer_email.toLowerCase()
+        )
+      }
+      if (cust) {
         cust.order_count += 1
         if (ord.payment_status === "paid" || ord.status === "paid" || ord.status === "delivered") {
           cust.total_spent_cents += ord.total_cents

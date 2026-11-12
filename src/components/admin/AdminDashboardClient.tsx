@@ -35,6 +35,11 @@ import {
   ShieldCheck,
   Check,
   AlertTriangle,
+  Info,
+  Globe,
+  Monitor,
+  KeyRound,
+  Copy,
 } from "lucide-react"
 import type { Product } from "@/lib/supabase/database.types"
 import { formatPrice } from "@/lib/utils"
@@ -64,7 +69,29 @@ interface AdminDashboardClientProps {
     activeDeliveriesCount: number
     totalProductsCount: number
   }
+  initialTab?: "products" | "orders" | "customers"
   adminEmail: string
+}
+
+function formatUserAgent(ua: string | null): string {
+  if (!ua) return "Inconnu"
+  if (ua === "node") return "API / Serveur Node.js"
+  let browser = "Navigateur"
+  if (ua.includes("Edg/")) browser = "Microsoft Edge"
+  else if (ua.includes("OPR/") || ua.includes("Opera")) browser = "Opera"
+  else if (ua.includes("Chrome/")) browser = "Google Chrome"
+  else if (ua.includes("Firefox/")) browser = "Mozilla Firefox"
+  else if (ua.includes("Safari/")) browser = "Safari"
+
+  let os = "Appareil"
+  if (ua.includes("iPhone")) os = "iPhone (iOS)"
+  else if (ua.includes("iPad")) os = "iPad (iPadOS)"
+  else if (ua.includes("Android")) os = "Android"
+  else if (ua.includes("Windows NT")) os = "Windows"
+  else if (ua.includes("Mac OS X")) os = "macOS"
+  else if (ua.includes("Linux")) os = "Linux"
+
+  return `${browser} • ${os}`
 }
 
 const CATEGORIES = [
@@ -110,10 +137,11 @@ export function AdminDashboardClient({
   initialOrders,
   initialCustomers,
   initialStats,
+  initialTab = "orders",
   adminEmail,
 }: AdminDashboardClientProps) {
   // Navigation par Onglets
-  const [activeTab, setActiveTab] = useState<"products" | "orders" | "customers">("orders")
+  const [activeTab, setActiveTab] = useState<"products" | "orders" | "customers">(initialTab)
 
   // États Produits
   const [products, setProducts] = useState<Product[]>(initialProducts)
@@ -134,6 +162,8 @@ export function AdminDashboardClient({
   // États Clients
   const [customers, setCustomers] = useState<AdminCustomer[]>(initialCustomers)
   const [customerSearch, setCustomerSearch] = useState("")
+  const [selectedCustomerInfo, setSelectedCustomerInfo] = useState<AdminCustomer | null>(null)
+  const [copiedId, setCopiedId] = useState(false)
   const [customerToDelete, setCustomerToDelete] = useState<AdminCustomer | null>(null)
   const [customerDeleteLoading, setCustomerDeleteLoading] = useState(false)
 
@@ -961,14 +991,28 @@ export function AdminDashboardClient({
                             )}
                           </td>
                           <td className="py-3.5 px-4 text-right">
-                            <button
-                              type="button"
-                              onClick={() => setCustomerToDelete(cust)}
-                              className="inline-flex items-center gap-1.5 text-xs text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 px-3 py-1.5 rounded-lg transition-colors min-h-[34px]"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                              <span>Supprimer</span>
-                            </button>
+                            <div className="inline-flex items-center justify-end gap-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedCustomerInfo(cust)
+                                  setCopiedId(false)
+                                }}
+                                title="Informations de connexion du client"
+                                aria-label={`Informations de connexion de ${cust.email}`}
+                                className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 hover:text-amber-300 border border-amber-500/30 transition-colors shrink-0"
+                              >
+                                <Info className="w-4 h-4" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setCustomerToDelete(cust)}
+                                className="inline-flex items-center gap-1.5 text-xs text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 px-3 py-1.5 rounded-lg transition-colors min-h-[36px]"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                                <span>Supprimer</span>
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -1143,6 +1187,235 @@ export function AdminDashboardClient({
           </div>
         )}
       </main>
+
+      {/* ================= MODALE INFORMATIONS DE CONNEXION CLIENT ================= */}
+      {selectedCustomerInfo && (
+        <div
+          className="fixed inset-0 z-50 bg-stone-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4"
+          onClick={() => setSelectedCustomerInfo(null)}
+        >
+          <div
+            className="bg-[#1c1917] border border-stone-800 rounded-t-3xl sm:rounded-2xl max-w-xl w-full max-h-[90vh] flex flex-col shadow-2xl animate-in slide-in-from-bottom-5 sm:zoom-in-95"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* En-tête */}
+            <div className="p-5 border-b border-stone-800 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0">
+                  <KeyRound className="w-5 h-5" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="font-black text-stone-100 text-base truncate">
+                    Informations de Connexion Client
+                  </h3>
+                  <p className="text-xs text-amber-400 font-semibold truncate">
+                    {selectedCustomerInfo.email}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setSelectedCustomerInfo(null)}
+                className="text-stone-400 hover:text-white p-2 rounded-lg hover:bg-stone-900 min-w-[40px] min-h-[40px] flex items-center justify-center shrink-0"
+                aria-label="Fermer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Contenu scrollable */}
+            <div className="p-5 overflow-y-auto space-y-4 text-xs flex-1">
+              {/* Identité & Statut Compte */}
+              <div className="bg-stone-900/70 border border-stone-800 rounded-xl p-4 space-y-3">
+                <div className="flex items-center justify-between gap-2 pb-2 border-b border-stone-800">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
+                    Identité &amp; Authentification
+                  </span>
+                  {selectedCustomerInfo.email_confirmed_at ? (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2 py-0.5 rounded uppercase">
+                      <CheckCircle2 className="w-3 h-3" />
+                      <span>Email vérifié</span>
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-amber-500/10 border border-amber-500/30 text-amber-400 px-2 py-0.5 rounded uppercase">
+                      <Clock className="w-3 h-3" />
+                      <span>Vérification en attente</span>
+                    </span>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <span className="text-[10px] text-stone-500 uppercase font-bold block">Nom complet</span>
+                    <span className="text-stone-200 font-bold">
+                      {selectedCustomerInfo.full_name || "Non renseigné"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-stone-500 uppercase font-bold block">Téléphone</span>
+                    <span className="text-stone-200 font-semibold">
+                      {selectedCustomerInfo.phone || "Non renseigné"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-stone-500 uppercase font-bold block">Méthode d&apos;accès</span>
+                    <span className="text-stone-200 font-semibold uppercase">
+                      {selectedCustomerInfo.auth_providers.join(", ")}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-stone-500 uppercase font-bold block">Date d&apos;inscription</span>
+                    <span className="text-stone-300">
+                      {new Date(selectedCustomerInfo.created_at).toLocaleString("fr-FR")}
+                    </span>
+                  </div>
+                </div>
+
+                {/* UUID complet + Copier */}
+                <div className="pt-2 border-t border-stone-800 flex items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <span className="text-[10px] text-stone-500 uppercase font-bold block">Identifiant UUID Supabase</span>
+                    <span className="font-mono text-[11px] text-stone-300 break-all">
+                      {selectedCustomerInfo.id}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(selectedCustomerInfo.id)
+                      setCopiedId(true)
+                      setTimeout(() => setCopiedId(false), 2000)
+                    }}
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-stone-950 border border-stone-800 hover:border-amber-500/40 text-stone-300 hover:text-amber-400 text-[11px] font-bold shrink-0 min-h-[34px]"
+                  >
+                    {copiedId ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copiedId ? "Copié" : "Copier"}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Connexion, IP & Appareil */}
+              <div className="bg-stone-900/70 border border-stone-800 rounded-xl p-4 space-y-3">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-stone-400 pb-2 border-b border-stone-800 flex items-center gap-1.5">
+                  <Globe className="w-3.5 h-3.5 text-amber-500" />
+                  <span>Dernière Connexion &amp; Réseau</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <span className="text-[10px] text-stone-500 uppercase font-bold block">Dernière authentification</span>
+                    <span className="text-stone-200 font-semibold">
+                      {selectedCustomerInfo.last_sign_in_at
+                        ? new Date(selectedCustomerInfo.last_sign_in_at).toLocaleString("fr-FR")
+                        : "Jamais connecté"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-stone-500 uppercase font-bold block">Dernière adresse IP</span>
+                    <span className="font-mono text-amber-400 font-bold">
+                      {selectedCustomerInfo.last_ip || "Non enregistrée"}
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <span className="text-[10px] text-stone-500 uppercase font-bold block mb-1">
+                    Appareil &amp; Navigateur détecté
+                  </span>
+                  <div className="flex items-center gap-2 text-stone-200 font-semibold">
+                    <Monitor className="w-4 h-4 text-amber-500 shrink-0" />
+                    <span>{formatUserAgent(selectedCustomerInfo.last_user_agent)}</span>
+                  </div>
+                  {selectedCustomerInfo.last_user_agent && (
+                    <p className="text-[10px] text-stone-500 font-mono mt-1 break-all bg-stone-950 p-2 rounded-lg border border-stone-800/80">
+                      {selectedCustomerInfo.last_user_agent}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Historique des Sessions */}
+              <div className="bg-stone-900/70 border border-stone-800 rounded-xl p-4 space-y-2.5">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-stone-400 pb-2 border-b border-stone-800 flex items-center justify-between">
+                  <span>Sessions enregistrées ({selectedCustomerInfo.sessions.length})</span>
+                </div>
+
+                {selectedCustomerInfo.sessions.length === 0 ? (
+                  <p className="text-stone-500 italic text-[11px]">
+                    Aucune session active ou récente trouvée dans l&apos;historique.
+                  </p>
+                ) : (
+                  <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+                    {selectedCustomerInfo.sessions.map((sess, idx) => (
+                      <div
+                        key={idx}
+                        className="bg-stone-950/80 border border-stone-800/80 rounded-lg p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-[11px]"
+                      >
+                        <div className="space-y-0.5 min-w-0">
+                          <div className="font-mono font-bold text-amber-400">
+                            IP : {sess.ip || "N/A"}
+                          </div>
+                          <div className="text-stone-300 truncate">
+                            {formatUserAgent(sess.user_agent)}
+                          </div>
+                        </div>
+                        <div className="text-stone-500 sm:text-right shrink-0 text-[10px]">
+                          <div>Ouverte : {new Date(sess.created_at).toLocaleString("fr-FR")}</div>
+                          <div>Activité : {new Date(sess.updated_at).toLocaleString("fr-FR")}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Adresse enregistrée & Commandes */}
+              {selectedCustomerInfo.shipping_address && (
+                <div className="bg-stone-900/70 border border-stone-800 rounded-xl p-4 space-y-1.5">
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-stone-400 flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Adresse de livraison enregistrée</span>
+                  </div>
+                  <p className="text-stone-300 text-xs">
+                    {selectedCustomerInfo.shipping_address.street || ""}{" "}
+                    {selectedCustomerInfo.shipping_address.postal_code || ""}{" "}
+                    {selectedCustomerInfo.shipping_address.city || ""}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Pied de modale */}
+            <div className="p-4 border-t border-stone-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
+              {selectedCustomerInfo.order_count > 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const email = selectedCustomerInfo.email
+                    setSelectedCustomerInfo(null)
+                    setOrderFilter("all")
+                    setOrderSearch(email)
+                    setActiveTab("orders")
+                  }}
+                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-xs uppercase tracking-wider min-h-[42px]"
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  <span>Voir ses {selectedCustomerInfo.order_count} commande(s)</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setSelectedCustomerInfo(null)}
+                className="px-5 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-stone-200 font-bold text-xs border border-stone-800 min-h-[42px] sm:ml-auto"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ================= MODALE SUPPRESSION CLIENT ================= */}
       {customerToDelete && (

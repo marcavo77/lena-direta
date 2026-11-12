@@ -10,12 +10,21 @@ export const metadata = {
 // Toujours à jour sans cache statique pour l'administration
 export const dynamic = "force-dynamic"
 
-export default async function AdminPage() {
+interface AdminPageProps {
+  searchParams: Promise<{ tab?: string }>
+}
+
+export default async function AdminPage({ searchParams }: AdminPageProps) {
   const { isAdmin, user } = await verifyAdminSession()
 
   if (!isAdmin) {
     redirect("/admin/login")
   }
+
+  const resolvedParams = await searchParams
+  const rawTab = resolvedParams?.tab
+  const initialTab =
+    rawTab === "customers" || rawTab === "products" || rawTab === "orders" ? rawTab : "orders"
 
   const { data, error } = await getAdminDashboardData()
 
@@ -36,6 +45,7 @@ export default async function AdminPage() {
       initialOrders={data.orders}
       initialCustomers={data.customers}
       initialStats={data.stats}
+      initialTab={initialTab}
       adminEmail={user?.email || "admin@lena-directa.company"}
     />
   )
