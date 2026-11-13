@@ -211,9 +211,9 @@ export default function CheckoutTunnelPage() {
         customerName,
         customerEmail,
         customerPhone,
-        streetAddress: fulfillmentMethod === "drive" ? "Retrait Dépôt LeñaDirecta Nangis (77)" : streetAddress,
-        postalCode: fulfillmentMethod === "drive" ? "77370" : postalCode,
-        city: fulfillmentMethod === "drive" ? "Nangis" : city,
+        streetAddress: fulfillmentMethod === "drive" ? "Retrait Dépôt LeñaDirecta - Carretera de Vilanova a l'Arboç, Km. 2" : streetAddress,
+        postalCode: fulfillmentMethod === "drive" ? "08800" : postalCode,
+        city: fulfillmentMethod === "drive" ? "Vilanova i la Geltrú" : city,
         deliveryNotes,
         fulfillmentMethod,
         preferredWeek,
@@ -468,7 +468,7 @@ export default function CheckoutTunnelPage() {
                       <div className="font-bold text-amber-400 mb-1 flex items-center gap-1.5">
                         <Warehouse className="w-4 h-4" /> Mode Retrait Drive Dépôt
                       </div>
-                      Vos palettes seront mises à disposition sous 24h ouvrées au Dépôt Central LeñaDirecta (D140, 77370 Nangis). Munissez-vous de votre confirmation et d'un véhicule adapté.
+                      Vos palettes seront mises à disposition sous 24h ouvrées au Dépôt Central LeñaDirecta (Carretera de Vilanova a l'Arboç, Km. 2, 08800 Vilanova i la Geltrú, Barcelone, Espagne). Munissez-vous de votre confirmation et d'un véhicule adapté.
                     </div>
                   )}
                 </div>

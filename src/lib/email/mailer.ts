@@ -61,7 +61,7 @@ function wrapEmailLayout(title: string, bodyHtml: string): string {
           <tr>
             <td style="padding:24px 28px;border-bottom:1px solid #292524;background-color:#181615;">
               <span style="font-size:20px;font-weight:900;color:#f5f5f4;letter-spacing:-0.5px;">Leña<span style="color:#f59e0b;">Directa</span></span>
-              <span style="display:block;font-size:11px;font-weight:700;color:#a8a29e;text-transform:uppercase;letter-spacing:1.2px;margin-top:4px;">Exploitation Forestière &amp; Scierie • Nangis (77)</span>
+              <span style="display:block;font-size:11px;font-weight:700;color:#a8a29e;text-transform:uppercase;letter-spacing:1.2px;margin-top:4px;">Exploitation Forestière &amp; Scierie</span>
             </td>
           </tr>
           <tr>
@@ -71,7 +71,7 @@ function wrapEmailLayout(title: string, bodyHtml: string): string {
           </tr>
           <tr>
             <td style="padding:20px 28px;border-top:1px solid #292524;background-color:#151312;font-size:11px;color:#a8a29e;line-height:1.6;">
-              <strong style="color:#e7e5e4;">LeñaDirecta SAS</strong> — Route Forestière de la Scierie, 77370 Nangis<br />
+              <strong style="color:#e7e5e4;">LeñaDirecta</strong> — Carretera de Vilanova a l'Arboç, Km. 2, 08800 Vilanova i la Geltrú, Barcelone, Espagne<br />
               Email : <a href="mailto:contact@lena-directa.company" style="color:#f59e0b;text-decoration:none;">contact@lena-directa.company</a> • WhatsApp : +34 672 86 83 32<br />
               Site officiel : <a href="${SITE_URL}" style="color:#f59e0b;text-decoration:none;">${SITE_URL}</a>
             </td>

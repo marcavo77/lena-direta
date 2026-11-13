@@ -17,8 +17,8 @@ export interface WarehouseOption {
 export const WAREHOUSES: WarehouseOption[] = [
   {
     id: "nangis-77",
-    name: "Dépôt Central & Exploitation Nangis (77)",
-    address: "Route Départementale 140, 77370 Nangis",
+    name: "Dépôt Central & Exploitation",
+    address: "Carretera de Vilanova a l'Arboç, Km. 2, 08800 Vilanova i la Geltrú, Barcelone, Espagne",
     hours: "Lun - Sam : 08h00 - 18h00",
     distanceInfo: "Stock direct scierie (Palettes & Granulés)",
     isCentral: true,

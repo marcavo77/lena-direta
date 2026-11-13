@@ -264,7 +264,7 @@ export default async function BoisCompressePage() {
                 Économisez 40 € par palette en venant retirer à nos dépôts
               </h3>
               <p className="text-xs text-stone-400">
-                Nos caristes chargent directement votre remorque ou utilitaire à Nangis (77), Melun, Meaux ou Évry.
+                Nos caristes chargent directement votre remorque ou utilitaire à l&apos;exploitation ou dans nos dépôts partenaires.
               </p>
             </div>
 

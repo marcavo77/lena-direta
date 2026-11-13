@@ -22,10 +22,10 @@ import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon"
 const DEPOTS = [
   {
     id: "depot-nangis",
-    name: "Dépôt Principal Nangis (77) - Exploitation & Scierie",
+    name: "Dépôt Principal & Siège d'Exploitation",
     badge: "Exploitation Forestière • Stock permanent",
-    address: "Route Forestière de la Scierie",
-    city: "77370 Nangis",
+    address: "Carretera de Vilanova a l'Arboç, Km. 2",
+    city: "08800 Vilanova i la Geltrú, Barcelone, Espagne",
     phone: "+34 672 86 83 32",
     hours: "Lun - Ven : 8h00 - 18h30 • Sam : 8h00 - 16h00",
     description: "Siège de l'exploitation. Tous nos produits sont stockés sous hangars ventilés. Pont-bascule et chariots gros tonnage.",

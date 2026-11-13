@@ -259,10 +259,10 @@ export default function ContactPage() {
                 </div>
 
                 <div className="space-y-1 text-stone-300">
-                  <p>Route Forestière de la Scierie</p>
-                  <p>77370 Nangis — Seine-et-Marne</p>
+                  <p>Carretera de Vilanova a l&apos;Arboç, Km. 2</p>
+                  <p>08800 Vilanova i la Geltrú, Barcelone, Espagne</p>
                   <p className="text-stone-400 pt-1">
-                    SIRET : 894 123 456 00012 • TVA : FR82894123456
+                    Exploitation &amp; Scierie Forestière
                   </p>
                 </div>
               </div>

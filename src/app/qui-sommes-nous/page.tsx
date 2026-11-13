@@ -151,7 +151,7 @@ export default function AboutPage() {
             <p>
               <strong>LeñaDirecta Exploitation &amp; Dépôt Central</strong>
               <br />
-              Route Départementale 140, 77370 Nangis, Seine-et-Marne (France).
+              Carretera de Vilanova a l&apos;Arboç, Km. 2, 08800 Vilanova i la Geltrú, Barcelone (Espagne).
             </p>
             <p className="text-stone-400">
               Accueil et retrait Drive palettes : du lundi au vendredi de 8h00 à 18h00, et le samedi matin de 8h30 à 12h30.

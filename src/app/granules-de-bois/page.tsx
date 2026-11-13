@@ -236,7 +236,7 @@ export default async function GranulesDeBoisPage() {
                 -40 € sur votre palette de 66 sacs au Drive
               </h3>
               <p className="text-xs text-stone-400">
-                Nos caristes posent la palette entière directement au chariot élévateur dans votre véhicule ou remorque à Nangis (77), Melun, Meaux ou Évry.
+                Nos caristes posent la palette entière directement au chariot élévateur dans votre véhicule ou remorque à l&apos;exploitation ou dans nos dépôts.
               </p>
             </div>
 

@@ -255,7 +255,7 @@ export default async function BoisDeChauffagePage() {
                 Vous disposez d&apos;une remorque ou d&apos;une camionnette ?
               </h3>
               <p className="text-xs text-stone-400">
-                Bénéficiez d&apos;une remise immédiate de 40 € par palette en venant retirer à l&apos;exploitation forestière à Nangis ou dans nos 3 dépôts partenaires.
+                Bénéficiez d&apos;une remise immédiate de 40 € par palette en venant retirer à l&apos;exploitation forestière ou dans nos dépôts partenaires.
               </p>
             </div>
 
