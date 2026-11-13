@@ -305,7 +305,7 @@ export default function ContactPage() {
                       Service Comptabilité &amp; Virements
                     </span>
                     <h3 className="font-bold text-base text-stone-100">
-                      Crédit Agricole d&apos;Île-de-France
+                      Virements Bancaires SEPA (ING)
                     </h3>
                   </div>
                 </div>

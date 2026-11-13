@@ -118,21 +118,21 @@ export default async function MonComptePage() {
               <div className="bg-stone-900 border border-stone-800 rounded-xl p-3 text-xs space-y-2 font-mono">
                 <div>
                   <div className="text-[10px] uppercase font-bold text-stone-400 font-sans">Titulaire</div>
-                  <div className="text-stone-200 font-semibold">LEÑADIRECTA SAS</div>
+                  <div className="text-stone-200 font-semibold">MARTIN NAVARRO SERGIO</div>
                 </div>
                 <div>
                   <div className="text-[10px] uppercase font-bold text-stone-400 font-sans">Banque</div>
-                  <div className="text-stone-300">Crédit Agricole d'Île-de-France</div>
+                  <div className="text-stone-300">ING (ING Bank Spain)</div>
                 </div>
                 <div>
-                  <div className="text-[10px] uppercase font-bold text-stone-400 font-sans">IBAN</div>
+                  <div className="text-[10px] uppercase font-bold text-stone-400 font-sans">IBAN (Zone SEPA)</div>
                   <div className="text-amber-400 font-bold text-[11px] select-all">
-                    FR76 1027 8000 0000 1234 5678 901
+                    ES52 1465 0230 4417 4407 3036
                   </div>
                 </div>
                 <div>
                   <div className="text-[10px] uppercase font-bold text-stone-400 font-sans">BIC / SWIFT</div>
-                  <div className="text-stone-300 font-bold">AGRIFRPP</div>
+                  <div className="text-stone-300 font-bold">INGDESMMXXX</div>
                 </div>
               </div>
             </div>

@@ -675,7 +675,7 @@ export default function CheckoutTunnelPage() {
                             </span>
                           </div>
                           <div className="text-xs text-stone-400 mt-0.5">
-                            Paiement direct à la scierie (Crédit Agricole). Coordonnées bancaires transmises à la confirmation avec référence unique.
+                            Paiement direct par virement bancaire SEPA (ING). Coordonnées bancaires transmises à la confirmation avec référence unique.
                           </div>
                         </div>
                       </div>
@@ -686,15 +686,15 @@ export default function CheckoutTunnelPage() {
                       <div className="mt-3.5 pt-3 border-t border-amber-500/20 text-xs text-stone-300 grid grid-cols-1 sm:grid-cols-3 gap-2 bg-stone-950/60 p-3 rounded-lg font-mono">
                         <div>
                           <span className="text-[10px] uppercase text-stone-500 font-sans block">Titulaire</span>
-                          <span className="font-bold text-stone-200">LEÑADIRECTA SAS</span>
+                          <span className="font-bold text-stone-200">MARTIN NAVARRO SERGIO</span>
                         </div>
                         <div>
                           <span className="text-[10px] uppercase text-stone-500 font-sans block">Banque</span>
-                          <span className="text-stone-300">Crédit Agricole IDF</span>
+                          <span className="text-stone-300">ING (ING Bank Spain)</span>
                         </div>
                         <div>
                           <span className="text-[10px] uppercase text-stone-500 font-sans block">IBAN Début</span>
-                          <span className="text-amber-400 font-bold">FR76 1027 8000 ...</span>
+                          <span className="text-amber-400 font-bold">ES52 1465 0230 ...</span>
                         </div>
                       </div>
                     )}

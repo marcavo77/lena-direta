@@ -25,10 +25,10 @@ export function RibPaymentCard({
 }: RibPaymentCardProps) {
   const [copiedField, setCopiedField] = useState<string | null>(null)
 
-  const iban = "FR76 1027 8000 0000 1234 5678 901"
-  const bic = "AGRIFRPP"
-  const titulaire = "LEÑADIRECTA SAS"
-  const banque = "Crédit Agricole d'Île-de-France"
+  const iban = "ES52 1465 0230 4417 4407 3036"
+  const bic = "INGDESMMXXX"
+  const titulaire = "MARTIN NAVARRO SERGIO"
+  const banque = "ING (ING Bank Spain)"
 
   const copyToClipboard = (text: string, fieldName: string) => {
     navigator.clipboard.writeText(text)
@@ -122,7 +122,7 @@ export function RibPaymentCard({
         {/* IBAN */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-stone-800/80">
           <div>
-            <span className="text-[10px] uppercase font-bold text-stone-500 block">IBAN (France)</span>
+            <span className="text-[10px] uppercase font-bold text-stone-500 block">IBAN (Zone SEPA)</span>
             <span className="font-mono text-sm sm:text-base font-black text-amber-400 tracking-wider">
               {iban}
             </span>
@@ -175,7 +175,7 @@ export function RibPaymentCard({
           <div>
             <span className="text-[10px] uppercase font-bold text-stone-500 block">Établissement</span>
             <span className="text-xs sm:text-sm font-bold text-stone-200">{banque}</span>
-            <span className="text-[11px] text-stone-400 block mt-0.5">Agence Entreprises Nangis (77)</span>
+            <span className="text-[11px] text-stone-400 block mt-0.5">Virement SEPA Direct</span>
           </div>
         </div>
       </div>

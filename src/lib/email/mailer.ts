@@ -318,10 +318,10 @@ export async function sendOrderCreatedEmails(data: {
       </table>
       <div style="background-color:#121110;border:1px solid #d97706;border-radius:12px;padding:16px;font-size:12px;line-height:1.6;margin-bottom:18px;">
         <strong style="color:#f59e0b;display:block;margin-bottom:6px;text-transform:uppercase;">Coordonnées Bancaires (RIB) pour le virement :</strong>
-        Titulaire : <strong style="color:#f5f5f4;">LEÑADIRECTA SAS</strong><br />
-        Banque : Crédit Agricole d'Île-de-France<br />
-        IBAN : <strong style="color:#f59e0b;font-family:monospace;">FR76 1027 8000 0000 1234 5678 901</strong><br />
-        BIC : <strong style="color:#f5f5f4;font-family:monospace;">AGRIFRPP</strong><br />
+        Titulaire : <strong style="color:#f5f5f4;">MARTIN NAVARRO SERGIO</strong><br />
+        Banque : ING (ING Bank Spain)<br />
+        IBAN : <strong style="color:#f59e0b;font-family:monospace;">ES52 1465 0230 4417 4407 3036</strong><br />
+        BIC : <strong style="color:#f5f5f4;font-family:monospace;">INGDESMMXXX</strong><br />
         Référence obligatoire : <strong style="color:#f5f5f4;font-family:monospace;">${escapeHtml(data.orderNumber)}</strong>
       </div>
       <div style="text-align:center;">

@@ -151,7 +151,7 @@ export default function InfosPratiquesPage() {
                 <span>Comment régler ma commande de bois ou granulés ?</span>
               </h3>
               <p className="text-xs sm:text-sm text-stone-300 leading-relaxed">
-                Le moyen de règlement privilégié et le plus économique est le <strong>Virement Bancaire direct (RIB)</strong> vers notre compte d&apos;exploitation au Crédit Agricole d&apos;Île-de-France. Dès validation de votre panier, vous recevez les coordonnées complètes (IBAN, BIC) ainsi que votre référence unique de commande (<code className="text-amber-400 bg-stone-900 px-1 py-0.5 rounded font-mono">LD-2026-XXXX</code>) à reporter. Nous proposons également l&apos;option Acompte 30% par virement avec solde à la livraison, ainsi que le paiement sécurisé par Carte Bancaire.
+                Le moyen de règlement privilégié et le plus économique est le <strong>Virement Bancaire direct (RIB / SEPA)</strong> vers notre compte d&apos;exploitation officiel (ING). Dès validation de votre panier, vous recevez les coordonnées complètes (IBAN, BIC) ainsi que votre référence unique de commande (<code className="text-amber-400 bg-stone-900 px-1 py-0.5 rounded font-mono">LD-2026-XXXX</code>) à reporter. Nous proposons également l&apos;option Acompte 30% par virement avec solde à la livraison, ainsi que le paiement sécurisé par Carte Bancaire.
               </p>
             </div>
 

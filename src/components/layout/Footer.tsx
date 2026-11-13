@@ -44,7 +44,7 @@ export function Footer() {
             </div>
             <div>
               <h5 className="font-semibold text-stone-200 text-xs sm:text-sm">Règlement par Virement (RIB)</h5>
-              <p className="text-[11px] text-stone-400">Paiement direct Crédit Agricole</p>
+              <p className="text-[11px] text-stone-400">Paiement sécurisé par Virement Bancaire (SEPA)</p>
             </div>
           </div>
         </div>
