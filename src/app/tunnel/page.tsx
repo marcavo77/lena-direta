@@ -263,20 +263,38 @@ export default function CheckoutTunnelPage() {
       window.scrollTo({ top: 0, behavior: "smooth" })
       return
     }
+
+    if (step === 4) {
+      if (!currentUser) {
+        if (!accountPassword || accountPassword.length < 6) {
+          setErrorMessage("Veuillez définir un mot de passe (au moins 6 caractères) pour créer votre compte client.")
+          return
+        }
+        if (!isExistingAccount && accountPassword !== confirmPassword) {
+          setErrorMessage("Les deux mots de passe saisis ne correspondent pas. Veuillez vérifier votre saisie.")
+          return
+        }
+      }
+      setStep(5)
+      window.scrollTo({ top: 0, behavior: "smooth" })
+      return
+    }
   }
 
-  // Soumission finale de la commande
+  // Soumission finale de la commande (Étape 5)
   const handleFinalOrder = async () => {
     setErrorMessage(null)
 
-    // Si le client n'est pas connecté, la création ou connexion au compte est obligatoire pour finaliser
+    // Vérification de sécurité du compte si non connecté
     if (!currentUser) {
       if (!accountPassword || accountPassword.length < 6) {
-        setErrorMessage("Veuillez définir un mot de passe (au moins 6 caractères) pour créer votre compte client et valider votre commande.")
+        setErrorMessage("Veuillez définir un mot de passe à l'étape Compte Client avant de finaliser.")
+        setStep(4)
         return
       }
       if (!isExistingAccount && accountPassword !== confirmPassword) {
-        setErrorMessage("Les deux mots de passe saisis ne correspondent pas. Veuillez vérifier votre saisie.")
+        setErrorMessage("Les deux mots de passe saisis ne correspondent pas.")
+        setStep(4)
         return
       }
     }
@@ -343,14 +361,14 @@ export default function CheckoutTunnelPage() {
           </div>
         </div>
 
-        {/* Indicateur d'Étapes Mobile-First */}
+        {/* Indicateur d'Étapes Mobile-First (5 Étapes) */}
         <div className="mb-8">
-          <div className="grid grid-cols-4 gap-2 sm:gap-4 text-center">
+          <div className="grid grid-cols-5 gap-1.5 sm:gap-3 text-center">
             {/* Étape 1 */}
             <button
               type="button"
               onClick={() => step > 1 && setStep(1)}
-              className={`p-2 sm:p-3 rounded-xl border text-xs transition-all ${
+              className={`p-1.5 sm:p-3 rounded-xl border text-xs transition-all ${
                 step === 1
                   ? "border-amber-500 bg-amber-500/10 text-amber-400 font-bold"
                   : step > 1
@@ -358,8 +376,8 @@ export default function CheckoutTunnelPage() {
                   : "border-stone-800 bg-stone-950/40 text-stone-600"
               }`}
             >
-              <div className="text-[10px] uppercase font-bold tracking-wider mb-0.5">Étape 1</div>
-              <div className="truncate">Coordonnées</div>
+              <div className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider mb-0.5">Étape 1</div>
+              <div className="truncate text-[11px] sm:text-xs">Coordonnées</div>
             </button>
 
             {/* Étape 2 (Accessible seulement si livraison) */}
@@ -367,7 +385,7 @@ export default function CheckoutTunnelPage() {
               type="button"
               disabled={fulfillmentMethod === "drive" || step < 2}
               onClick={() => step > 2 && setStep(2)}
-              className={`p-2 sm:p-3 rounded-xl border text-xs transition-all ${
+              className={`p-1.5 sm:p-3 rounded-xl border text-xs transition-all ${
                 fulfillmentMethod === "drive"
                   ? "border-stone-800/40 bg-stone-950/20 text-stone-600 line-through"
                   : step === 2
@@ -377,8 +395,8 @@ export default function CheckoutTunnelPage() {
                   : "border-stone-800 bg-stone-950/40 text-stone-600"
               }`}
             >
-              <div className="text-[10px] uppercase font-bold tracking-wider mb-0.5">Étape 2</div>
-              <div className="truncate">{fulfillmentMethod === "drive" ? "Drive (Exempt)" : "Accès 19T"}</div>
+              <div className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider mb-0.5">Étape 2</div>
+              <div className="truncate text-[11px] sm:text-xs">{fulfillmentMethod === "drive" ? "Drive" : "Accès 19T"}</div>
             </button>
 
             {/* Étape 3 */}
@@ -386,7 +404,7 @@ export default function CheckoutTunnelPage() {
               type="button"
               onClick={() => step > 3 && setStep(3)}
               disabled={step < 3}
-              className={`p-2 sm:p-3 rounded-xl border text-xs transition-all ${
+              className={`p-1.5 sm:p-3 rounded-xl border text-xs transition-all ${
                 step === 3
                   ? "border-amber-500 bg-amber-500/10 text-amber-400 font-bold"
                   : step > 3
@@ -394,22 +412,39 @@ export default function CheckoutTunnelPage() {
                   : "border-stone-800 bg-stone-950/40 text-stone-600"
               }`}
             >
-              <div className="text-[10px] uppercase font-bold tracking-wider mb-0.5">Étape 3</div>
-              <div className="truncate">Créneau</div>
+              <div className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider mb-0.5">Étape 3</div>
+              <div className="truncate text-[11px] sm:text-xs">Créneau</div>
             </button>
 
-            {/* Étape 4 */}
+            {/* Étape 4 : Compte Client */}
             <button
               type="button"
+              onClick={() => step > 4 && setStep(4)}
               disabled={step < 4}
-              className={`p-2 sm:p-3 rounded-xl border text-xs transition-all ${
+              className={`p-1.5 sm:p-3 rounded-xl border text-xs transition-all ${
                 step === 4
+                  ? "border-amber-500 bg-amber-500/10 text-amber-400 font-bold"
+                  : step > 4
+                  ? "border-emerald-500/40 bg-stone-900 text-stone-300"
+                  : "border-stone-800 bg-stone-950/40 text-stone-600"
+              }`}
+            >
+              <div className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider mb-0.5">Étape 4</div>
+              <div className="truncate text-[11px] sm:text-xs">Compte</div>
+            </button>
+
+            {/* Étape 5 : Règlement */}
+            <button
+              type="button"
+              disabled={step < 5}
+              className={`p-1.5 sm:p-3 rounded-xl border text-xs transition-all ${
+                step === 5
                   ? "border-amber-500 bg-amber-500/10 text-amber-400 font-bold"
                   : "border-stone-800 bg-stone-950/40 text-stone-600"
               }`}
             >
-              <div className="text-[10px] uppercase font-bold tracking-wider mb-0.5">Étape 4</div>
-              <div className="truncate">Règlement</div>
+              <div className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider mb-0.5">Étape 5</div>
+              <div className="truncate text-[11px] sm:text-xs">Règlement</div>
             </button>
           </div>
         </div>
@@ -715,157 +750,37 @@ export default function CheckoutTunnelPage() {
                     onClick={handleNextStep}
                     className="flex-1 inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold py-3.5 px-6 rounded-xl transition-all min-h-[44px]"
                   >
-                    <span>Passer au récapitulatif &amp; paiement</span>
+                    <span>Continuer vers mon compte client</span>
                     <ArrowRight className="w-5 h-5" />
                   </button>
                 </div>
               </div>
             )}
 
-            {/* ===================== ÉTAPE 4 : PAIEMENT & CONFIRMATION ===================== */}
+            {/* ===================== ÉTAPE 4 : CRÉATION / CONNEXION COMPTE ===================== */}
             {step === 4 && (
               <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-5 sm:p-7 space-y-6">
                 <div>
                   <h2 className="text-xl font-bold text-stone-100 flex items-center gap-2">
-                    <CreditCard className="w-5 h-5 text-amber-500" />
-                    <span>Mode de règlement sécurisé</span>
+                    <UserCheck className="w-5 h-5 text-amber-500" />
+                    <span>Votre Compte Client LeñaDirecta</span>
                   </h2>
                   <p className="text-xs text-stone-400 mt-1">
-                    Choisissez votre solution de paiement. Toutes les transactions sont cryptées et protégées par 3D-Secure.
+                    Votre compte est indispensable pour valider la commande, suivre l'acheminement de vos palettes et consulter vos factures.
                   </p>
                 </div>
 
-                <div className="space-y-3">
-                  {/* Option 1 : Virement Bancaire (RIB) - Recommandé par la Scierie */}
-                  <label
-                    onClick={() => setPaymentMethod("transfer")}
-                    className={`block p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                      paymentMethod === "transfer"
-                        ? "border-amber-500 bg-amber-500/10"
-                        : "border-stone-800 bg-stone-900/60 hover:border-stone-700"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="radio"
-                          name="payment"
-                          checked={paymentMethod === "transfer"}
-                          onChange={() => setPaymentMethod("transfer")}
-                          className="w-4 h-4 text-amber-500 focus:ring-amber-500 bg-stone-900 border-stone-700"
-                        />
-                        <div>
-                          <div className="font-bold text-sm text-stone-100 flex items-center gap-2">
-                            <span>Virement Bancaire (RIB)</span>
-                            <span className="text-[10px] uppercase font-black bg-amber-500 text-stone-950 px-2 py-0.5 rounded">
-                              Recommandé • Zéro Frais
-                            </span>
-                          </div>
-                          <div className="text-xs text-stone-400 mt-0.5">
-                            Paiement direct par virement bancaire SEPA (ING). Coordonnées bancaires transmises à la confirmation avec référence unique.
-                          </div>
-                        </div>
-                      </div>
-                      <Building2 className="w-5 h-5 text-amber-500 hidden sm:block shrink-0" />
-                    </div>
-
-                    {paymentMethod === "transfer" && (
-                      <div className="mt-3.5 pt-3 border-t border-amber-500/20 text-xs text-stone-300 grid grid-cols-1 sm:grid-cols-3 gap-2 bg-stone-950/60 p-3 rounded-lg font-mono">
-                        <div>
-                          <span className="text-[10px] uppercase text-stone-500 font-sans block">Titulaire</span>
-                          <span className="font-bold text-stone-200">MARTIN NAVARRO SERGIO</span>
-                        </div>
-                        <div>
-                          <span className="text-[10px] uppercase text-stone-500 font-sans block">Banque</span>
-                          <span className="text-stone-300">ING (ING Bank Spain)</span>
-                        </div>
-                        <div>
-                          <span className="text-[10px] uppercase text-stone-500 font-sans block">IBAN Début</span>
-                          <span className="text-amber-400 font-bold">ES52 1465 0230 ...</span>
-                        </div>
-                      </div>
-                    )}
-                  </label>
-
-                  {/* Option 2 : Virement avec Acompte 30% */}
-                  <label
-                    onClick={() => setPaymentMethod("deposit")}
-                    className={`block p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                      paymentMethod === "deposit"
-                        ? "border-amber-500 bg-amber-500/10"
-                        : "border-stone-800 bg-stone-900/60 hover:border-stone-700"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="radio"
-                          name="payment"
-                          checked={paymentMethod === "deposit"}
-                          onChange={() => setPaymentMethod("deposit")}
-                          className="w-4 h-4 text-amber-500 focus:ring-amber-500 bg-stone-900 border-stone-700"
-                        />
-                        <div>
-                          <div className="font-bold text-sm text-stone-100 flex items-center gap-2">
-                            <span>Acompte 30% par virement + Solde à livraison</span>
-                            <span className="text-[10px] uppercase font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded">
-                              Option Confort
-                            </span>
-                          </div>
-                          <div className="text-xs text-stone-400 mt-0.5">
-                            Acompte de {formatPrice(Math.round(total * 0.3))} par virement pour bloquer les stères, solde de {formatPrice(Math.round(total * 0.7))} au déchargement.
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </label>
-
-                  {/* Option 3 : Carte Bancaire */}
-                  <label
-                    onClick={() => setPaymentMethod("card")}
-                    className={`block p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                      paymentMethod === "card"
-                        ? "border-amber-500 bg-amber-500/10"
-                        : "border-stone-800 bg-stone-900/60 hover:border-stone-700"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="radio"
-                          name="payment"
-                          checked={paymentMethod === "card"}
-                          onChange={() => setPaymentMethod("card")}
-                          className="w-4 h-4 text-amber-500 focus:ring-amber-500 bg-stone-900 border-stone-700"
-                        />
-                        <div>
-                          <div className="font-bold text-sm text-stone-100">
-                            Carte Bancaire (CB, Visa, Mastercard)
-                          </div>
-                          <div className="text-xs text-stone-400 mt-0.5">
-                            Paiement immédiat 100% sécurisé via passerelle bancaire 3D-Secure
-                          </div>
-                        </div>
-                      </div>
-                      <div className="hidden sm:flex items-center gap-2 text-stone-400 text-xs font-semibold">
-                        <span>CB</span> • <span>VISA</span> • <span>MASTERCARD</span>
-                      </div>
-                    </div>
-                  </label>
-                </div>
-
-                {/* ================= BLOC COMPTE CLIENT (IMPOSÉ AUX VISITEURS) ================= */}
                 {!checkingAuth && (
                   <div>
                     {currentUser ? (
-                      <div className="p-4 rounded-xl bg-stone-900/90 border border-emerald-500/40 flex items-center justify-between">
+                      <div className="p-5 rounded-2xl bg-stone-900 border border-emerald-500/40 space-y-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
-                            <CheckCircle2 className="w-5 h-5" />
+                          <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                            <CheckCircle2 className="w-6 h-6" />
                           </div>
                           <div>
-                            <div className="text-xs font-bold text-stone-200 flex items-center gap-2">
-                              <span>Compte Client Actif</span>
+                            <div className="text-sm font-bold text-stone-100 flex items-center gap-2">
+                              <span>Compte Client Actif &amp; Connecté</span>
                               <span className="text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded">
                                 Connecté
                               </span>
@@ -875,9 +790,9 @@ export default function CheckoutTunnelPage() {
                             </div>
                           </div>
                         </div>
-                        <span className="text-[11px] text-stone-400 hidden sm:inline">
-                          Suivi automatique dans votre espace client
-                        </span>
+                        <p className="text-xs text-stone-400 leading-relaxed pt-2 border-t border-stone-800">
+                          Votre commande sera automatiquement rattachée à cet espace client. Vous pouvez passer directement au choix du mode de règlement.
+                        </p>
                       </div>
                     ) : (
                       <div className="p-5 sm:p-6 rounded-2xl bg-[#121110] border-2 border-amber-500/60 space-y-4 shadow-lg shadow-amber-500/5">
@@ -903,7 +818,7 @@ export default function CheckoutTunnelPage() {
                         </div>
 
                         {/* Rappel des données client déjà collectées */}
-                        <div className="bg-[#1c1917] border border-stone-800 rounded-xl p-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                        <div className="bg-[#1c1917] border border-stone-800 rounded-xl p-3.5 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                           <div>
                             <span className="text-stone-500 text-[11px] block">Titulaire de la commande :</span>
                             <span className="text-stone-200 font-semibold truncate block mt-0.5">
@@ -1051,6 +966,178 @@ export default function CheckoutTunnelPage() {
                   </div>
                 )}
 
+                {/* Boutons de navigation Étape 4 */}
+                <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setStep(3)}
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-stone-900 border border-stone-800 text-stone-300 font-bold py-3.5 px-5 rounded-xl text-xs hover:border-stone-700 transition-colors min-h-[44px]"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    <span>Retour au créneau</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleNextStep}
+                    className="flex-1 inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold py-3.5 px-6 rounded-xl transition-all min-h-[44px]"
+                  >
+                    <span>Continuer vers le mode de règlement</span>
+                    <ArrowRight className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ===================== ÉTAPE 5 : MODE DE RÈGLEMENT & CONFIRMATION ===================== */}
+            {step === 5 && (
+              <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-5 sm:p-7 space-y-6">
+                <div>
+                  <h2 className="text-xl font-bold text-stone-100 flex items-center gap-2">
+                    <CreditCard className="w-5 h-5 text-amber-500" />
+                    <span>Mode de règlement sécurisé</span>
+                  </h2>
+                  <p className="text-xs text-stone-400 mt-1">
+                    Choisissez votre solution de paiement. Toutes les transactions sont cryptées et protégées par 3D-Secure.
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  {/* Option 1 : Virement Bancaire (RIB) - Recommandé par la Scierie */}
+                  <label
+                    onClick={() => setPaymentMethod("transfer")}
+                    className={`block p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                      paymentMethod === "transfer"
+                        ? "border-amber-500 bg-amber-500/10"
+                        : "border-stone-800 bg-stone-900/60 hover:border-stone-700"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="radio"
+                          name="payment"
+                          checked={paymentMethod === "transfer"}
+                          onChange={() => setPaymentMethod("transfer")}
+                          className="w-4 h-4 text-amber-500 focus:ring-amber-500 bg-stone-900 border-stone-700"
+                        />
+                        <div>
+                          <div className="font-bold text-sm text-stone-100 flex items-center gap-2">
+                            <span>Virement Bancaire (RIB)</span>
+                            <span className="text-[10px] uppercase font-black bg-amber-500 text-stone-950 px-2 py-0.5 rounded">
+                              Recommandé • Zéro Frais
+                            </span>
+                          </div>
+                          <div className="text-xs text-stone-400 mt-0.5">
+                            Paiement direct par virement bancaire SEPA (ING). Coordonnées bancaires transmises à la confirmation avec référence unique.
+                          </div>
+                        </div>
+                      </div>
+                      <Building2 className="w-5 h-5 text-amber-500 hidden sm:block shrink-0" />
+                    </div>
+
+                    {paymentMethod === "transfer" && (
+                      <div className="mt-3.5 pt-3 border-t border-amber-500/20 text-xs text-stone-300 grid grid-cols-1 sm:grid-cols-3 gap-2 bg-stone-950/60 p-3 rounded-lg font-mono">
+                        <div>
+                          <span className="text-[10px] uppercase text-stone-500 font-sans block">Titulaire</span>
+                          <span className="font-bold text-stone-200">MARTIN NAVARRO SERGIO</span>
+                        </div>
+                        <div>
+                          <span className="text-[10px] uppercase text-stone-500 font-sans block">Banque</span>
+                          <span className="text-stone-300">ING (ING Bank Spain)</span>
+                        </div>
+                        <div>
+                          <span className="text-[10px] uppercase text-stone-500 font-sans block">IBAN Début</span>
+                          <span className="text-amber-400 font-bold">ES52 1465 0230 ...</span>
+                        </div>
+                      </div>
+                    )}
+                  </label>
+
+                  {/* Option 2 : Virement avec Acompte 30% */}
+                  <label
+                    onClick={() => setPaymentMethod("deposit")}
+                    className={`block p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                      paymentMethod === "deposit"
+                        ? "border-amber-500 bg-amber-500/10"
+                        : "border-stone-800 bg-stone-900/60 hover:border-stone-700"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="radio"
+                          name="payment"
+                          checked={paymentMethod === "deposit"}
+                          onChange={() => setPaymentMethod("deposit")}
+                          className="w-4 h-4 text-amber-500 focus:ring-amber-500 bg-stone-900 border-stone-700"
+                        />
+                        <div>
+                          <div className="font-bold text-sm text-stone-100 flex items-center gap-2">
+                            <span>Acompte 30% par virement + Solde à livraison</span>
+                            <span className="text-[10px] uppercase font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded">
+                              Option Confort
+                            </span>
+                          </div>
+                          <div className="text-xs text-stone-400 mt-0.5">
+                            Acompte de {formatPrice(Math.round(total * 0.3))} par virement pour bloquer les stères, solde de {formatPrice(Math.round(total * 0.7))} au déchargement.
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </label>
+
+                  {/* Option 3 : Carte Bancaire */}
+                  <label
+                    onClick={() => setPaymentMethod("card")}
+                    className={`block p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                      paymentMethod === "card"
+                        ? "border-amber-500 bg-amber-500/10"
+                        : "border-stone-800 bg-stone-900/60 hover:border-stone-700"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="radio"
+                          name="payment"
+                          checked={paymentMethod === "card"}
+                          onChange={() => setPaymentMethod("card")}
+                          className="w-4 h-4 text-amber-500 focus:ring-amber-500 bg-stone-900 border-stone-700"
+                        />
+                        <div>
+                          <div className="font-bold text-sm text-stone-100">
+                            Carte Bancaire (CB, Visa, Mastercard)
+                          </div>
+                          <div className="text-xs text-stone-400 mt-0.5">
+                            Paiement immédiat 100% sécurisé via passerelle bancaire 3D-Secure
+                          </div>
+                        </div>
+                      </div>
+                      <div className="hidden sm:flex items-center gap-2 text-stone-400 text-xs font-semibold">
+                        <span>CB</span> • <span>VISA</span> • <span>MASTERCARD</span>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+
+                {/* Rappel du compte client associé */}
+                <div className="p-3.5 rounded-xl bg-stone-900/80 border border-stone-800 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span className="text-stone-300">
+                      Compte client associé : <strong className="text-amber-400 font-mono font-medium">{customerEmail || "Non renseigné"}</strong>
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setStep(4)}
+                    className="text-stone-400 hover:text-amber-400 underline text-[11px] shrink-0"
+                  >
+                    Modifier le compte
+                  </button>
+                </div>
+
                 {/* Acceptation CGV */}
                 <div className="pt-3 border-t border-stone-800">
                   <label className="flex items-start gap-3 cursor-pointer group">
@@ -1070,25 +1157,17 @@ export default function CheckoutTunnelPage() {
                 <div className="flex flex-col sm:flex-row gap-3 pt-2">
                   <button
                     type="button"
-                    onClick={() => setStep(3)}
+                    onClick={() => setStep(4)}
                     disabled={submitting}
                     className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-stone-900 border border-stone-800 text-stone-300 font-bold py-4 px-5 rounded-xl text-xs hover:border-stone-700 transition-colors min-h-[48px]"
                   >
                     <ArrowLeft className="w-4 h-4" />
-                    <span>Modifier le créneau</span>
+                    <span>Retour (Compte client)</span>
                   </button>
 
                   <button
                     type="button"
-                    disabled={
-                      submitting ||
-                      !cgvAccepted ||
-                      (!currentUser && (
-                        !accountPassword ||
-                        accountPassword.length < 6 ||
-                        (!isExistingAccount && accountPassword !== confirmPassword)
-                      ))
-                    }
+                    disabled={submitting || !cgvAccepted}
                     onClick={handleFinalOrder}
                     className="flex-1 inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed text-stone-950 font-black py-4 px-6 rounded-xl transition-all min-h-[48px] text-base shadow-lg shadow-amber-500/10"
                   >
@@ -1097,13 +1176,7 @@ export default function CheckoutTunnelPage() {
                     ) : (
                       <>
                         <Lock className="w-5 h-5" />
-                        <span>
-                          {!currentUser
-                            ? isExistingAccount
-                              ? `Se connecter & Confirmer ma commande (${formatPrice(total)})`
-                              : `Créer mon compte & Confirmer ma commande (${formatPrice(total)})`
-                            : `Confirmer ma commande (${formatPrice(total)})`}
-                        </span>
+                        <span>Confirmer ma commande ({formatPrice(total)})</span>
                       </>
                     )}
                   </button>
