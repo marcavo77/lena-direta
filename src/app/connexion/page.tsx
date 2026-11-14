@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState, Suspense } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import {
   Lock,
@@ -24,9 +24,12 @@ import { Footer } from "@/components/layout/Footer"
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon"
 import { loginAction, signupAction } from "@/app/actions/auth"
 
-export default function AuthPage() {
+function AuthContent() {
   const router = useRouter()
-  const [tab, setTab] = useState<"login" | "signup">("login")
+  const searchParams = useSearchParams()
+  const redirectTarget = searchParams.get("redirect") || "/mon-compte"
+  const defaultTab = searchParams.get("tab") === "signup" ? "signup" : "login"
+  const [tab, setTab] = useState<"login" | "signup">(defaultTab)
 
   const [showLoginPassword, setShowLoginPassword] = useState(false)
   const [showSignupPassword, setShowSignupPassword] = useState(false)
@@ -49,9 +52,9 @@ export default function AuthPage() {
       setErrorMessage(res.error)
       setLoading(false)
     } else {
-      setSuccessMessage("Connexion réussie ! Redirection vers votre espace client...")
+      setSuccessMessage("Connexion réussie ! Redirection...")
       setTimeout(() => {
-        router.push("/mon-compte")
+        router.push(redirectTarget)
         router.refresh()
       }, 600)
     }
@@ -80,10 +83,10 @@ export default function AuthPage() {
       setLoading(false)
     } else {
       setSuccessMessage(
-        "Compte créé avec succès ! Synchronisation avec votre espace client..."
+        "Compte créé avec succès ! Synchronisation avec votre espace..."
       )
       setTimeout(() => {
-        router.push("/mon-compte")
+        router.push(redirectTarget)
         router.refresh()
       }, 700)
     }
@@ -446,5 +449,13 @@ export default function AuthPage() {
 
       <Footer />
     </div>
+  )
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense fallback={<div className="bg-[#121110] min-h-screen text-stone-100 flex items-center justify-center p-6 text-xs text-stone-400">Chargement de votre espace...</div>}>
+      <AuthContent />
+    </Suspense>
   )
 }

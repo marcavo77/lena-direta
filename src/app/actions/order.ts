@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { LOCAL_PRODUCTS } from "@/lib/products"
 import { formatPrice } from "@/lib/utils"
-import { sendOrderCreatedEmails, sendTransferNotifiedAdminEmail } from "@/lib/email/mailer"
+import { sendOrderCreatedEmails, sendTransferNotifiedAdminEmail, sendSignupEmails } from "@/lib/email/mailer"
 import type { Product } from "@/lib/supabase/database.types"
 
 // Schéma de validation Zod strict pour la création de commande
@@ -43,6 +43,8 @@ const createOrderSchema = z.object({
     })
     .optional()
     .nullable(),
+  accountPassword: z.string().min(6, "Le mot de passe doit comporter au moins 6 caractères").optional().nullable(),
+  isExistingAccount: z.boolean().optional().default(false),
 })
 
 export type CreateOrderInput = z.infer<typeof createOrderSchema>
@@ -73,15 +75,17 @@ export async function createOrder(input: CreateOrderInput) {
       items: rawItems,
       promoCode,
       accessDiagnostic,
+      accountPassword,
+      isExistingAccount,
     } = parsed.data
 
     const supabase = await createClient()
+    const adminSupabase = createAdminClient()
 
     // Récupération de l'utilisateur connecté si présent
     const {
       data: { user: authUser },
     } = await supabase.auth.getUser()
-    const currentUserId = authUser?.id || null
 
     // Interdiction stricte aux comptes administrateurs de passer commande
     if (authUser?.email === "admin@lena-directa.company" || authUser?.user_metadata?.role === "admin") {
@@ -91,11 +95,109 @@ export async function createOrder(input: CreateOrderInput) {
       }
     }
 
+    let activeUserId = authUser?.id || null
+    const cleanEmail = customerEmail.trim().toLowerCase()
+
+    // Si aucun utilisateur n'est connecté, la création ou connexion au compte est OBLIGATOIRE à l'étape règlement
+    if (!authUser) {
+      if (!accountPassword || accountPassword.length < 6) {
+        return {
+          success: false,
+          requiresAccount: true,
+          error: "Veuillez définir un mot de passe (au moins 6 caractères) pour créer votre compte client et valider votre commande.",
+        }
+      }
+
+      if (isExistingAccount) {
+        // Mode connexion compte existant
+        const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({
+          email: cleanEmail,
+          password: accountPassword,
+        })
+
+        if (signInErr || !signInData?.user) {
+          return {
+            success: false,
+            error: `Identifiants incorrects pour le compte ${cleanEmail}. Veuillez vérifier votre mot de passe habituel.`,
+          }
+        }
+        activeUserId = signInData.user.id
+      } else {
+        // Mode création de nouveau compte client via adminSupabase (confirmation email immédiate)
+        const { data: createdUserData, error: createAuthErr } = await adminSupabase.auth.admin.createUser({
+          email: cleanEmail,
+          password: accountPassword,
+          email_confirm: true,
+          user_metadata: {
+            full_name: customerName,
+            phone: customerPhone,
+          },
+        })
+
+        if (createAuthErr) {
+          const errLower = createAuthErr.message.toLowerCase()
+          if (errLower.includes("already") || errLower.includes("exists") || createAuthErr.status === 422) {
+            // L'utilisateur existe déjà : tentative de connexion avec le mot de passe fourni
+            const { data: existingSignIn, error: existingErr } = await supabase.auth.signInWithPassword({
+              email: cleanEmail,
+              password: accountPassword,
+            })
+
+            if (!existingErr && existingSignIn?.user) {
+              activeUserId = existingSignIn.user.id
+            } else {
+              return {
+                success: false,
+                error: `Un compte client existe déjà avec l'adresse ${cleanEmail}. Veuillez cliquer sur "Déjà un compte ? Se connecter" et renseigner votre mot de passe habituel pour valider votre commande.`,
+              }
+            }
+          } else {
+            return {
+              success: false,
+              error: `Erreur lors de la création de votre compte : ${createAuthErr.message}`,
+            }
+          }
+        } else if (createdUserData?.user) {
+          activeUserId = createdUserData.user.id
+
+          // Enregistrement synchronisé direct dans la table profiles
+          await adminSupabase.from("profiles").upsert({
+            id: activeUserId,
+            email: cleanEmail,
+            full_name: customerName,
+            phone: customerPhone,
+            shipping_address: {
+              street: streetAddress,
+              postal_code: postalCode,
+              city: city,
+            },
+          })
+
+          // Connexion immédiate dans la session du navigateur (dépose les cookies de session HTTP-Only)
+          await supabase.auth.signInWithPassword({
+            email: cleanEmail,
+            password: accountPassword,
+          })
+
+          // Envoi automatique des emails personnalisés (Bienvenue Client + Alerte Admin)
+          try {
+            await sendSignupEmails({
+              fullName: customerName,
+              email: cleanEmail,
+              phone: customerPhone,
+            })
+          } catch (mailErr) {
+            console.warn("Order signup emails error (non-blocking):", mailErr)
+          }
+        }
+      }
+    }
+
     // 2. Vérification des prix côté serveur d'après la base Supabase et le catalogue scierie
     const productIds = rawItems.map((i) => i.productId)
     let dbProducts: Product[] = []
     try {
-      const { data, error: prodErr } = await supabase
+      const { data, error: prodErr } = await adminSupabase
         .from("products")
         .select("*")
         .in("id", productIds)
@@ -165,7 +267,7 @@ export async function createOrder(input: CreateOrderInput) {
     let deliveryFeeCents = 0
     if (fulfillmentMethod === "delivery") {
       const prefix = postalCode.slice(0, 2)
-      const { data: zone } = await supabase
+      const { data: zone } = await adminSupabase
         .from("delivery_zones")
         .select("*")
         .eq("postal_code_prefix", prefix)
@@ -208,14 +310,14 @@ export async function createOrder(input: CreateOrderInput) {
     const randomHex = Math.random().toString(36).substring(2, 7).toUpperCase()
     const orderNumber = `LD-2026-${randomHex}`
 
-    // 4. Insertion dans la table `orders`
-    const { data: createdOrder, error: insertErr } = await supabase
+    // 4. Insertion dans la table `orders` via adminSupabase (bypasses RLS et sécurise l'association)
+    const { data: createdOrder, error: insertErr } = await adminSupabase
       .from("orders")
       .insert({
         order_number: orderNumber,
-        user_id: currentUserId,
+        user_id: activeUserId,
         customer_name: customerName,
-        customer_email: customerEmail,
+        customer_email: cleanEmail,
         customer_phone: customerPhone,
         shipping_address: {
           street: streetAddress,
@@ -261,7 +363,7 @@ export async function createOrder(input: CreateOrderInput) {
         orderId: createdOrder.id,
         orderNumber: createdOrder.order_number,
         customerName,
-        customerEmail,
+        customerEmail: cleanEmail,
         customerPhone,
         totalFormatted: formatPrice(totalCents),
         items: snapshotItems.map((it) => ({

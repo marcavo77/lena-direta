@@ -22,12 +22,16 @@ import {
   Mail,
   ChevronRight,
   Warehouse,
+  Eye,
+  EyeOff,
+  UserCheck,
 } from "lucide-react"
 import { useCartStore } from "@/lib/store/cart"
 import { formatPrice } from "@/lib/utils"
 import { AccessDiagnostic } from "@/components/checkout/AccessDiagnostic"
 import { createOrder } from "@/app/actions/order"
 import { useIsAdmin } from "@/lib/hooks/useIsAdmin"
+import { createClient } from "@/lib/supabase/client"
 
 export default function CheckoutTunnelPage() {
   const router = useRouter()
@@ -75,6 +79,17 @@ export default function CheckoutTunnelPage() {
   const [paymentMethod, setPaymentMethod] = useState<"card" | "deposit" | "transfer">("transfer")
   const [cgvAccepted, setCgvAccepted] = useState(false)
 
+  // État utilisateur connecté & authentification
+  const [currentUser, setCurrentUser] = useState<{ id: string; email: string; fullName: string } | null>(null)
+  const [checkingAuth, setCheckingAuth] = useState(true)
+
+  // Champs de création / connexion de compte imposés à l'étape 4 pour les visiteurs
+  const [accountPassword, setAccountPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [isExistingAccount, setIsExistingAccount] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
   const count = getItemCount()
   const subtotal = getSubtotalCents()
   const volumeDiscount = getVolumeDiscountCents()
@@ -87,6 +102,60 @@ export default function CheckoutTunnelPage() {
   useEffect(() => {
     setIsHydrated(true)
   }, [])
+
+  // Détection de l'utilisateur connecté
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        setCurrentUser({
+          id: user.id,
+          email: user.email || "",
+          fullName: (user.user_metadata?.full_name as string) || "",
+        })
+        setCustomerName((prev) => prev || (user.user_metadata?.full_name as string) || "")
+        setCustomerEmail((prev) => prev || user.email || "")
+        setCustomerPhone((prev) => prev || (user.user_metadata?.phone as string) || "")
+      }
+      setCheckingAuth(false)
+    })
+  }, [])
+
+  // Restauration du brouillon local
+  useEffect(() => {
+    try {
+      const draft = localStorage.getItem("lenadireta_tunnel_draft")
+      if (draft) {
+        const parsed = JSON.parse(draft)
+        if (parsed.customerName) setCustomerName((p) => p || parsed.customerName)
+        if (parsed.customerEmail) setCustomerEmail((p) => p || parsed.customerEmail)
+        if (parsed.customerPhone) setCustomerPhone((p) => p || parsed.customerPhone)
+        if (parsed.streetAddress) setStreetAddress((p) => p || parsed.streetAddress)
+        if (parsed.postalCode) setPostalCode((p) => p || parsed.postalCode)
+        if (parsed.city) setCity((p) => p || parsed.city)
+        if (parsed.deliveryNotes) setDeliveryNotes((p) => p || parsed.deliveryNotes)
+      }
+    } catch {}
+  }, [])
+
+  // Sauvegarde automatique du brouillon
+  useEffect(() => {
+    if (!isHydrated) return
+    try {
+      localStorage.setItem(
+        "lenadireta_tunnel_draft",
+        JSON.stringify({
+          customerName,
+          customerEmail,
+          customerPhone,
+          streetAddress,
+          postalCode,
+          city,
+          deliveryNotes,
+        })
+      )
+    } catch {}
+  }, [customerName, customerEmail, customerPhone, streetAddress, postalCode, city, deliveryNotes, isHydrated])
 
   if (isAdmin) {
     return (
@@ -199,6 +268,19 @@ export default function CheckoutTunnelPage() {
   // Soumission finale de la commande
   const handleFinalOrder = async () => {
     setErrorMessage(null)
+
+    // Si le client n'est pas connecté, la création ou connexion au compte est obligatoire pour finaliser
+    if (!currentUser) {
+      if (!accountPassword || accountPassword.length < 6) {
+        setErrorMessage("Veuillez définir un mot de passe (au moins 6 caractères) pour créer votre compte client et valider votre commande.")
+        return
+      }
+      if (!isExistingAccount && accountPassword !== confirmPassword) {
+        setErrorMessage("Les deux mots de passe saisis ne correspondent pas. Veuillez vérifier votre saisie.")
+        return
+      }
+    }
+
     if (!cgvAccepted) {
       setErrorMessage("Veuillez accepter les Conditions Générales de Vente pour finaliser.")
       return
@@ -222,10 +304,15 @@ export default function CheckoutTunnelPage() {
         promoCode,
         items: items.map((i) => ({ productId: i.product.id, quantity: i.quantity })),
         accessDiagnostic: fulfillmentMethod === "delivery" ? accessDiagnostic : null,
+        accountPassword: !currentUser ? accountPassword : null,
+        isExistingAccount,
       })
 
       if (res.success && res.orderId) {
         clearCart()
+        try {
+          localStorage.removeItem("lenadireta_tunnel_draft")
+        } catch {}
         router.push(`/confirmation/${res.orderId}`)
       } else {
         setErrorMessage(res.error || "Une erreur est survenue lors de l'enregistrement.")
@@ -767,6 +854,203 @@ export default function CheckoutTunnelPage() {
                   </label>
                 </div>
 
+                {/* ================= BLOC COMPTE CLIENT (IMPOSÉ AUX VISITEURS) ================= */}
+                {!checkingAuth && (
+                  <div>
+                    {currentUser ? (
+                      <div className="p-4 rounded-xl bg-stone-900/90 border border-emerald-500/40 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                            <CheckCircle2 className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <div className="text-xs font-bold text-stone-200 flex items-center gap-2">
+                              <span>Compte Client Actif</span>
+                              <span className="text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded">
+                                Connecté
+                              </span>
+                            </div>
+                            <div className="text-xs text-stone-400 mt-0.5">
+                              Connecté en tant que <span className="text-emerald-400 font-mono font-medium">{currentUser.email}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <span className="text-[11px] text-stone-400 hidden sm:inline">
+                          Suivi automatique dans votre espace client
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="p-5 sm:p-6 rounded-2xl bg-[#121110] border-2 border-amber-500/60 space-y-4 shadow-lg shadow-amber-500/5">
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-500 flex items-center justify-center shrink-0 mt-0.5">
+                            <UserCheck className="w-5 h-5" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-amber-500 text-stone-950 text-[10px] uppercase font-black tracking-wider mb-1">
+                              Étape Obligatoire
+                            </div>
+                            <h3 className="text-base font-bold text-stone-100">
+                              {isExistingAccount
+                                ? "Connexion à votre Compte Client existant"
+                                : "Création de votre Compte Client pour valider"}
+                            </h3>
+                            <p className="text-xs text-stone-400 mt-0.5 leading-relaxed">
+                              {isExistingAccount
+                                ? "Votre compte existe déjà. Saisissez votre mot de passe pour rattacher votre commande et accéder à votre suivi en direct."
+                                : "Vos coordonnées sont déjà enregistrées ! Choisissez simplement votre mot de passe pour activer votre espace client sécurisé, suivre l'acheminement de votre commande et la valider."}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Rappel des données client déjà collectées */}
+                        <div className="bg-[#1c1917] border border-stone-800 rounded-xl p-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                          <div>
+                            <span className="text-stone-500 text-[11px] block">Titulaire de la commande :</span>
+                            <span className="text-stone-200 font-semibold truncate block mt-0.5">
+                              {customerName || "Client"}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-stone-500 text-[11px] block">Identifiant email :</span>
+                            <span className="text-amber-400 font-mono font-semibold truncate block mt-0.5">
+                              {customerEmail || "Non renseigné"}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Formulaire mot de passe */}
+                        {!isExistingAccount ? (
+                          <div className="space-y-3 pt-1">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-xs font-bold text-stone-300 mb-1">
+                                  Définissez votre mot de passe *
+                                </label>
+                                <div className="relative">
+                                  <input
+                                    type={showPassword ? "text" : "password"}
+                                    required
+                                    minLength={6}
+                                    value={accountPassword}
+                                    onChange={(e) => setAccountPassword(e.target.value)}
+                                    placeholder="Au moins 6 caractères"
+                                    className="w-full bg-[#1c1917] border border-stone-700 rounded-xl px-3.5 py-3 pr-10 text-xs text-stone-100 focus:outline-none focus:border-amber-500 min-h-[44px]"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 p-1"
+                                    aria-label="Afficher ou masquer le mot de passe"
+                                  >
+                                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                  </button>
+                                </div>
+                              </div>
+
+                              <div>
+                                <label className="block text-xs font-bold text-stone-300 mb-1">
+                                  Confirmez le mot de passe *
+                                </label>
+                                <div className="relative">
+                                  <input
+                                    type={showConfirmPassword ? "text" : "password"}
+                                    required
+                                    minLength={6}
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    placeholder="Répétez le mot de passe"
+                                    className={`w-full bg-[#1c1917] border rounded-xl px-3.5 py-3 pr-10 text-xs text-stone-100 focus:outline-none min-h-[44px] ${
+                                      confirmPassword && confirmPassword !== accountPassword
+                                        ? "border-rose-500 focus:border-rose-500"
+                                        : "border-stone-700 focus:border-amber-500"
+                                    }`}
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 p-1"
+                                    aria-label="Afficher ou masquer la confirmation du mot de passe"
+                                  >
+                                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+
+                            {confirmPassword && confirmPassword !== accountPassword && (
+                              <div className="text-[11px] text-rose-400 font-medium">
+                                Les deux mots de passe ne correspondent pas.
+                              </div>
+                            )}
+
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-stone-800">
+                              <span className="text-[11px] text-stone-400">
+                                Votre compte sera automatiquement créé et activé à la confirmation.
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setIsExistingAccount(true)
+                                  setErrorMessage(null)
+                                }}
+                                className="text-xs text-amber-400 hover:text-amber-300 font-bold underline underline-offset-2 shrink-0 text-left sm:text-right"
+                              >
+                                Déjà un compte ? Se connecter
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-3 pt-1">
+                            <div>
+                              <label className="block text-xs font-bold text-stone-300 mb-1">
+                                Mot de passe de votre compte client *
+                              </label>
+                              <div className="relative">
+                                <input
+                                  type={showPassword ? "text" : "password"}
+                                  required
+                                  value={accountPassword}
+                                  onChange={(e) => setAccountPassword(e.target.value)}
+                                  placeholder="Saisissez votre mot de passe habituel"
+                                  className="w-full bg-[#1c1917] border border-stone-700 rounded-xl px-3.5 py-3 pr-10 text-xs text-stone-100 focus:outline-none focus:border-amber-500 min-h-[44px]"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => setShowPassword(!showPassword)}
+                                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 p-1"
+                                  aria-label="Afficher ou masquer le mot de passe"
+                                >
+                                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                </button>
+                              </div>
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-stone-800">
+                              <Link
+                                href="/connexion"
+                                target="_blank"
+                                className="text-[11px] text-stone-400 hover:text-stone-300 underline"
+                              >
+                                Mot de passe oublié ?
+                              </Link>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setIsExistingAccount(false)
+                                  setErrorMessage(null)
+                                }}
+                                className="text-xs text-amber-400 hover:text-amber-300 font-bold underline underline-offset-2 shrink-0 text-left sm:text-right"
+                              >
+                                Nouveau client ? Créer mon compte
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Acceptation CGV */}
                 <div className="pt-3 border-t border-stone-800">
                   <label className="flex items-start gap-3 cursor-pointer group">
@@ -796,16 +1080,30 @@ export default function CheckoutTunnelPage() {
 
                   <button
                     type="button"
-                    disabled={submitting || !cgvAccepted}
+                    disabled={
+                      submitting ||
+                      !cgvAccepted ||
+                      (!currentUser && (
+                        !accountPassword ||
+                        accountPassword.length < 6 ||
+                        (!isExistingAccount && accountPassword !== confirmPassword)
+                      ))
+                    }
                     onClick={handleFinalOrder}
                     className="flex-1 inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed text-stone-950 font-black py-4 px-6 rounded-xl transition-all min-h-[48px] text-base shadow-lg shadow-amber-500/10"
                   >
                     {submitting ? (
-                      <span>Validation en cours...</span>
+                      <span>Validation &amp; Enregistrement en cours...</span>
                     ) : (
                       <>
                         <Lock className="w-5 h-5" />
-                        <span>Confirmer ma commande ({formatPrice(total)})</span>
+                        <span>
+                          {!currentUser
+                            ? isExistingAccount
+                              ? `Se connecter & Confirmer ma commande (${formatPrice(total)})`
+                              : `Créer mon compte & Confirmer ma commande (${formatPrice(total)})`
+                            : `Confirmer ma commande (${formatPrice(total)})`}
+                        </span>
                       </>
                     )}
                   </button>
