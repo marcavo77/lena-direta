@@ -121,6 +121,13 @@ export default function CheckoutTunnelPage() {
     })
   }, [])
 
+  // Si l'utilisateur est déjà connecté, l'étape 4 (création de compte) est ignorée automatiquement
+  useEffect(() => {
+    if (currentUser && step === 4) {
+      setStep(5)
+    }
+  }, [currentUser, step])
+
   // Restauration du brouillon local
   useEffect(() => {
     try {
@@ -259,7 +266,11 @@ export default function CheckoutTunnelPage() {
     }
 
     if (step === 3) {
-      setStep(4)
+      if (currentUser) {
+        setStep(5)
+      } else {
+        setStep(4)
+      }
       window.scrollTo({ top: 0, behavior: "smooth" })
       return
     }
@@ -361,92 +372,163 @@ export default function CheckoutTunnelPage() {
           </div>
         </div>
 
-        {/* Indicateur d'Étapes Mobile-First (5 Étapes) */}
+        {/* Indicateur d'Étapes Mobile-First (4 étapes si connecté, 5 étapes si visiteur) */}
         <div className="mb-8">
-          <div className="grid grid-cols-5 gap-1.5 sm:gap-3 text-center">
-            {/* Étape 1 */}
-            <button
-              type="button"
-              onClick={() => step > 1 && setStep(1)}
-              className={`p-1.5 sm:p-3 rounded-xl border text-xs transition-all ${
-                step === 1
-                  ? "border-amber-500 bg-amber-500/10 text-amber-400 font-bold"
-                  : step > 1
-                  ? "border-emerald-500/40 bg-stone-900 text-stone-300"
-                  : "border-stone-800 bg-stone-950/40 text-stone-600"
-              }`}
-            >
-              <div className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider mb-0.5">Étape 1</div>
-              <div className="truncate text-[11px] sm:text-xs">Coordonnées</div>
-            </button>
+          {currentUser ? (
+            <div className="grid grid-cols-4 gap-2 sm:gap-4 text-center">
+              {/* Étape 1 */}
+              <button
+                type="button"
+                onClick={() => step > 1 && setStep(1)}
+                className={`p-2 sm:p-3 rounded-xl border text-xs transition-all ${
+                  step === 1
+                    ? "border-amber-500 bg-amber-500/10 text-amber-400 font-bold"
+                    : step > 1
+                    ? "border-emerald-500/40 bg-stone-900 text-stone-300"
+                    : "border-stone-800 bg-stone-950/40 text-stone-600"
+                }`}
+              >
+                <div className="text-[10px] uppercase font-bold tracking-wider mb-0.5">Étape 1</div>
+                <div className="truncate">Coordonnées</div>
+              </button>
 
-            {/* Étape 2 (Accessible seulement si livraison) */}
-            <button
-              type="button"
-              disabled={fulfillmentMethod === "drive" || step < 2}
-              onClick={() => step > 2 && setStep(2)}
-              className={`p-1.5 sm:p-3 rounded-xl border text-xs transition-all ${
-                fulfillmentMethod === "drive"
-                  ? "border-stone-800/40 bg-stone-950/20 text-stone-600 line-through"
-                  : step === 2
-                  ? "border-amber-500 bg-amber-500/10 text-amber-400 font-bold"
-                  : step > 2
-                  ? "border-emerald-500/40 bg-stone-900 text-stone-300"
-                  : "border-stone-800 bg-stone-950/40 text-stone-600"
-              }`}
-            >
-              <div className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider mb-0.5">Étape 2</div>
-              <div className="truncate text-[11px] sm:text-xs">{fulfillmentMethod === "drive" ? "Drive" : "Accès 19T"}</div>
-            </button>
+              {/* Étape 2 (Accessible seulement si livraison) */}
+              <button
+                type="button"
+                disabled={fulfillmentMethod === "drive" || step < 2}
+                onClick={() => step > 2 && setStep(2)}
+                className={`p-2 sm:p-3 rounded-xl border text-xs transition-all ${
+                  fulfillmentMethod === "drive"
+                    ? "border-stone-800/40 bg-stone-950/20 text-stone-600 line-through"
+                    : step === 2
+                    ? "border-amber-500 bg-amber-500/10 text-amber-400 font-bold"
+                    : step > 2
+                    ? "border-emerald-500/40 bg-stone-900 text-stone-300"
+                    : "border-stone-800 bg-stone-950/40 text-stone-600"
+                }`}
+              >
+                <div className="text-[10px] uppercase font-bold tracking-wider mb-0.5">Étape 2</div>
+                <div className="truncate">{fulfillmentMethod === "drive" ? "Drive (Exempt)" : "Accès 19T"}</div>
+              </button>
 
-            {/* Étape 3 */}
-            <button
-              type="button"
-              onClick={() => step > 3 && setStep(3)}
-              disabled={step < 3}
-              className={`p-1.5 sm:p-3 rounded-xl border text-xs transition-all ${
-                step === 3
-                  ? "border-amber-500 bg-amber-500/10 text-amber-400 font-bold"
-                  : step > 3
-                  ? "border-emerald-500/40 bg-stone-900 text-stone-300"
-                  : "border-stone-800 bg-stone-950/40 text-stone-600"
-              }`}
-            >
-              <div className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider mb-0.5">Étape 3</div>
-              <div className="truncate text-[11px] sm:text-xs">Créneau</div>
-            </button>
+              {/* Étape 3 */}
+              <button
+                type="button"
+                onClick={() => step > 3 && setStep(3)}
+                disabled={step < 3}
+                className={`p-2 sm:p-3 rounded-xl border text-xs transition-all ${
+                  step === 3
+                    ? "border-amber-500 bg-amber-500/10 text-amber-400 font-bold"
+                    : step > 3
+                    ? "border-emerald-500/40 bg-stone-900 text-stone-300"
+                    : "border-stone-800 bg-stone-950/40 text-stone-600"
+                }`}
+              >
+                <div className="text-[10px] uppercase font-bold tracking-wider mb-0.5">Étape 3</div>
+                <div className="truncate">Créneau</div>
+              </button>
 
-            {/* Étape 4 : Compte Client */}
-            <button
-              type="button"
-              onClick={() => step > 4 && setStep(4)}
-              disabled={step < 4}
-              className={`p-1.5 sm:p-3 rounded-xl border text-xs transition-all ${
-                step === 4
-                  ? "border-amber-500 bg-amber-500/10 text-amber-400 font-bold"
-                  : step > 4
-                  ? "border-emerald-500/40 bg-stone-900 text-stone-300"
-                  : "border-stone-800 bg-stone-950/40 text-stone-600"
-              }`}
-            >
-              <div className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider mb-0.5">Étape 4</div>
-              <div className="truncate text-[11px] sm:text-xs">Compte</div>
-            </button>
+              {/* Étape 4 (Règlement direct pour client connecté) */}
+              <button
+                type="button"
+                disabled={step < 3}
+                onClick={() => setStep(5)}
+                className={`p-2 sm:p-3 rounded-xl border text-xs transition-all ${
+                  step === 5
+                    ? "border-amber-500 bg-amber-500/10 text-amber-400 font-bold"
+                    : "border-stone-800 bg-stone-950/40 text-stone-600"
+                }`}
+              >
+                <div className="text-[10px] uppercase font-bold tracking-wider mb-0.5">Étape 4</div>
+                <div className="truncate">Règlement</div>
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-5 gap-1.5 sm:gap-3 text-center">
+              {/* Étape 1 */}
+              <button
+                type="button"
+                onClick={() => step > 1 && setStep(1)}
+                className={`p-1.5 sm:p-3 rounded-xl border text-xs transition-all ${
+                  step === 1
+                    ? "border-amber-500 bg-amber-500/10 text-amber-400 font-bold"
+                    : step > 1
+                    ? "border-emerald-500/40 bg-stone-900 text-stone-300"
+                    : "border-stone-800 bg-stone-950/40 text-stone-600"
+                }`}
+              >
+                <div className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider mb-0.5">Étape 1</div>
+                <div className="truncate text-[11px] sm:text-xs">Coordonnées</div>
+              </button>
 
-            {/* Étape 5 : Règlement */}
-            <button
-              type="button"
-              disabled={step < 5}
-              className={`p-1.5 sm:p-3 rounded-xl border text-xs transition-all ${
-                step === 5
-                  ? "border-amber-500 bg-amber-500/10 text-amber-400 font-bold"
-                  : "border-stone-800 bg-stone-950/40 text-stone-600"
-              }`}
-            >
-              <div className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider mb-0.5">Étape 5</div>
-              <div className="truncate text-[11px] sm:text-xs">Règlement</div>
-            </button>
-          </div>
+              {/* Étape 2 (Accessible seulement si livraison) */}
+              <button
+                type="button"
+                disabled={fulfillmentMethod === "drive" || step < 2}
+                onClick={() => step > 2 && setStep(2)}
+                className={`p-1.5 sm:p-3 rounded-xl border text-xs transition-all ${
+                  fulfillmentMethod === "drive"
+                    ? "border-stone-800/40 bg-stone-950/20 text-stone-600 line-through"
+                    : step === 2
+                    ? "border-amber-500 bg-amber-500/10 text-amber-400 font-bold"
+                    : step > 2
+                    ? "border-emerald-500/40 bg-stone-900 text-stone-300"
+                    : "border-stone-800 bg-stone-950/40 text-stone-600"
+                }`}
+              >
+                <div className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider mb-0.5">Étape 2</div>
+                <div className="truncate text-[11px] sm:text-xs">{fulfillmentMethod === "drive" ? "Drive" : "Accès 19T"}</div>
+              </button>
+
+              {/* Étape 3 */}
+              <button
+                type="button"
+                onClick={() => step > 3 && setStep(3)}
+                disabled={step < 3}
+                className={`p-1.5 sm:p-3 rounded-xl border text-xs transition-all ${
+                  step === 3
+                    ? "border-amber-500 bg-amber-500/10 text-amber-400 font-bold"
+                    : step > 3
+                    ? "border-emerald-500/40 bg-stone-900 text-stone-300"
+                    : "border-stone-800 bg-stone-950/40 text-stone-600"
+                }`}
+              >
+                <div className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider mb-0.5">Étape 3</div>
+                <div className="truncate text-[11px] sm:text-xs">Créneau</div>
+              </button>
+
+              {/* Étape 4 : Compte Client */}
+              <button
+                type="button"
+                onClick={() => step > 4 && setStep(4)}
+                disabled={step < 4}
+                className={`p-1.5 sm:p-3 rounded-xl border text-xs transition-all ${
+                  step === 4
+                    ? "border-amber-500 bg-amber-500/10 text-amber-400 font-bold"
+                    : step > 4
+                    ? "border-emerald-500/40 bg-stone-900 text-stone-300"
+                    : "border-stone-800 bg-stone-950/40 text-stone-600"
+                }`}
+              >
+                <div className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider mb-0.5">Étape 4</div>
+                <div className="truncate text-[11px] sm:text-xs">Compte</div>
+              </button>
+
+              {/* Étape 5 : Règlement */}
+              <button
+                type="button"
+                disabled={step < 5}
+                className={`p-1.5 sm:p-3 rounded-xl border text-xs transition-all ${
+                  step === 5
+                    ? "border-amber-500 bg-amber-500/10 text-amber-400 font-bold"
+                    : "border-stone-800 bg-stone-950/40 text-stone-600"
+                }`}
+              >
+                <div className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider mb-0.5">Étape 5</div>
+                <div className="truncate text-[11px] sm:text-xs">Règlement</div>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Message d'Erreur Global */}
@@ -750,15 +832,15 @@ export default function CheckoutTunnelPage() {
                     onClick={handleNextStep}
                     className="flex-1 inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold py-3.5 px-6 rounded-xl transition-all min-h-[44px]"
                   >
-                    <span>Continuer vers mon compte client</span>
+                    <span>{currentUser ? "Passer au mode de règlement" : "Continuer vers mon compte client"}</span>
                     <ArrowRight className="w-5 h-5" />
                   </button>
                 </div>
               </div>
             )}
 
-            {/* ===================== ÉTAPE 4 : CRÉATION / CONNEXION COMPTE ===================== */}
-            {step === 4 && (
+            {/* ===================== ÉTAPE 4 : CRÉATION / CONNEXION COMPTE (VISITEURS UNIQUEMENT) ===================== */}
+            {step === 4 && !currentUser && (
               <div className="bg-[#1c1917] border border-stone-800 rounded-2xl p-5 sm:p-7 space-y-6">
                 <div>
                   <h2 className="text-xl font-bold text-stone-100 flex items-center gap-2">
@@ -771,196 +853,170 @@ export default function CheckoutTunnelPage() {
                 </div>
 
                 {!checkingAuth && (
-                  <div>
-                    {currentUser ? (
-                      <div className="p-5 rounded-2xl bg-stone-900 border border-emerald-500/40 space-y-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
-                            <CheckCircle2 className="w-6 h-6" />
-                          </div>
-                          <div>
-                            <div className="text-sm font-bold text-stone-100 flex items-center gap-2">
-                              <span>Compte Client Actif &amp; Connecté</span>
-                              <span className="text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded">
-                                Connecté
-                              </span>
-                            </div>
-                            <div className="text-xs text-stone-400 mt-0.5">
-                              Connecté en tant que <span className="text-emerald-400 font-mono font-medium">{currentUser.email}</span>
-                            </div>
-                          </div>
+                  <div className="p-5 sm:p-6 rounded-2xl bg-[#121110] border-2 border-amber-500/60 space-y-4 shadow-lg shadow-amber-500/5">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-500 flex items-center justify-center shrink-0 mt-0.5">
+                        <UserCheck className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-amber-500 text-stone-950 text-[10px] uppercase font-black tracking-wider mb-1">
+                          Étape Obligatoire
                         </div>
-                        <p className="text-xs text-stone-400 leading-relaxed pt-2 border-t border-stone-800">
-                          Votre commande sera automatiquement rattachée à cet espace client. Vous pouvez passer directement au choix du mode de règlement.
+                        <h3 className="text-base font-bold text-stone-100">
+                          {isExistingAccount
+                            ? "Connexion à votre Compte Client existant"
+                            : "Création de votre Compte Client pour valider"}
+                        </h3>
+                        <p className="text-xs text-stone-400 mt-0.5 leading-relaxed">
+                          {isExistingAccount
+                            ? "Votre compte existe déjà. Saisissez votre mot de passe pour rattacher votre commande et accéder à votre suivi en direct."
+                            : "Vos coordonnées sont déjà enregistrées ! Choisissez simplement votre mot de passe pour activer votre espace client sécurisé, suivre l'acheminement de votre commande et la valider."}
                         </p>
                       </div>
-                    ) : (
-                      <div className="p-5 sm:p-6 rounded-2xl bg-[#121110] border-2 border-amber-500/60 space-y-4 shadow-lg shadow-amber-500/5">
-                        <div className="flex items-start gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-500 flex items-center justify-center shrink-0 mt-0.5">
-                            <UserCheck className="w-5 h-5" />
-                          </div>
-                          <div className="flex-1">
-                            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-amber-500 text-stone-950 text-[10px] uppercase font-black tracking-wider mb-1">
-                              Étape Obligatoire
-                            </div>
-                            <h3 className="text-base font-bold text-stone-100">
-                              {isExistingAccount
-                                ? "Connexion à votre Compte Client existant"
-                                : "Création de votre Compte Client pour valider"}
-                            </h3>
-                            <p className="text-xs text-stone-400 mt-0.5 leading-relaxed">
-                              {isExistingAccount
-                                ? "Votre compte existe déjà. Saisissez votre mot de passe pour rattacher votre commande et accéder à votre suivi en direct."
-                                : "Vos coordonnées sont déjà enregistrées ! Choisissez simplement votre mot de passe pour activer votre espace client sécurisé, suivre l'acheminement de votre commande et la valider."}
-                            </p>
-                          </div>
-                        </div>
+                    </div>
 
-                        {/* Rappel des données client déjà collectées */}
-                        <div className="bg-[#1c1917] border border-stone-800 rounded-xl p-3.5 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    {/* Rappel des données client déjà collectées */}
+                    <div className="bg-[#1c1917] border border-stone-800 rounded-xl p-3.5 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                      <div>
+                        <span className="text-stone-500 text-[11px] block">Titulaire de la commande :</span>
+                        <span className="text-stone-200 font-semibold truncate block mt-0.5">
+                          {customerName || "Client"}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-stone-500 text-[11px] block">Identifiant email :</span>
+                        <span className="text-amber-400 font-mono font-semibold truncate block mt-0.5">
+                          {customerEmail || "Non renseigné"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Formulaire mot de passe */}
+                    {!isExistingAccount ? (
+                      <div className="space-y-3 pt-1">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div>
-                            <span className="text-stone-500 text-[11px] block">Titulaire de la commande :</span>
-                            <span className="text-stone-200 font-semibold truncate block mt-0.5">
-                              {customerName || "Client"}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-stone-500 text-[11px] block">Identifiant email :</span>
-                            <span className="text-amber-400 font-mono font-semibold truncate block mt-0.5">
-                              {customerEmail || "Non renseigné"}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Formulaire mot de passe */}
-                        {!isExistingAccount ? (
-                          <div className="space-y-3 pt-1">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                              <div>
-                                <label className="block text-xs font-bold text-stone-300 mb-1">
-                                  Définissez votre mot de passe *
-                                </label>
-                                <div className="relative">
-                                  <input
-                                    type={showPassword ? "text" : "password"}
-                                    required
-                                    minLength={6}
-                                    value={accountPassword}
-                                    onChange={(e) => setAccountPassword(e.target.value)}
-                                    placeholder="Au moins 6 caractères"
-                                    className="w-full bg-[#1c1917] border border-stone-700 rounded-xl px-3.5 py-3 pr-10 text-xs text-stone-100 focus:outline-none focus:border-amber-500 min-h-[44px]"
-                                  />
-                                  <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 p-1"
-                                    aria-label="Afficher ou masquer le mot de passe"
-                                  >
-                                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                  </button>
-                                </div>
-                              </div>
-
-                              <div>
-                                <label className="block text-xs font-bold text-stone-300 mb-1">
-                                  Confirmez le mot de passe *
-                                </label>
-                                <div className="relative">
-                                  <input
-                                    type={showConfirmPassword ? "text" : "password"}
-                                    required
-                                    minLength={6}
-                                    value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
-                                    placeholder="Répétez le mot de passe"
-                                    className={`w-full bg-[#1c1917] border rounded-xl px-3.5 py-3 pr-10 text-xs text-stone-100 focus:outline-none min-h-[44px] ${
-                                      confirmPassword && confirmPassword !== accountPassword
-                                        ? "border-rose-500 focus:border-rose-500"
-                                        : "border-stone-700 focus:border-amber-500"
-                                    }`}
-                                  />
-                                  <button
-                                    type="button"
-                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 p-1"
-                                    aria-label="Afficher ou masquer la confirmation du mot de passe"
-                                  >
-                                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-
-                            {confirmPassword && confirmPassword !== accountPassword && (
-                              <div className="text-[11px] text-rose-400 font-medium">
-                                Les deux mots de passe ne correspondent pas.
-                              </div>
-                            )}
-
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-stone-800">
-                              <span className="text-[11px] text-stone-400">
-                                Votre compte sera automatiquement créé et activé à la confirmation.
-                              </span>
+                            <label className="block text-xs font-bold text-stone-300 mb-1">
+                              Définissez votre mot de passe *
+                            </label>
+                            <div className="relative">
+                              <input
+                                type={showPassword ? "text" : "password"}
+                                required
+                                minLength={6}
+                                value={accountPassword}
+                                onChange={(e) => setAccountPassword(e.target.value)}
+                                placeholder="Au moins 6 caractères"
+                                className="w-full bg-[#1c1917] border border-stone-700 rounded-xl px-3.5 py-3 pr-10 text-xs text-stone-100 focus:outline-none focus:border-amber-500 min-h-[44px]"
+                              />
                               <button
                                 type="button"
-                                onClick={() => {
-                                  setIsExistingAccount(true)
-                                  setErrorMessage(null)
-                                }}
-                                className="text-xs text-amber-400 hover:text-amber-300 font-bold underline underline-offset-2 shrink-0 text-left sm:text-right"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 p-1"
+                                aria-label="Afficher ou masquer le mot de passe"
                               >
-                                Déjà un compte ? Se connecter
+                                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                               </button>
                             </div>
                           </div>
-                        ) : (
-                          <div className="space-y-3 pt-1">
-                            <div>
-                              <label className="block text-xs font-bold text-stone-300 mb-1">
-                                Mot de passe de votre compte client *
-                              </label>
-                              <div className="relative">
-                                <input
-                                  type={showPassword ? "text" : "password"}
-                                  required
-                                  value={accountPassword}
-                                  onChange={(e) => setAccountPassword(e.target.value)}
-                                  placeholder="Saisissez votre mot de passe habituel"
-                                  className="w-full bg-[#1c1917] border border-stone-700 rounded-xl px-3.5 py-3 pr-10 text-xs text-stone-100 focus:outline-none focus:border-amber-500 min-h-[44px]"
-                                />
-                                <button
-                                  type="button"
-                                  onClick={() => setShowPassword(!showPassword)}
-                                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 p-1"
-                                  aria-label="Afficher ou masquer le mot de passe"
-                                >
-                                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                </button>
-                              </div>
-                            </div>
 
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-stone-800">
-                              <Link
-                                href="/connexion"
-                                target="_blank"
-                                className="text-[11px] text-stone-400 hover:text-stone-300 underline"
-                              >
-                                Mot de passe oublié ?
-                              </Link>
+                          <div>
+                            <label className="block text-xs font-bold text-stone-300 mb-1">
+                              Confirmez le mot de passe *
+                            </label>
+                            <div className="relative">
+                              <input
+                                type={showConfirmPassword ? "text" : "password"}
+                                required
+                                minLength={6}
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                placeholder="Répétez le mot de passe"
+                                className={`w-full bg-[#1c1917] border rounded-xl px-3.5 py-3 pr-10 text-xs text-stone-100 focus:outline-none min-h-[44px] ${
+                                  confirmPassword && confirmPassword !== accountPassword
+                                    ? "border-rose-500 focus:border-rose-500"
+                                    : "border-stone-700 focus:border-amber-500"
+                                }`}
+                              />
                               <button
                                 type="button"
-                                onClick={() => {
-                                  setIsExistingAccount(false)
-                                  setErrorMessage(null)
-                                }}
-                                className="text-xs text-amber-400 hover:text-amber-300 font-bold underline underline-offset-2 shrink-0 text-left sm:text-right"
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 p-1"
+                                aria-label="Afficher ou masquer la confirmation du mot de passe"
                               >
-                                Nouveau client ? Créer mon compte
+                                {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                               </button>
                             </div>
+                          </div>
+                        </div>
+
+                        {confirmPassword && confirmPassword !== accountPassword && (
+                          <div className="text-[11px] text-rose-400 font-medium">
+                            Les deux mots de passe ne correspondent pas.
                           </div>
                         )}
+
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-stone-800">
+                          <span className="text-[11px] text-stone-400">
+                            Votre compte sera automatiquement créé et activé à la confirmation.
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsExistingAccount(true)
+                              setErrorMessage(null)
+                            }}
+                            className="text-xs text-amber-400 hover:text-amber-300 font-bold underline underline-offset-2 shrink-0 text-left sm:text-right"
+                          >
+                            Déjà un compte ? Se connecter
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-3 pt-1">
+                        <div>
+                          <label className="block text-xs font-bold text-stone-300 mb-1">
+                            Mot de passe de votre compte client *
+                          </label>
+                          <div className="relative">
+                            <input
+                              type={showPassword ? "text" : "password"}
+                              required
+                              value={accountPassword}
+                              onChange={(e) => setAccountPassword(e.target.value)}
+                              placeholder="Saisissez votre mot de passe habituel"
+                              className="w-full bg-[#1c1917] border border-stone-700 rounded-xl px-3.5 py-3 pr-10 text-xs text-stone-100 focus:outline-none focus:border-amber-500 min-h-[44px]"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 p-1"
+                              aria-label="Afficher ou masquer le mot de passe"
+                            >
+                              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-stone-800">
+                          <Link
+                            href="/connexion"
+                            target="_blank"
+                            className="text-[11px] text-stone-400 hover:text-stone-300 underline"
+                          >
+                            Mot de passe oublié ?
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsExistingAccount(false)
+                              setErrorMessage(null)
+                            }}
+                            className="text-xs text-amber-400 hover:text-amber-300 font-bold underline underline-offset-2 shrink-0 text-left sm:text-right"
+                          >
+                            Nouveau client ? Créer mon compte
+                          </button>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -1122,21 +1178,32 @@ export default function CheckoutTunnelPage() {
                 </div>
 
                 {/* Rappel du compte client associé */}
-                <div className="p-3.5 rounded-xl bg-stone-900/80 border border-stone-800 flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span className="text-stone-300">
-                      Compte client associé : <strong className="text-amber-400 font-mono font-medium">{customerEmail || "Non renseigné"}</strong>
-                    </span>
+                {currentUser ? (
+                  <div className="p-3.5 rounded-xl bg-stone-900/80 border border-emerald-900/30 flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <span className="text-stone-300">
+                        Connecté en tant que <strong className="text-emerald-400 font-mono font-medium">{currentUser.email}</strong> • Commande rattachée à votre espace client
+                      </span>
+                    </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setStep(4)}
-                    className="text-stone-400 hover:text-amber-400 underline text-[11px] shrink-0"
-                  >
-                    Modifier le compte
-                  </button>
-                </div>
+                ) : (
+                  <div className="p-3.5 rounded-xl bg-stone-900/80 border border-stone-800 flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <span className="text-stone-300">
+                        Compte client associé : <strong className="text-amber-400 font-mono font-medium">{customerEmail || "Non renseigné"}</strong>
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setStep(4)}
+                      className="text-stone-400 hover:text-amber-400 underline text-[11px] shrink-0"
+                    >
+                      Modifier le compte
+                    </button>
+                  </div>
+                )}
 
                 {/* Acceptation CGV */}
                 <div className="pt-3 border-t border-stone-800">
@@ -1157,12 +1224,12 @@ export default function CheckoutTunnelPage() {
                 <div className="flex flex-col sm:flex-row gap-3 pt-2">
                   <button
                     type="button"
-                    onClick={() => setStep(4)}
+                    onClick={() => setStep(currentUser ? 3 : 4)}
                     disabled={submitting}
                     className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-stone-900 border border-stone-800 text-stone-300 font-bold py-4 px-5 rounded-xl text-xs hover:border-stone-700 transition-colors min-h-[48px]"
                   >
                     <ArrowLeft className="w-4 h-4" />
-                    <span>Retour (Compte client)</span>
+                    <span>{currentUser ? "Retour (Créneau)" : "Retour (Compte client)"}</span>
                   </button>
 
                   <button
